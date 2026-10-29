@@ -60,9 +60,7 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:16p
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{display:inline-block;width:18px;height:0;border-top:2px solid var(--ink)}
 .legend i.dash{border-top-style:dashed;opacity:.55}
-.legend i.proj{border-top:2px dashed var(--under)}
-.legend i.scen{border-top:2px dashed var(--scenario)}
-.figures{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:28px 0 0}
+.figures{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:28px 0 0}
 .figures div{padding:14px 14px 14px 0}
 .figures div+div{padding-left:14px;border-left:1px solid var(--line)}
 .figures strong{display:block;font-size:22px;font-weight:600;letter-spacing:-.01em}
@@ -101,7 +99,7 @@ input:focus,select:focus{border-color:var(--ink);outline:none}
 .empty{color:var(--muted);font-size:15px;padding:12px 0}
 
 .scroll{overflow-x:auto}
-table.cats{width:100%;border-collapse:collapse;font-size:15px;min-width:460px}
+table.cats{width:100%;border-collapse:collapse;font-size:15px;min-width:420px}
 table.cats th{font-weight:500;color:var(--muted);font-size:13px;text-align:right;padding:6px 8px;border-bottom:1px solid var(--line)}
 table.cats th:first-child{text-align:left;padding-left:0}
 table.cats td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle}
@@ -119,7 +117,6 @@ table.cats .nm .dot{width:9px;height:9px;border-radius:50%;flex:none}
 .whatif-out p{margin:0 0 10px;max-width:56ch}
 .whatif-out .big{font-size:24px;font-weight:600;letter-spacing:-.01em;line-height:1.25}
 .whatif-out b{font-weight:600}
-.row-actions{display:flex;gap:8px;margin-top:6px}
 
 dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 40px)}
 dialog::backdrop{background:rgba(10,14,12,.45)}
@@ -156,9 +153,9 @@ dialog::backdrop{background:rgba(10,14,12,.45)}
 
 @media (max-width:820px){
   .grid{grid-template-columns:1fr}
-  .figures{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .figures div:nth-child(3){padding-left:0;border-left:0;border-top:1px solid var(--line)}
-  .figures div:nth-child(4){border-top:1px solid var(--line)}
+  .figures div{padding-right:8px}
+  .figures div+div{padding-left:10px}
+  .figures strong{font-size:18px}
   .sync{display:none}
   .hrow{grid-template-columns:1fr auto;gap:8px 12px}
   .hrow .track{grid-column:1/-1;grid-row:2}
@@ -193,13 +190,10 @@ dialog::backdrop{background:rgba(10,14,12,.45)}
       <div class="legend">
         <span><i></i>What you’ve spent</span>
         <span><i class="dash"></i>Even pace</span>
-        <span><i class="proj"></i>Where you’re headed</span>
-        <span id="legScen" hidden><i class="scen"></i>With your what-if</span>
       </div>
       <div class="figures">
         <div><strong id="fLeft"></strong><span>left to spend</span></div>
         <div><strong id="fDaily"></strong><span>a day keeps you on budget</span></div>
-        <div><strong id="fProj"></strong><span id="fProjL">projected total</span></div>
         <div><strong id="fDays"></strong><span id="fDaysL">days left</span></div>
       </div>
     </section>
@@ -239,7 +233,7 @@ dialog::backdrop{background:rgba(10,14,12,.45)}
       <div class="col">
         <section class="block">
           <h2>By category</h2>
-          <p class="sub" id="catSub">How each category is pacing, and what it usually costs you.</p>
+          <p class="sub" id="catSub"></p>
           <div class="scroll"><table class="cats" id="catTable"></table></div>
         </section>
 
@@ -302,6 +296,7 @@ dialog::backdrop{background:rgba(10,14,12,.45)}
         <input id="sEnd" type="date">
       </label>
     </div>
+    <p class="sub" id="sHint" style="margin:10px 0 0"></p>
     <p class="sec">Categories</p>
     <p class="sub" style="margin-top:-6px">A limit is optional. With one, Pace tracks that category against it.</p>
     <div id="catEdit"></div>
@@ -324,7 +319,6 @@ function freshState(){return{budget:{amount:0,period:'month',start:'',end:''},ca
 let state=freshState();
 let selCat='groceries', scope='period', wFreq='once', drawn=false, showN=12, histMode='month';
 const openHist=new Set();
-const EARLY_DAYS=3;
 
 /* ---------- dates ---------- */
 const pad=n=>String(n).padStart(2,'0');
@@ -350,7 +344,7 @@ function normalize(s){
   const f=freshState();
   if(!s||typeof s!=='object')return f;
   return{
-    budget:Object.assign(f.budget,s.budget||{}),
+    budget:(()=>{const b=Object.assign(f.budget,s.budget||{});if(!b.start)b.start=iso(today());return b})(),
     categories:Array.isArray(s.categories)&&s.categories.length?s.categories:f.categories,
     entries:Array.isArray(s.entries)?s.entries:[]
   };
@@ -365,18 +359,31 @@ function initStore(){
 }
 
 /* ---------- calculations ---------- */
+function addMonths(d,k){
+  const y=d.getFullYear(),m=d.getMonth()+k,day=d.getDate();
+  const last=new Date(y,m+1,0).getDate();
+  return new Date(y,m,Math.min(day,last));
+}
 function period(){
-  const t=today(),b=state.budget;let s,e,label;
-  if(b.period==='week'){const dow=(t.getDay()+6)%7;s=addDays(t,-dow);e=addDays(s,6);label='this week'}
-  else if(b.period==='year'){s=new Date(t.getFullYear(),0,1);e=new Date(t.getFullYear(),11,31);label='this year'}
-  else if(b.period==='custom'&&b.start&&b.end&&parse(b.end)>=parse(b.start)){s=parse(b.start);e=parse(b.end);label='this period'}
-  else{s=new Date(t.getFullYear(),t.getMonth(),1);e=new Date(t.getFullYear(),t.getMonth()+1,0);label='this month'}
+  const t=today(),b=state.budget;
+  const anchor=b.start?parse(b.start):t;
+  let s,e,label;
+  if(b.period==='custom'&&b.start&&b.end&&parse(b.end)>=parse(b.start)){s=parse(b.start);e=parse(b.end);label='this period'}
+  else if(b.period==='week'){
+    const n=t<anchor?0:Math.floor(diff(anchor,t)/7);
+    s=addDays(anchor,7*n);e=addDays(s,6);label='this week';
+  }else{
+    const step=b.period==='year'?12:1;
+    let k=0;
+    if(t>=anchor){while(addMonths(anchor,(k+1)*step)<=t)k++}
+    s=addMonths(anchor,k*step);e=addDays(addMonths(anchor,(k+1)*step),-1);
+    label=b.period==='year'?'this year':'this month';
+  }
   const days=diff(s,e)+1;
   const idx=diff(s,t);
   const elapsed=Math.min(Math.max(idx+1,0),days);
   const leftIncl=Math.max(days-Math.max(idx,0),0);
-  const after=Math.max(days-elapsed,0);
-  return{s,e,days,idx,elapsed,leftIncl,after,label};
+  return{s,e,days,idx,elapsed,leftIncl,label};
 }
 const inPeriod=(x,p)=>{const d=parse(x.date);return d>=p.s&&d<=p.e};
 const sum=a=>a.reduce((t,x)=>t+(+x.amount||0),0);
@@ -385,31 +392,22 @@ const catById=id=>state.categories.find(c=>c.id===id)||{id,name:'Other',color:'#
 function calc(){
   const p=period(),B=+state.budget.amount||0;
   const list=state.entries.filter(x=>inPeriod(x,p));
-  const S=sum(list.filter(x=>parse(x.date)<=today()));
-  const Sall=sum(list);
-  const expected=B*p.elapsed/p.days;
-  const rate=p.elapsed>0?S/p.elapsed:0;
-  const projected=Sall+rate*p.after;
-  const remaining=B-Sall;
+  const S=sum(list);
+  const remaining=B-S;
   const perDay=p.leftIncl>0?Math.max(remaining,0)/p.leftIncl:0;
   const t=today();
   const past=state.entries.filter(x=>parse(x.date)<=t);
   let first=t;past.forEach(x=>{const d=parse(x.date);if(d<first)first=d});
   const realSpan=diff(first,t)+1;
   const span=Math.max(realSpan,7);
-  const early=p.elapsed<EARLY_DAYS;
   const cats=state.categories.map(c=>{
     const spent=sum(list.filter(x=>x.cat===c.id));
-    const spentToDate=sum(list.filter(x=>x.cat===c.id&&parse(x.date)<=t));
-    const hist=sum(past.filter(x=>x.cat===c.id));
-    const avgDay=hist/span;
-    const pRate=p.elapsed>0?spentToDate/p.elapsed:0;
-    return{...c,spent,avgDay,avgWeek:avgDay*7,typical:avgDay*p.days,proj:spent+pRate*p.after,limit:+c.limit||0};
+    const avgDay=sum(past.filter(x=>x.cat===c.id))/span;
+    return{...c,spent,typical:avgDay*p.days,limit:+c.limit||0};
   });
   const totalAvgDay=sum(past)/span;
   const hasHistory=past.length>0&&realSpan>=7;
-  const base=early?Math.max(B,Sall):projected;
-  return{p,B,list,S:Sall,expected,rate,projected,remaining,perDay,cats,totalAvgDay,span,hasHistory,early,base};
+  return{p,B,list,S,remaining,perDay,cats,totalAvgDay,span,hasHistory};
 }
 
 function scenario(c){
@@ -425,7 +423,7 @@ function scenario(c){
   if(L===0)times=0;
   const extra=amt*times;
   const perPeriod=wFreq==='once'?0:wFreq==='day'?amt*c.p.days:wFreq==='week'?amt*c.p.days/7:amt*c.p.days/30.44;
-  return{amt,cat,extra,times,perPeriod,newProj:c.base+extra,newPerDay:L>0?(c.B-c.S-extra)/L:0};
+  return{amt,cat,extra,times,perPeriod,newPerDay:L>0?(c.B-c.S-extra)/L:0};
 }
 
 function periodWord(p){
@@ -489,8 +487,8 @@ function render(){
   renderChips();
   if(!has)return;
   const c=calc(),sc=scenario(c);
-  renderHero(c,sc);
-  renderChart(c,sc);
+  renderHero(c);
+  renderChart(c);
   renderEntries(c);
   renderCats(c,sc);
   renderWhatIf(c,sc);
@@ -498,80 +496,62 @@ function render(){
 }
 
 function renderHero(c){
-  const {p,B,S,expected,projected,remaining,perDay}=c;
+  const {p,B,S,remaining,perDay}=c;
   document.getElementById('status').textContent=money(S)+' of '+money(B)+' spent '+p.label+'.';
   const v=document.getElementById('verdict');
-  const gap=S-expected;
   let html='';
   if(p.idx<0){html='This budget starts on '+shortDate(p.s)+'.'}
   else if(p.idx>=p.days){html='This period ended on '+shortDate(p.e)+'. You finished '+(remaining>=0?'<b class="under">'+money(remaining)+' under</b>':'<b class="over">'+money(-remaining)+' over</b>')+' budget.'}
   else{
-    if(Math.abs(gap)<Math.max(1,B*0.01))html='You’re right on pace. ';
-    else if(gap<0)html='You’re <b class="under">'+money(-gap)+' under pace</b>. ';
-    else html='You’re <b class="over">'+money(gap)+' over pace</b>. ';
+    const lo=B*(p.elapsed-1)/p.days,hi=B*p.elapsed/p.days;
+    if(S>=lo-0.5&&S<=hi+0.5)html='You’re right on pace. ';
+    else if(S<lo)html='You’re <b class="under">'+money(lo-S)+' under pace</b>, meaning you’ve spent that much less than an even split would allow by today. ';
+    else html='You’re <b class="over">'+money(S-hi)+' over pace</b>, meaning you’ve spent that much more than an even split would allow by today. ';
     if(remaining<=0)html+='The budget is used up, so anything else goes over.';
     else html+='Spend about <b>'+money(perDay)+' a day</b> for the '+(p.leftIncl===1?'rest of today':'next '+p.leftIncl+' days, today included,')+' to land on budget.';
-    if(S>0&&!c.early){
-      html+=' At today’s rate you’ll finish around <b class="'+(projected>B?'over':'under')+'">'+money(projected)+'</b>.';
-    }
   }
   v.innerHTML=html;
   document.getElementById('fLeft').textContent=money(Math.max(remaining,0));
   document.getElementById('fLeft').className=remaining<0?'over-t':'';
   document.getElementById('fDaily').textContent=money(perDay);
-  document.getElementById('fProj').textContent=c.early?'–':money(projected);
-  document.getElementById('fProj').className=!c.early&&projected>B?'over-t':'';
-  document.getElementById('fProjL').textContent=c.early?'projection starts on day '+EARLY_DAYS:'projected by '+shortDate(p.e);
   document.getElementById('fDays').textContent=p.leftIncl;
   document.getElementById('fDaysL').textContent=p.leftIncl===1?'day left':'days left';
 }
 
-function renderChart(c,sc){
-  const {p,B,projected}=c;
+function renderChart(c){
+  const {p,B}=c;
   const W=680,H=230,L=4,R=64,T=14,Bm=26;
   const iw=W-L-R,ih=H-T-Bm;
-  const maxY=Math.max(B,c.early?0:projected,sc?sc.newProj:0,c.S,1)*1.08;
+  const maxY=Math.max(B,c.S,1)*1.08;
   const X=d=>L+iw*(d/p.days), Y=v=>T+ih-ih*(v/maxY);
   const daily=new Array(p.days).fill(0);
   c.list.forEach(x=>{const i=diff(p.s,parse(x.date));if(i>=0&&i<p.days)daily[i]+=+x.amount||0});
   let cum=0;const pts=[[X(0),Y(0)]];
   const upto=Math.min(p.elapsed,p.days);
   for(let i=0;i<upto;i++){cum+=daily[i];pts.push([X(i+1),Y(cum)])}
-  const futureExtra=c.S-cum;
-  const nowX=X(upto),nowY=Y(c.S);
-  const pathD=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ')+(futureExtra>0.001?' L'+nowX.toFixed(1)+' '+nowY.toFixed(1):'');
+  const nowX=X(upto),nowY=Y(cum);
+  const pathD=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ');
   const areaD=pathD+' L'+nowX.toFixed(1)+' '+Y(0).toFixed(1)+' L'+X(0)+' '+Y(0).toFixed(1)+' Z';
   let len=0;for(let i=1;i<pts.length;i++)len+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);
-  const over=projected>B;
-  const showProj=upto<p.days&&upto>0&&!c.early;
-  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Cumulative spending '+money(c.S)+' against a budget of '+money(B)+'">';
+  const todayIn=p.idx>=0&&p.idx<p.days;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Spent '+money(c.S)+' of a '+money(B)+' budget">';
   s+='<line x1="'+L+'" x2="'+(L+iw)+'" y1="'+Y(B)+'" y2="'+Y(B)+'" stroke="var(--line)" stroke-width="1"/>';
   s+='<text x="'+(L+iw+8)+'" y="'+(Y(B)+4)+'" font-size="12" fill="var(--muted)">'+esc(money(B))+'</text>';
   s+='<line x1="'+L+'" x2="'+(L+iw)+'" y1="'+Y(0)+'" y2="'+Y(0)+'" stroke="var(--line)" stroke-width="1"/>';
   s+='<line x1="'+X(0)+'" y1="'+Y(0)+'" x2="'+X(p.days)+'" y2="'+Y(B)+'" stroke="var(--ink)" stroke-opacity=".45" stroke-width="1.5" stroke-dasharray="3 5"/>';
-  if(showProj){
-    s+='<line x1="'+nowX+'" y1="'+nowY+'" x2="'+X(p.days)+'" y2="'+Y(projected)+'" stroke="'+(over?'var(--over)':'var(--under)')+'" stroke-width="2" stroke-dasharray="6 5"/>';
-    s+='<text x="'+(L+iw+8)+'" y="'+(Y(projected)+4)+'" font-size="12" fill="'+(over?'var(--over)':'var(--under)')+'">'+esc(money(projected))+'</text>';
-    if(sc){
-      s+='<line x1="'+nowX+'" y1="'+nowY+'" x2="'+X(p.days)+'" y2="'+Y(sc.newProj)+'" stroke="var(--scenario)" stroke-width="2" stroke-dasharray="6 5"/>';
-      if(Math.abs(Y(sc.newProj)-Y(projected))>12)s+='<text x="'+(L+iw+8)+'" y="'+(Y(sc.newProj)+4)+'" font-size="12" fill="var(--scenario)">'+esc(money(sc.newProj))+'</text>';
-    }
-  }
   s+='<path d="'+areaD+'" fill="var(--fill)"/>';
   s+='<path class="'+(drawn?'':'actual')+'" style="--len:'+Math.ceil(len+2)+'" d="'+pathD+'" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
-  if(p.idx>=0&&p.idx<p.days){
+  if(todayIn){
     s+='<line x1="'+nowX+'" x2="'+nowX+'" y1="'+T+'" y2="'+Y(0)+'" stroke="var(--ink)" stroke-opacity=".25"/>';
     s+='<circle cx="'+nowX+'" cy="'+nowY+'" r="4.5" fill="var(--bg)" stroke="var(--ink)" stroke-width="2.5"/>';
     const tx=Math.min(Math.max(nowX,L+20),L+iw-20);
     s+='<text x="'+tx+'" y="'+(H-6)+'" font-size="12" text-anchor="middle" fill="var(--ink)">Today</text>';
   }
-  if(!(p.idx>=0&&p.idx<p.days)||nowX>L+70)s+='<text x="'+L+'" y="'+(H-6)+'" font-size="12" fill="var(--muted)">'+esc(shortDate(p.s))+'</text>';
-  const todayIn=p.idx>=0&&p.idx<p.days;
-  if(!todayIn||X(upto)<L+iw-70)s+='<text x="'+(L+iw)+'" y="'+(H-6)+'" font-size="12" text-anchor="end" fill="var(--muted)">'+esc(shortDate(p.e))+'</text>';
+  if(!todayIn||nowX>L+70)s+='<text x="'+L+'" y="'+(H-6)+'" font-size="12" fill="var(--muted)">'+esc(shortDate(p.s))+'</text>';
+  if(!todayIn||nowX<L+iw-70)s+='<text x="'+(L+iw)+'" y="'+(H-6)+'" font-size="12" text-anchor="end" fill="var(--muted)">'+esc(shortDate(p.e))+'</text>';
   s+='</svg>';
   document.getElementById('chart').innerHTML=s;
   drawn=true;
-  document.getElementById('legScen').hidden=!(sc&&showProj);
 }
 
 function renderChips(){
@@ -601,29 +581,27 @@ function renderEntries(c){
 
 function renderCats(c,sc){
   const {p}=c;
-  document.getElementById('catSub').textContent=c.hasHistory
-    ?'Headed for is where each category ends up if you keep spending at today’s rate. Typical is what you usually spend in a '+periodWord(p)+', based on '+c.span+' days of history.'
-    :'Headed for is where each category ends up if you keep spending at today’s rate'+(c.early?'; it starts on day '+EARLY_DAYS+' of the period':'')+'. Typical appears after a week of logging.';
+  document.getElementById('catSub').textContent='What you’ve spent '+p.label+' in each category. With a limit, the bar fills toward it and the tick marks where you should be by today.'+(c.hasHistory?' Typical is what you usually spend in a '+periodWord(p)+'.':' Typical appears after a week of logging.');
   const rows=c.cats.filter(k=>k.spent>0||k.limit>0||(c.hasHistory&&k.typical>0)||(sc&&sc.cat===k.id));
   if(!rows.length){document.getElementById('catTable').innerHTML='<tr><td class="empty">No spending in any category yet.</td></tr>';return}
-  const maxRef=Math.max(...rows.map(k=>Math.max(k.limit,k.proj,k.typical,k.spent)),1);
-  let h='<thead><tr><th>Category</th><th>Spent</th><th>Headed for</th><th>Typical</th><th>Limit</th></tr></thead><tbody>';
+  const maxRef=Math.max(...rows.map(k=>Math.max(k.limit,k.spent)),1);
+  let h='<thead><tr><th>Category</th><th>Spent</th><th>Limit</th><th>Typical</th></tr></thead><tbody>';
   rows.forEach(k=>{
     const ref=k.limit>0?k.limit:maxRef;
     const fillW=Math.min(k.spent/ref*100,100);
     const paceAt=k.limit>0?Math.min(p.elapsed/p.days*100,100):null;
-    const overLimit=k.limit>0&&k.proj>k.limit;
+    const overLimit=k.limit>0&&k.spent>k.limit;
     const fillColor=k.limit>0?(k.spent>k.limit*p.elapsed/p.days+0.01?'var(--over)':'var(--under)'):k.color;
     const add=sc&&sc.cat===k.id&&sc.perPeriod>0?sc.perPeriod:0;
+    const typ=(c.hasHistory?k.typical:0)+add;
     h+='<tr><td><div class="nm"><span class="dot" style="background:'+esc(k.color)+'"></span>'+esc(k.name)+'</div>'
-      +'<div class="bar" title="'+(k.limit>0?'Spent against limit; the tick marks even pace':'Spent this period')+'"><span class="f" style="width:'+fillW.toFixed(1)+'%;background:'+fillColor+'"></span>'+(paceAt!==null?'<span class="tick" style="left:calc('+paceAt.toFixed(1)+'% - 1px)"></span>':'')+'</div></td>'
-      +'<td>'+esc(money(k.spent))+'</td>'
-      +'<td class="'+(overLimit&&!c.early?'over-t':'')+'">'+(c.early?'–':esc(money(k.proj)))+'</td>'
-      +'<td class="muted">'+((c.hasHistory&&k.typical>0)||add?esc(money((c.hasHistory?k.typical:0)+add))+(add?'<br><small style="color:var(--scenario)">with what-if</small>':''):'–')+'</td>'
-      +'<td class="muted">'+(k.limit>0?esc(money(k.limit)):'–')+'</td></tr>';
+      +'<div class="bar"><span class="f" style="width:'+fillW.toFixed(1)+'%;background:'+fillColor+'"></span>'+(paceAt!==null?'<span class="tick" style="left:calc('+paceAt.toFixed(1)+'% - 1px)"></span>':'')+'</div></td>'
+      +'<td class="'+(overLimit?'over-t':'')+'">'+esc(money(k.spent))+'</td>'
+      +'<td class="muted">'+(k.limit>0?esc(money(k.limit)):'–')+'</td>'
+      +'<td class="muted">'+(typ>0?esc(money(typ))+(add?'<br><small style="color:var(--scenario)">with what-if</small>':''):'–')+'</td></tr>';
   });
   const tt=c.hasHistory?c.totalAvgDay*p.days:0;
-  h+='</tbody><tfoot><tr><td><b>All</b></td><td><b>'+esc(money(c.S))+'</b></td><td class="'+(!c.early&&c.projected>c.B?'over-t':'')+'"><b>'+(c.early?'–':esc(money(c.projected)))+'</b></td><td class="muted">'+(tt>0?esc(money(tt)):'–')+'</td><td class="muted">'+esc(money(c.B))+'</td></tr></tfoot>';
+  h+='</tbody><tfoot><tr><td><b>All</b></td><td class="'+(c.S>c.B?'over-t':'')+'"><b>'+esc(money(c.S))+'</b></td><td class="muted">'+esc(money(c.B))+'</td><td class="muted">'+(tt>0?esc(money(tt)):'–')+'</td></tr></tfoot>';
   document.getElementById('catTable').innerHTML=h;
 }
 
@@ -632,27 +610,23 @@ function renderWhatIf(c,sc){
   if(!sc){out.hidden=true;return}
   out.hidden=false;
   const {p,B}=c;
+  if(p.leftIncl===0){out.innerHTML='<p>This period is over, so a what-if only affects the next one.</p>';return}
   const cat=catById(sc.cat).name.toLowerCase();
   const word=periodWord(p);
-  let h='';
-  const leftover=B-sc.newProj;
-  if(p.leftIncl===0){out.innerHTML='<p>This period is over, so a what-if only affects the next one.</p>';return}
   const how=wFreq==='once'?money(sc.amt)+' on '+cat+' once':money(sc.amt)+' on '+cat+' every '+wFreq+' ('+sc.times+(sc.times===1?' time':' times')+' before '+shortDate(p.e)+')';
-  if(c.early){
-    h+='<p class="big">'+(sc.newPerDay>0?'That leaves <span style="color:var(--scenario)">'+money(sc.newPerDay)+' a day</span> for everything else, down from '+money(c.perDay)+'.':'That uses up your whole budget for '+p.label+'.')+'</p>';
-    h+='<p>Spending '+esc(how)+' adds '+money(sc.extra)+'. It’s too early in the period to project your total, so this assumes the rest of your spending stays on pace.</p>';
+  let h='';
+  if(sc.newPerDay>0){
+    h+='<p class="big">You’d have <span style="color:var(--scenario)">'+money(sc.newPerDay)+' a day</span> for everything else, down from '+money(c.perDay)+'.</p>';
+    h+='<p>Spending '+esc(how)+' adds '+money(sc.extra)+'. You’d have '+money(c.remaining-sc.extra)+' left '+p.label+'.</p>';
   }else{
-    h+='<p class="big">'+(leftover>=0
-        ?'You’d still finish <span class="under-t">'+money(leftover)+' under</span> budget.'
-        :'You’d need a budget of <span style="color:var(--scenario)">'+money(sc.newProj)+'</span> '+p.label+', which is '+money(-leftover)+' more than you have.')+'</p>';
-    h+='<p>Spending '+esc(how)+' adds '+money(sc.extra)+' and moves your projected total from '+money(c.base)+' to <b>'+money(sc.newProj)+'</b>.</p>';
-    h+='<p>'+(sc.newPerDay>0?'To stay on budget anyway, keep everything else to <b>'+money(sc.newPerDay)+' a day</b> (down from '+money(c.perDay)+').':'Even spending nothing else, this would put you over budget.')+'</p>';
+    const need=c.S+sc.extra;
+    h+='<p class="big">That puts you <span class="over-t">'+money(need-B)+' over</span> budget.</p>';
+    h+='<p>Spending '+esc(how)+' adds '+money(sc.extra)+'. To cover it you’d need a budget of at least <b>'+money(need)+'</b> '+p.label+', and that’s before anything else.</p>';
   }
   if(wFreq!=='once'){
-    const typ=c.totalAvgDay*p.days;
-    const need=typ+sc.perPeriod;
     if(c.hasHistory){
-      h+='<p>As a lasting habit, it costs about '+money(sc.perPeriod)+' a '+word+'. Add that to what you typically spend ('+money(typ)+') and a realistic budget is <b>'+money(need)+'</b> a '+word+(need>B?', '+money(need-B)+' more than now.':', which your current budget covers.')+'</p>';
+      const typ=c.totalAvgDay*p.days,needB=typ+sc.perPeriod;
+      h+='<p>As a lasting habit, it costs about '+money(sc.perPeriod)+' a '+word+'. Add that to what you typically spend ('+money(typ)+') and a realistic budget is <b>'+money(needB)+'</b> a '+word+(needB>B?', '+money(needB-B)+' more than now.':', which your current budget covers.')+'</p>';
     }else{
       h+='<p>As a lasting habit, it costs about <b>'+money(sc.perPeriod)+' a '+word+'</b>.</p>';
     }
@@ -703,7 +677,7 @@ function openSettings(){
   draft=JSON.parse(JSON.stringify(state));
   document.getElementById('sAmt').value=draft.budget.amount||'';
   const p=period();
-  document.getElementById('sStart').value=draft.budget.start||iso(p.s);
+  document.getElementById('sStart').value=draft.budget.start||iso(today());
   document.getElementById('sEnd').value=draft.budget.end||iso(p.e);
   paintPeriod();paintCats();
   if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','');
@@ -711,8 +685,9 @@ function openSettings(){
 }
 function paintPeriod(){
   document.querySelectorAll('#sPeriod button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===draft.budget.period));
-  const custom=draft.budget.period==='custom';
-  document.getElementById('sStartL').hidden=!custom;document.getElementById('sEndL').hidden=!custom;
+  const per=draft.budget.period,custom=per==='custom';
+  document.getElementById('sEndL').hidden=!custom;
+  document.getElementById('sHint').textContent=custom?'Your budget runs from the start date to the end date.':'Your '+per+'ly budget starts on this date and starts over every '+per+' after it.';
 }
 function paintCats(){
   document.getElementById('catEdit').innerHTML=draft.categories.map((c,i)=>
@@ -722,7 +697,7 @@ function paintCats(){
     +'<button type="button" class="del" data-rm="'+i+'" aria-label="Remove '+esc(c.name)+'">×</button></div>').join('');
 }
 document.getElementById('sPeriod').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;draft.budget.period=b.dataset.v;paintPeriod()});
-['sStart','sEnd'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{draft.budget.period='custom';paintPeriod()}));
+document.getElementById('sEnd').addEventListener('change',()=>{draft.budget.period='custom';paintPeriod()});
 document.getElementById('catEdit').addEventListener('input',e=>{
   const i=e.target.dataset.i,k=e.target.dataset.k;if(i==null)return;
   draft.categories[i][k]=k==='limit'?(parseFloat(e.target.value)||0):e.target.value;
@@ -745,7 +720,7 @@ document.getElementById('addCat').addEventListener('click',()=>{
 document.getElementById('setForm').addEventListener('submit',e=>{
   e.preventDefault();
   draft.budget.amount=Math.max(parseFloat(document.getElementById('sAmt').value)||0,0);
-  draft.budget.start=document.getElementById('sStart').value;
+  draft.budget.start=document.getElementById('sStart').value||iso(today());
   draft.budget.end=document.getElementById('sEnd').value;
   draft.categories.forEach(c=>{c.name=(c.name||'').trim()||'Untitled'});
   state=draft;draft=null;dlg.close();save();render();
