@@ -24,4 +24,10 @@ window.DAYS = {
     image: "day-03/notes.png",
     link: "day-03/"
   },
+       4: {
+       title: "Closet",
+       need: "A way to stop standing in front of my closet every morning. I add my clothes with a photo or the brand, and it puts together an outfit for the weather and where I’m going, shoes included.",
+       notes: "Colors are picked from my photos automatically. Outfits follow simple color rules: neutrals go with everything, one pop of color, or colors that sit next to each other or opposite on the color wheel.",
+       link: "day-04/"
+     },
 };
