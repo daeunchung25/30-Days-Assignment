@@ -119,8 +119,8 @@ ul.tasks{list-style:none;margin:0;padding:0}
 
   <div class="help">
     <p>Last minute works out the latest time you can start each thing and still finish on time. Something that takes 20 minutes and has to be done by 2 starts at 1:40.</p>
-    <p>How long: <code>30m</code> <code>1h</code> <code>1h30</code> <code>2시간</code>. When: <code>by 5pm</code> <code>(1:30)</code> <code>fri</code> <code>tomorrow</code> <code>내일</code> <code>the 10th</code> <code>11/5</code> <code>before the 10th</code> <code>between 1-2</code> <code>(10:00 - 12:00)</code>.</p>
-    <p>Anything without a time is guessed at 30 minutes. Paste a whole list from Notes to add every line at once.</p>
+    <p>How long: <code>30m</code> <code>1h</code> <code>1h30</code> <code>2시간</code>. When: <code>by 5pm</code> <code>at 1:30</code> <code>(1:30)</code> <code>fri</code> <code>tomorrow</code> <code>내일</code> <code>the 10th</code> <code>11/5</code> <code>before the 10th</code> <code>between 1-2</code> <code>(10:00 - 12:00)</code>.</p>
+    <p><b>by</b> means it has to be done by then. <b>at</b> means it happens at that time, like lunch or a call, and other tasks get scheduled around it. Anything without a length is guessed at 30 minutes. Paste a whole list from Notes to add every line at once.</p>
   </div>
 </div>
 
@@ -227,16 +227,19 @@ function parseTask(raw,refMs){
     let d=new Date(ref.getFullYear(),ref.getMonth(),day);if(d<startOfDay(ref))d=new Date(ref.getFullYear(),ref.getMonth()+1,day);
     date=d;return true;
   });
-  // single times
-  if(time===null)cut(/(?:\b(?:at|by|until|till|before|due)\s+|@\s*)?\(?\s*(\d{1,2}):(\d{2})\s*(am|pm|a\.m\.|p\.m\.)?\s*\)?/i,m=>{
-    const h=+m[1];if(h>23)return false;time=guessHour(h,m[3])*60+(+m[2]);return true;
+  // single times; "at", "@" or (parentheses) mean it happens at that time
+  let at=false;
+  const isAt=(kw,paren)=>!!paren||(!!kw&&/^(at|@)$/i.test(kw));
+  if(time===null)cut(/(?:\b(at|by|until|till|before|due)\s+|(@)\s*)?(\()?\s*(\d{1,2}):(\d{2})\s*(am|pm|a\.m\.|p\.m\.)?\s*\)?/i,m=>{
+    const h=+m[4];if(h>23)return false;time=guessHour(h,m[6])*60+(+m[5]);at=isAt(m[1]||m[2],m[3]);return true;
   });
-  if(time===null)cut(/(?:\b(?:at|by|until|till|before|due)\s+|@\s*)?\b(\d{1,2})\s*(am|pm|a\.m\.|p\.m\.)/i,m=>{
-    time=guessHour(m[1],m[2])*60;return true;
+  if(time===null)cut(/(?:\b(at|by|until|till|before|due)\s+|(@)\s*)?(\()?\b(\d{1,2})\s*(am|pm|a\.m\.|p\.m\.)\)?/i,m=>{
+    time=guessHour(m[4],m[5])*60;at=isAt(m[1]||m[2],m[3]);return true;
   });
-  if(time===null)cut(/\b(?:at|by|until|till|due)\s+(\d{1,2})\b(?![\/:]|st|nd|rd|th)/i,m=>{
-    const h=+m[1];if(h>23)return false;time=guessHour(h)*60;return true;
+  if(time===null)cut(/\b(at|by|until|till|due)\s+(\d{1,2})\b(?![\/:]|st|nd|rd|th)/i,m=>{
+    const h=+m[2];if(h>23)return false;time=guessHour(h)*60;at=isAt(m[1]);return true;
   });
+  if(at&&!range)event=true;
   if(time===null)cut(/(오전|오후)?\s*(\d{1,2})시(?!간)\s*(?:(\d{1,2})분)?(까지)?/,m=>{
     let h=+m[2];if(m[1]==='오후'&&h<12)h+=12;else if(m[1]==='오전'&&h===12)h=0;else if(!m[1])h=guessHour(h);
     time=h*60+(+m[3]||0);return true;
@@ -247,7 +250,7 @@ function parseTask(raw,refMs){
   if(tonight&&time===null)time=21*60;
   if(date&&time!==null){due=new Date(date);due.setHours(0,time,0,0)}
   else if(date){dateOnly=true;due=new Date(date);if(before)due.setHours(0,0,0,0);else due.setHours(23,59,0,0)}
-  else if(time!==null){due=startOfDay(ref);due.setHours(0,time,0,0);if((event?due.getTime()+dur*MIN:due.getTime())<ref.getTime())due=new Date(due.getTime()+DAY)}
+  else if(time!==null){due=startOfDay(ref);due.setHours(0,time,0,0);if((event?due.getTime()+(dur||30)*MIN:due.getTime())<ref.getTime())due=new Date(due.getTime()+DAY)}
 
   let title=t.replace(/\(\s*\)/g,' ')
     .replace(/\b(?:gonna|going to|will|it'?ll|it will|should|prob(?:ably)?|might)\s+take(?:\s+(?:like|about|around|maybe))?\b/gi,' ')
@@ -303,20 +306,41 @@ function finishTxt(x,now){
 }
 function metaFor(x,now,group){
   if(x.done)return '';
-  const takes=x.event?'from '+fmtTime(x.due)+' to '+fmtTime(x.due+x.est*MIN):'takes '+(x.guessed?'about 30m (a guess)':fmtDur(x.est))+(state.mult>1&&!x.event?', so plan '+fmtDur(x.need):'');
+  const takes=x.event?'from '+fmtTime(x.due)+' to '+fmtTime(x.due+x.est*MIN)+(x.guessed?' (a guess)':''):'takes '+(x.guessed?'about 30m (a guess)':fmtDur(x.est))+(state.mult>1&&!x.event?', so plan '+fmtDur(x.need):'');
   if(x.due===null)return x.guessed?'':'<span>'+esc(takes)+'</span>';
   const dueTxt=finishTxt(x,now);
   let lead;
-  if(x.event){lead=x.due+x.est*MIN<=now?'<b>already over</b>':x.due<=now?'<b>happening now</b>, until '+esc(fmtTime(x.due+x.est*MIN)):'<b>starts '+esc(fmtWhen(x.due,now))+'</b>, in '+fmtGap(x.due-now)}
+  if(x.event){lead=x.due+x.est*MIN<=now?'<b>already over</b>':x.due<=now?'<b>happening now</b>, until '+esc(fmtTime(x.due+x.est*MIN)):'<b>at '+esc(fmtWhen(x.due,now))+'</b> until '+esc(fmtTime(x.due+x.est*MIN))+', in '+fmtGap(x.due-now)}
   else if(x.due<=now)lead='<b>missed</b>, you wanted to '+esc(dueTxt);
   else if(group==='now')lead='<b>start now</b> to '+esc(dueTxt)+', '+fmtGap(x.due-now)+' left';
-  else lead='<b>start by '+esc(fmtWhen(x.start,now))+'</b> to '+esc(dueTxt)+(x.winStart?' (between '+esc(fmtTime(x.winStart))+' and '+esc(fmtTime(x.due))+')':'');
-  return lead+(x.event?'':'<br><span class="'+(x.guessed?'guess':'')+'">'+esc(takes)+'</span>');
+  else lead='<b>start by '+esc(fmtWhen(x.start,now))+'</b> to '+esc(dueTxt)+(x.winStart?' (between '+esc(fmtTime(x.winStart))+' and '+esc(fmtTime(x.due))+')':'')+(x.movedFor?', a bit earlier to fit around '+esc(x.movedFor):'');
+  return lead+(x.event?(x.guessed?'<br><span class="guess">length is a guess, add one like 15m</span>':''):'<br><span class="'+(x.guessed?'guess':'')+'">'+esc(takes)+'</span>');
 }
 
+// Walk backwards from the finish time, skipping over fixed things like lunch or class.
+function fitAroundBlocks(x,blocks){
+  if(x.event||x.due===null)return;
+  let cursor=x.due,rem=x.need*MIN;
+  for(const b of blocks){
+    if(b.start>=cursor)continue;
+    if(b.end<=cursor-rem)break;
+    const free=Math.max(0,cursor-b.end);
+    if(free>=rem)break;
+    rem-=free;cursor=Math.min(cursor,b.start);x.movedFor=b.title;
+  }
+  let start=cursor-rem;
+  if(x.winStart!==null&&start<x.winStart)start=x.winStart;
+  x.start=start;
+}
 function render(){
   const now=Date.now();
   const all=state.tasks.map(t=>info(t,now));
+  // fixed things, with overlapping ones merged together
+  const raw=all.filter(x=>!x.done&&x.event&&x.due!==null).map(x=>({title:x.title,start:x.due,end:x.due+x.est*MIN})).sort((a,b)=>a.start-b.start);
+  const blocks=[];
+  raw.forEach(b=>{const last=blocks[blocks.length-1];if(last&&b.start<=last.end){last.end=Math.max(last.end,b.end);last.title+=' and '+b.title}else blocks.push({...b})});
+  blocks.reverse();
+  all.forEach(x=>{if(!x.done)fitAroundBlocks(x,blocks)});
   const open=all.filter(x=>!x.done),done=all.filter(x=>x.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
   const nowG=[],today=[],later=[],whenever=[];
   open.forEach(x=>{
@@ -383,7 +407,7 @@ function renderPreview(){
   if(/\n/.test(v)){box.textContent='Adds '+v.split(/\n/).filter(s=>s.trim()).length+' tasks';return}
   const now=Date.now(),x=info({raw:v,ref:now,id:'p',created:now},now);
   const pills=[];
-  if(x.event)pills.push('from '+fmtWhen(x.due,now)+' to '+fmtTime(x.due+x.est*MIN));
+  if(x.event){pills.push('at '+fmtWhen(x.due,now));pills.push('until '+fmtTime(x.due+x.est*MIN)+(x.guessed?' (guessing 30m)':''))}
   else{
     pills.push(x.guessed?'takes about 30m':'takes '+fmtDur(x.est));
     if(x.due!==null){
