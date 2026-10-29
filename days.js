@@ -7,7 +7,7 @@
 window.DAYS = {
   1: {
     title: "30 days",
-    need: "A home for the whole month: one place to collect every day so the practice reads as one body of work.",
+        need: "A home for the whole month: one place to collect every day.",
     notes: "Thirty folders, one per day. Each one opens to what I made and why.",
     link: ""
   },
