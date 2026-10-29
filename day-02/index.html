@@ -29,6 +29,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1100px;margin:0 auto;padding:20px 20px 72px}
 a{color:inherit}
+[hidden]{display:none !important}
 button,input,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 
@@ -618,6 +619,7 @@ function paintCats(){
     +'<button type="button" class="del" data-rm="'+i+'" aria-label="Remove '+esc(c.name)+'">×</button></div>').join('');
 }
 document.getElementById('sPeriod').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;draft.budget.period=b.dataset.v;paintPeriod()});
+['sStart','sEnd'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{draft.budget.period='custom';paintPeriod()}));
 document.getElementById('catEdit').addEventListener('input',e=>{
   const i=e.target.dataset.i,k=e.target.dataset.k;if(i==null)return;
   draft.categories[i][k]=k==='limit'?(parseFloat(e.target.value)||0):e.target.value;
