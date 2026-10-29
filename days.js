@@ -47,4 +47,11 @@ window.DAYS = {
     notes: "Real places come from OpenStreetMap. Travel times are estimated from distance, and every leg links to real directions.",
     link: "day-06/"
   },
+  7: {
+       title: "Diet log",
+       rating: 5,
+       need: "I already write down what I eat and how I feel in my Notes app. This turns it into one quick page: weight, what I ate, how the day went, if I pooped, if I worked out, and notes.",
+       notes: "Kept it simple on purpose so I actually keep doing it. Everything saves as I type, and it shows my weight trend and how my days have been going.",
+       link: "day-07/"
+     },
 };

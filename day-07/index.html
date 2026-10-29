@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diet log | Day 7 of 30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F3F0;--paper:#FFFFFF;--ink:#1C1F1B;--muted:#6E736B;--line:#DDE0DA;--field:#FAFAF8;--ink-soft:#EDEFEA;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#141613;--paper:#1C1F1B;--ink:#ECEEE9;--muted:#9AA096;--line:#2E322C;--field:#181A17;--ink-soft:#262924;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141613;--paper:#1C1F1B;--ink:#ECEEE9;--muted:#9AA096;--line:#2E322C;--field:#181A17;--ink-soft:#262924;color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.wrap{max-width:640px;margin:0 auto;padding:20px 18px 80px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.top a{color:var(--muted);font-size:14px;text-decoration:none}
+.top a:hover{text-decoration:underline}
+.top h1{font-size:18px;margin:0;font-weight:800}
+
+.dayhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:28px 0 6px}
+.dayhead h2{font-size:clamp(28px,7vw,40px);line-height:1.05;margin:0;font-weight:800;letter-spacing:-.025em}
+.nav{display:flex;gap:6px}
+.nav button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--paper);cursor:pointer;font-size:18px;line-height:1}
+.nav button:disabled{opacity:.35;cursor:default}
+.saved{font-size:13px;color:var(--muted);min-height:20px;margin:0 0 16px}
+.saved button{border:0;background:none;padding:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:13px}
+
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:6px 16px}
+.q{padding:14px 0;border-bottom:1px solid var(--line)}
+.q:last-child{border-bottom:0}
+.q>label,.q .lbl{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px;letter-spacing:.01em}
+.weight{display:flex;align-items:baseline;gap:8px}
+.weight input{width:120px;border:1px solid var(--line);background:var(--field);border-radius:10px;padding:10px 12px;font-size:26px;font-weight:800}
+.weight span{font-size:18px;font-weight:700;color:var(--muted)}
+.weight small{color:var(--muted);font-size:13px;margin-left:6px}
+textarea{width:100%;border:1px solid var(--line);background:var(--field);border-radius:10px;padding:10px 12px;font-size:16px;resize:vertical;min-height:92px;line-height:1.5}
+input[type=text]{width:100%;border:1px solid var(--line);background:var(--field);border-radius:10px;padding:9px 12px;font-size:16px;margin-top:8px}
+
+.rate{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.rate button{border:1px solid var(--line);background:var(--field);border-radius:12px;padding:10px 0 8px;cursor:pointer;font-weight:800;font-size:20px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.rate button small{font-size:11px;font-weight:600;color:var(--muted)}
+.rate button[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#1C1F1B}
+.rate button[aria-pressed="true"] small{color:#1C1F1B}
+.yn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.yn button{border:1px solid var(--line);background:var(--field);border-radius:12px;padding:11px 0;cursor:pointer;font-weight:700}
+.yn button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+h3{font-size:15px;font-weight:800;margin:34px 0 10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font-size:22px;font-weight:800;line-height:1.2}
+.stat span{font-size:12px;color:var(--muted)}
+.chart{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px}
+.chart svg{display:block;width:100%;height:auto}
+.hist{list-style:none;margin:0;padding:0}
+.hist li button{width:100%;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px 10px 16px;margin-bottom:8px;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:2px 10px;position:relative;overflow:hidden}
+.hist li button::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c,var(--line))}
+.hist li button:hover{border-color:var(--ink)}
+.hist .d{font-weight:700}
+.hist .w{font-weight:800;text-align:right}
+.hist .ate{grid-column:1/-1;font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist .tags{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:12px;background:var(--ink-soft);border-radius:999px;padding:1px 9px;color:var(--muted)}
+.empty{color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a id="back" href="../">Day 7 of 30</a>
+    <h1>Diet log</h1>
+  </div>
+
+  <div class="dayhead">
+    <h2 id="dayTitle">Today</h2>
+    <div class="nav">
+      <button type="button" id="prev" aria-label="Previous day">‹</button>
+      <button type="button" id="next" aria-label="Next day">›</button>
+    </div>
+  </div>
+  <p class="saved" id="saved" aria-live="polite">Everything saves as you type.</p>
+
+  <div class="card">
+    <div class="q">
+      <label for="weight">Weight</label>
+      <div class="weight"><input id="weight" type="number" inputmode="decimal" step="0.1" min="20" max="300" placeholder="0.0"><span>kg</span><small id="wDiff"></small></div>
+    </div>
+    <div class="q">
+      <label for="ate">What I ate</label>
+      <textarea id="ate" placeholder="Breakfast: yogurt and granola&#10;Lunch: bibimbap&#10;Snack: iced latte"></textarea>
+    </div>
+    <div class="q">
+      <span class="lbl" id="rateL">How did today go</span>
+      <div class="rate" id="rate" role="group" aria-labelledby="rateL"></div>
+    </div>
+    <div class="q two">
+      <div><span class="lbl" id="poopL">Pooped</span><div class="yn" id="poop" role="group" aria-labelledby="poopL"><button type="button" data-v="yes">Yes</button><button type="button" data-v="no">No</button></div></div>
+      <div><span class="lbl" id="exL">Exercised</span><div class="yn" id="ex" role="group" aria-labelledby="exL"><button type="button" data-v="yes">Yes</button><button type="button" data-v="no">No</button></div></div>
+    </div>
+    <div class="q" id="exWhatQ" hidden>
+      <label for="exWhat">What exercise</label>
+      <input id="exWhat" type="text" placeholder="Pilates 45 min, walked to class" style="margin-top:0">
+    </div>
+    <div class="q">
+      <label for="notes">Notes</label>
+      <textarea id="notes" placeholder="How I felt, cravings, sleep, anything"></textarea>
+    </div>
+  </div>
+
+  <h3>How it’s going</h3>
+  <div class="stats">
+    <div class="stat"><b id="sStreak">0</b><span>days logged in a row</span></div>
+    <div class="stat"><b id="sAvg">–</b><span>average day, last 7</span></div>
+    <div class="stat"><b id="sEx">0</b><span>workouts, last 7 days</span></div>
+  </div>
+  <div class="chart" id="chart"></div>
+
+  <h3>Past days</h3>
+  <ul class="hist" id="hist"></ul>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const RATES=[null,['Bad','#E5484D'],['Meh','#F2994A'],['Okay','#F2C94C'],['Good','#A3D977'],['Great','#3FA66B']];
+const pad=n=>String(n).padStart(2,'0');
+const keyOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const dateOf=k=>{const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(k,n)=>{const d=dateOf(k);d.setDate(d.getDate()+n);return keyOf(d)};
+const todayKey=()=>keyOf(new Date());
+
+/* ---------- storage ---------- */
+const LS='dietlog-day7-v1';
+let log={},docRef=null,saveTimer=null;
+try{log=JSON.parse(localStorage.getItem(LS))||{}}catch(e){log={}}
+function persist(){
+  try{localStorage.setItem(LS,JSON.stringify(log))}catch(e){}
+  $('saved').textContent='Saved';
+  if(docRef){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{docRef.set({days:log}).catch(()=>{})},500)}
+}
+
+/* ---------- today’s entry ---------- */
+let cur=todayKey(),follow=true; // follow: stay on today, even past midnight
+const entry=()=>log[cur]||{};
+function setField(k,v){
+  const e=Object.assign({},entry());
+  if(v===''||v==null)delete e[k];else e[k]=v;
+  if(Object.keys(e).length)log[cur]=e;else delete log[cur];
+  persist();renderSide();
+}
+function renderEntry(){
+  const e=entry(),d=dateOf(cur),t=todayKey();
+  const rel=cur===t?'Today':cur===addDays(t,-1)?'Yesterday':'';
+  $('dayTitle').textContent=(rel?rel+', ':'')+d.toLocaleDateString('en-US',{weekday:rel?undefined:'long',month:'short',day:'numeric'});
+  $('next').disabled=cur>=t;
+  $('weight').value=e.weight??'';
+  $('ate').value=e.ate||'';
+  $('notes').value=e.notes||'';
+  $('exWhat').value=e.exWhat||'';
+  $('rate').innerHTML=[1,2,3,4,5].map(i=>'<button type="button" data-v="'+i+'" aria-pressed="'+(e.rating===i)+'" style="--c:'+RATES[i][1]+'">'+i+'<small>'+RATES[i][0]+'</small></button>').join('');
+  for(const id of['poop','ex'])$(id).querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',e[id]===b.dataset.v));
+  $('exWhatQ').hidden=e.ex!=='yes';
+  renderDiff();
+  $('saved').innerHTML=cur===t?'Everything saves as you type.':'Editing a past day. <button type="button" id="goToday">Back to today</button>';
+  if($('goToday'))$('goToday').onclick=()=>{cur=todayKey();follow=true;renderEntry()};
+}
+function prevWeight(k){const ks=Object.keys(log).filter(x=>x<k&&log[x].weight).sort();return ks.length?+log[ks[ks.length-1]].weight:null}
+function renderDiff(){
+  const w=+entry().weight,p=prevWeight(cur);
+  $('wDiff').textContent=w&&p!=null?(w===p?'same as last time':(w>p?'+':'')+(Math.round((w-p)*10)/10)+' since last time'):'';
+}
+
+$('weight').addEventListener('input',()=>{const v=$('weight').value;setField('weight',v===''?'':Math.round(parseFloat(v)*10)/10);renderDiff()});
+$('ate').addEventListener('input',()=>setField('ate',$('ate').value));
+$('notes').addEventListener('input',()=>setField('notes',$('notes').value));
+$('exWhat').addEventListener('input',()=>setField('exWhat',$('exWhat').value));
+$('rate').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;const v=+b.dataset.v;setField('rating',entry().rating===v?'':v);renderEntry()});
+for(const id of['poop','ex'])$(id).addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;const v=b.dataset.v;setField(id,entry()[id]===v?'':v);renderEntry()});
+$('prev').onclick=()=>{cur=addDays(cur,-1);follow=false;renderEntry()};
+$('next').onclick=()=>{if(cur<todayKey()){cur=addDays(cur,1);follow=cur===todayKey();renderEntry()}};
+
+/* ---------- stats, chart, history ---------- */
+function renderSide(){
+  const t=todayKey();
+  // streak: consecutive days with anything logged, counting today if logged, else from yesterday
+  let k=log[t]?t:addDays(t,-1),streak=0;while(log[k]){streak++;k=addDays(k,-1)}
+  $('sStreak').textContent=streak;
+  const last7=[...Array(7)].map((_,i)=>log[addDays(t,-i)]).filter(Boolean);
+  const rs=last7.map(e=>e.rating).filter(Boolean);
+  $('sAvg').textContent=rs.length?(Math.round(rs.reduce((a,b)=>a+b,0)/rs.length*10)/10)+' / 5':'–';
+  $('sEx').textContent=last7.filter(e=>e.ex==='yes').length;
+  // weight chart, last 30 entries with a weight
+  const pts=Object.keys(log).filter(x=>log[x].weight).sort().slice(-30).map(x=>({k:x,w:+log[x].weight}));
+  if(pts.length<2){$('chart').innerHTML='<p class="empty" style="margin:6px">Log your weight on two different days to see a trend.</p>'}
+  else{
+    const W=600,H=190,L=44,R=12,T=14,B=28,ws=pts.map(p=>p.w);
+    let lo=Math.min(...ws),hi=Math.max(...ws);if(hi-lo<1){lo-=.5;hi+=.5}
+    const X=i=>L+(W-L-R)*(i/(pts.length-1)),Y=w=>T+(H-T-B)*(1-(w-lo)/(hi-lo));
+    let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Weight from '+pts[0].w+' to '+pts[pts.length-1].w+' kg">';
+    for(const v of[lo,(lo+hi)/2,hi]){s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--line)"/><text x="'+(L-6)+'" y="'+(Y(v)+4)+'" font-size="15" text-anchor="end" fill="var(--muted)">'+(Math.round(v*10)/10)+'</text>'}
+    s+='<polyline fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="'+pts.map((p,i)=>X(i)+','+Y(p.w)).join(' ')+'"/>';
+    pts.forEach((p,i)=>{const r=log[p.k].rating;s+='<circle cx="'+X(i)+'" cy="'+Y(p.w)+'" r="4.5" fill="'+(r?RATES[r][1]:'var(--paper)')+'" stroke="var(--ink)" stroke-width="1.5"/>'});
+    const lab=k=>dateOf(k).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    s+='<text x="'+L+'" y="'+(H-6)+'" font-size="15" fill="var(--muted)">'+lab(pts[0].k)+'</text><text x="'+(W-R)+'" y="'+(H-6)+'" font-size="15" text-anchor="end" fill="var(--muted)">'+lab(pts[pts.length-1].k)+'</text>';
+    $('chart').innerHTML=s+'</svg><p class="empty" style="margin:6px 4px 2px">Weight in kg. Dot colors show how the day went.</p>';
+  }
+  const keys=Object.keys(log).sort().reverse();
+  $('hist').innerHTML=keys.length?keys.map(k=>{
+    const e=log[k],r=e.rating;
+    const tags=[];if(r)tags.push(RATES[r][0]);if(e.poop)tags.push(e.poop==='yes'?'Pooped':'No poop');if(e.ex)tags.push(e.ex==='yes'?'Exercised'+(e.exWhat?': '+e.exWhat:''):'No exercise');
+    return '<li><button type="button" data-k="'+k+'" style="'+(r?'--c:'+RATES[r][1]:'')+'"><span class="d">'+esc(dateOf(k).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}))+'</span><span class="w">'+(e.weight?esc(e.weight)+' kg':'')+'</span>'+(e.ate?'<span class="ate">'+esc(e.ate.replace(/\n+/g,', '))+'</span>':'')+(tags.length?'<span class="tags">'+tags.map(x=>'<span class="tag">'+esc(x)+'</span>').join('')+'</span>':'')+'</button></li>';
+  }).join(''):'<li class="empty">Your days will show up here.</li>';
+}
+$('hist').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;cur=b.dataset.k;follow=cur===todayKey();renderEntry();window.scrollTo({top:0,behavior:'smooth'})});
+
+/* ---------- start ---------- */
+renderEntry();renderSide();
+// a new day starts at midnight
+setInterval(()=>{const t=todayKey();if(follow&&cur!==t&&!document.activeElement.matches('textarea,input')){cur=t;renderEntry()}renderSide()},60000);
+
+// On claude.ai, save to your account and link back to the published Day 1 page.
+function connect(){
+  if(docRef||!(window.claude&&typeof window.claude.use==='function'))return false;
+  $('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';
+  (async()=>{
+    try{
+      const[db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);
+      if(!db||!user)return;const id=await user.id();if(!id)return;
+      docRef=db.doc('data/users/'+id+'/dietlog');
+      const snap=await docRef.get();
+      if(snap.exists){const d=snap.data();if(d&&d.days){log=Object.assign({},d.days,log);try{localStorage.setItem(LS,JSON.stringify(log))}catch(e){}renderEntry();renderSide()}}
+      else if(Object.keys(log).length)docRef.set({days:log}).catch(()=>{});
+    }catch(e){docRef=null}
+  })();
+  return true;
+}
+if(!connect())window.addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>
