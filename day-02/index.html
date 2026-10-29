@@ -134,6 +134,23 @@ dialog::backdrop{background:rgba(10,14,12,.45)}
 .seg button+button{border-left:1px solid var(--line)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 
+.history{padding:28px 0 8px;border-top:1px solid var(--line)}
+.hist-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.hist-head .sub{margin:0}
+.hist-head .seg{width:220px}
+.hist{list-style:none;margin:0;padding:0}
+.hrow{width:100%;display:grid;grid-template-columns:minmax(150px,1fr) 3fr 96px;gap:20px;align-items:center;padding:14px 0;border:0;border-bottom:1px solid var(--line);background:transparent;cursor:pointer;text-align:left}
+.hrow:hover .lbl{text-decoration:underline}
+.hrow .lbl small{color:var(--muted);margin-left:6px;font-size:13px}
+.track{height:10px}
+.stack{display:flex;height:10px;border-radius:5px;overflow:hidden;min-width:4px}
+.stack span{height:100%}
+.hrow .tot{font-weight:600;text-align:right}
+.hdetail{padding:10px 0 18px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px 28px;font-size:14px}
+.hdetail div{display:flex;align-items:center;gap:8px}
+.hdetail .dot{width:8px;height:8px;border-radius:50%;flex:none}
+.hdetail .v{margin-left:auto;font-weight:500}
+.hdetail .meta{grid-column:1/-1;color:var(--muted);display:block}
 .setup{padding:56px 0;max-width:520px}
 .setup .status{max-width:none}
 
@@ -143,6 +160,8 @@ dialog::backdrop{background:rgba(10,14,12,.45)}
   .figures div:nth-child(3){padding-left:0;border-left:0;border-top:1px solid var(--line)}
   .figures div:nth-child(4){border-top:1px solid var(--line)}
   .sync{display:none}
+  .hrow{grid-template-columns:1fr auto;gap:8px 12px}
+  .hrow .track{grid-column:1/-1;grid-row:2}
 }
 @media (prefers-reduced-motion:no-preference){
   .chart .actual{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw 1s ease-out forwards}
@@ -247,6 +266,17 @@ dialog::backdrop{background:rgba(10,14,12,.45)}
         </section>
       </div>
     </div>
+
+    <section class="history">
+      <div class="hist-head">
+        <div><h2>History</h2><p class="sub" id="histSub">Every month you’ve logged, newest first. Tap one to see where it went.</p></div>
+        <div class="seg" id="histMode" role="group" aria-label="Group history by">
+          <button type="button" data-v="month" aria-pressed="true">Months</button>
+          <button type="button" data-v="week" aria-pressed="false">Weeks</button>
+        </div>
+      </div>
+      <ul class="hist" id="histList"></ul>
+    </section>
   </div>
 </div>
 
@@ -292,7 +322,9 @@ const COLORS=['#4C8C6B','#C66A3B','#6B7DD6','#B98A2E','#A35DAA','#3A97A6','#8C92
 const DEFAULT_CATS=[['groceries','Groceries'],['eating','Eating out'],['shopping','Shopping'],['transport','Transport'],['bills','Bills'],['fun','Fun'],['other','Other']];
 function freshState(){return{budget:{amount:0,period:'month',start:'',end:''},categories:DEFAULT_CATS.map((c,i)=>({id:c[0],name:c[1],limit:0,color:COLORS[i%COLORS.length]})),entries:[]}}
 let state=freshState();
-let selCat='groceries', scope='period', wFreq='once', drawn=false, showN=12;
+let selCat='groceries', scope='period', wFreq='once', drawn=false, showN=12, histMode='month';
+const openHist=new Set();
+const EARLY_DAYS=3;
 
 /* ---------- dates ---------- */
 const pad=n=>String(n).padStart(2,'0');
@@ -363,7 +395,9 @@ function calc(){
   const t=today();
   const past=state.entries.filter(x=>parse(x.date)<=t);
   let first=t;past.forEach(x=>{const d=parse(x.date);if(d<first)first=d});
-  const span=Math.max(diff(first,t)+1,7);
+  const realSpan=diff(first,t)+1;
+  const span=Math.max(realSpan,7);
+  const early=p.elapsed<EARLY_DAYS;
   const cats=state.categories.map(c=>{
     const spent=sum(list.filter(x=>x.cat===c.id));
     const spentToDate=sum(list.filter(x=>x.cat===c.id&&parse(x.date)<=t));
@@ -373,7 +407,9 @@ function calc(){
     return{...c,spent,avgDay,avgWeek:avgDay*7,typical:avgDay*p.days,proj:spent+pRate*p.after,limit:+c.limit||0};
   });
   const totalAvgDay=sum(past)/span;
-  return{p,B,list,S:Sall,expected,rate,projected,remaining,perDay,cats,totalAvgDay,span,hasHistory:past.length>0};
+  const hasHistory=past.length>0&&realSpan>=7;
+  const base=early?Math.max(B,Sall):projected;
+  return{p,B,list,S:Sall,expected,rate,projected,remaining,perDay,cats,totalAvgDay,span,hasHistory,early,base};
 }
 
 function scenario(c){
@@ -389,7 +425,60 @@ function scenario(c){
   if(L===0)times=0;
   const extra=amt*times;
   const perPeriod=wFreq==='once'?0:wFreq==='day'?amt*c.p.days:wFreq==='week'?amt*c.p.days/7:amt*c.p.days/30.44;
-  return{amt,cat,extra,times,perPeriod,newProj:c.projected+extra,newPerDay:L>0?(c.B-c.S-extra)/L:0};
+  return{amt,cat,extra,times,perPeriod,newProj:c.base+extra,newPerDay:L>0?(c.B-c.S-extra)/L:0};
+}
+
+function periodWord(p){
+  const b=state.budget.period;
+  if(b==='week'||b==='month'||b==='year')return b;
+  return p.days+'-day period';
+}
+
+/* ---------- history ---------- */
+function weekStart(d){return addDays(d,-((d.getDay()+6)%7))}
+function renderHistory(){
+  const ul=document.getElementById('histList');
+  const sub=document.getElementById('histSub');
+  if(!state.entries.length){ul.innerHTML='<li class="empty">Your past '+(histMode==='month'?'months':'weeks')+' will collect here as you log.</li>';return}
+  const groups={};
+  const t=today();
+  state.entries.forEach(x=>{
+    const d=parse(x.date);
+    const key=histMode==='month'?d.getFullYear()+'-'+pad(d.getMonth()+1):iso(weekStart(d));
+    const g=groups[key]||(groups[key]={key,total:0,count:0,byCat:{},big:null});
+    const a=+x.amount||0;
+    g.total+=a;g.count++;g.byCat[x.cat]=(g.byCat[x.cat]||0)+a;
+    if(!g.big||a>g.big.amount)g.big=x;
+  });
+  const curKey=histMode==='month'?t.getFullYear()+'-'+pad(t.getMonth()+1):iso(weekStart(t));
+  const list=Object.values(groups).sort((a,b)=>a.key<b.key?1:-1);
+  const max=Math.max(...list.map(g=>g.total),1);
+  const done=list.filter(g=>g.key<curKey);
+  const avg=done.length?done.reduce((s,g)=>s+g.total,0)/done.length:0;
+  sub.textContent=done.length
+    ?'You average '+money(avg)+' a '+histMode+' across '+done.length+' finished '+(histMode==='month'?(done.length===1?'month':'months'):(done.length===1?'week':'weeks'))+'. Tap one to see where it went.'
+    :'Every '+histMode+' you log is kept here, newest first. Tap one to see where it went.';
+  let h='';
+  list.forEach(g=>{
+    let label;
+    if(histMode==='month'){const[y,m]=g.key.split('-').map(Number);label=new Date(y,m-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'})}
+    else{const s=parse(g.key);label=shortDate(s)+' to '+shortDate(addDays(s,6))}
+    const isOpen=openHist.has(histMode+g.key);
+    const cats=state.categories.map(c=>({c,v:g.byCat[c.id]||0})).filter(x=>x.v>0);
+    Object.keys(g.byCat).forEach(id=>{if(!state.categories.find(c=>c.id===id))cats.push({c:catById(id),v:g.byCat[id]})});
+    cats.sort((a,b)=>b.v-a.v);
+    h+='<li><button type="button" class="hrow" data-h="'+esc(g.key)+'" aria-expanded="'+isOpen+'">'
+      +'<span class="lbl">'+esc(label)+(g.key===curKey?'<small>so far</small>':'')+'</span>'
+      +'<span class="track"><span class="stack" style="width:'+(g.total/max*100).toFixed(1)+'%">'
+      +cats.map(x=>'<span style="width:'+(x.v/g.total*100).toFixed(2)+'%;background:'+esc(x.c.color)+'" title="'+esc(x.c.name)+' '+esc(money(x.v))+'"></span>').join('')
+      +'</span></span><span class="tot">'+esc(money(g.total))+'</span></button>';
+    if(isOpen){
+      h+='<div class="hdetail">'+cats.map(x=>'<div><span class="dot" style="background:'+esc(x.c.color)+'"></span>'+esc(x.c.name)+'<span class="v">'+esc(money(x.v))+'</span></div>').join('')
+        +'<span class="meta">'+g.count+(g.count===1?' purchase':' purchases')+(g.big?'. Biggest: '+esc(g.big.note||catById(g.big.cat).name)+', '+esc(money(g.big.amount))+'.':'')+'</span></div>';
+    }
+    h+='</li>';
+  });
+  ul.innerHTML=h;
 }
 
 /* ---------- rendering ---------- */
@@ -405,6 +494,7 @@ function render(){
   renderEntries(c);
   renderCats(c,sc);
   renderWhatIf(c,sc);
+  renderHistory();
 }
 
 function renderHero(c){
@@ -421,7 +511,7 @@ function renderHero(c){
     else html='You’re <b class="over">'+money(gap)+' over pace</b>. ';
     if(remaining<=0)html+='The budget is used up, so anything else goes over.';
     else html+='Spend about <b>'+money(perDay)+' a day</b> for the '+(p.leftIncl===1?'rest of today':'next '+p.leftIncl+' days, today included,')+' to land on budget.';
-    if(S>0&&p.elapsed>=2){
+    if(S>0&&!c.early){
       html+=' At today’s rate you’ll finish around <b class="'+(projected>B?'over':'under')+'">'+money(projected)+'</b>.';
     }
   }
@@ -429,9 +519,9 @@ function renderHero(c){
   document.getElementById('fLeft').textContent=money(Math.max(remaining,0));
   document.getElementById('fLeft').className=remaining<0?'over-t':'';
   document.getElementById('fDaily').textContent=money(perDay);
-  document.getElementById('fProj').textContent=money(projected);
-  document.getElementById('fProj').className=projected>B?'over-t':'';
-  document.getElementById('fProjL').textContent='projected by '+shortDate(p.e);
+  document.getElementById('fProj').textContent=c.early?'–':money(projected);
+  document.getElementById('fProj').className=!c.early&&projected>B?'over-t':'';
+  document.getElementById('fProjL').textContent=c.early?'projection starts on day '+EARLY_DAYS:'projected by '+shortDate(p.e);
   document.getElementById('fDays').textContent=p.leftIncl;
   document.getElementById('fDaysL').textContent=p.leftIncl===1?'day left':'days left';
 }
@@ -440,7 +530,7 @@ function renderChart(c,sc){
   const {p,B,projected}=c;
   const W=680,H=230,L=4,R=64,T=14,Bm=26;
   const iw=W-L-R,ih=H-T-Bm;
-  const maxY=Math.max(B,projected,sc?sc.newProj:0,1)*1.08;
+  const maxY=Math.max(B,c.early?0:projected,sc?sc.newProj:0,c.S,1)*1.08;
   const X=d=>L+iw*(d/p.days), Y=v=>T+ih-ih*(v/maxY);
   const daily=new Array(p.days).fill(0);
   c.list.forEach(x=>{const i=diff(p.s,parse(x.date));if(i>=0&&i<p.days)daily[i]+=+x.amount||0});
@@ -453,7 +543,7 @@ function renderChart(c,sc){
   const areaD=pathD+' L'+nowX.toFixed(1)+' '+Y(0).toFixed(1)+' L'+X(0)+' '+Y(0).toFixed(1)+' Z';
   let len=0;for(let i=1;i<pts.length;i++)len+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);
   const over=projected>B;
-  const showProj=upto<p.days&&upto>0;
+  const showProj=upto<p.days&&upto>0&&!c.early;
   let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Cumulative spending '+money(c.S)+' against a budget of '+money(B)+'">';
   s+='<line x1="'+L+'" x2="'+(L+iw)+'" y1="'+Y(B)+'" y2="'+Y(B)+'" stroke="var(--line)" stroke-width="1"/>';
   s+='<text x="'+(L+iw+8)+'" y="'+(Y(B)+4)+'" font-size="12" fill="var(--muted)">'+esc(money(B))+'</text>';
@@ -512,9 +602,9 @@ function renderEntries(c){
 function renderCats(c,sc){
   const {p}=c;
   document.getElementById('catSub').textContent=c.hasHistory
-    ?'Typical is what you usually spend in a '+(p.label.replace('this ',''))+', based on '+c.span+' days of history.'
-    :'Log a few things and Pace will learn what each category usually costs you.';
-  const rows=c.cats.filter(k=>k.spent>0||k.limit>0||k.typical>0||(sc&&sc.cat===k.id));
+    ?'Headed for is where each category ends up if you keep spending at today’s rate. Typical is what you usually spend in a '+periodWord(p)+', based on '+c.span+' days of history.'
+    :'Headed for is where each category ends up if you keep spending at today’s rate'+(c.early?'; it starts on day '+EARLY_DAYS+' of the period':'')+'. Typical appears after a week of logging.';
+  const rows=c.cats.filter(k=>k.spent>0||k.limit>0||(c.hasHistory&&k.typical>0)||(sc&&sc.cat===k.id));
   if(!rows.length){document.getElementById('catTable').innerHTML='<tr><td class="empty">No spending in any category yet.</td></tr>';return}
   const maxRef=Math.max(...rows.map(k=>Math.max(k.limit,k.proj,k.typical,k.spent)),1);
   let h='<thead><tr><th>Category</th><th>Spent</th><th>Headed for</th><th>Typical</th><th>Limit</th></tr></thead><tbody>';
@@ -528,12 +618,12 @@ function renderCats(c,sc){
     h+='<tr><td><div class="nm"><span class="dot" style="background:'+esc(k.color)+'"></span>'+esc(k.name)+'</div>'
       +'<div class="bar" title="'+(k.limit>0?'Spent against limit; the tick marks even pace':'Spent this period')+'"><span class="f" style="width:'+fillW.toFixed(1)+'%;background:'+fillColor+'"></span>'+(paceAt!==null?'<span class="tick" style="left:calc('+paceAt.toFixed(1)+'% - 1px)"></span>':'')+'</div></td>'
       +'<td>'+esc(money(k.spent))+'</td>'
-      +'<td class="'+(overLimit?'over-t':'')+'">'+esc(money(k.proj))+'</td>'
-      +'<td class="muted">'+(k.typical>0||add?esc(money(k.typical+add))+(add?'<br><small style="color:var(--scenario)">with what-if</small>':''):'–')+'</td>'
+      +'<td class="'+(overLimit&&!c.early?'over-t':'')+'">'+(c.early?'–':esc(money(k.proj)))+'</td>'
+      +'<td class="muted">'+((c.hasHistory&&k.typical>0)||add?esc(money((c.hasHistory?k.typical:0)+add))+(add?'<br><small style="color:var(--scenario)">with what-if</small>':''):'–')+'</td>'
       +'<td class="muted">'+(k.limit>0?esc(money(k.limit)):'–')+'</td></tr>';
   });
-  const tt=c.totalAvgDay*p.days;
-  h+='</tbody><tfoot><tr><td><b>All</b></td><td><b>'+esc(money(c.S))+'</b></td><td class="'+(c.projected>c.B?'over-t':'')+'"><b>'+esc(money(c.projected))+'</b></td><td class="muted">'+(tt>0?esc(money(tt)):'–')+'</td><td class="muted">'+esc(money(c.B))+'</td></tr></tfoot>';
+  const tt=c.hasHistory?c.totalAvgDay*p.days:0;
+  h+='</tbody><tfoot><tr><td><b>All</b></td><td><b>'+esc(money(c.S))+'</b></td><td class="'+(!c.early&&c.projected>c.B?'over-t':'')+'"><b>'+(c.early?'–':esc(money(c.projected)))+'</b></td><td class="muted">'+(tt>0?esc(money(tt)):'–')+'</td><td class="muted">'+esc(money(c.B))+'</td></tr></tfoot>';
   document.getElementById('catTable').innerHTML=h;
 }
 
@@ -543,16 +633,21 @@ function renderWhatIf(c,sc){
   out.hidden=false;
   const {p,B}=c;
   const cat=catById(sc.cat).name.toLowerCase();
-  const word=p.label.replace('this ','');
+  const word=periodWord(p);
   let h='';
   const leftover=B-sc.newProj;
   if(p.leftIncl===0){out.innerHTML='<p>This period is over, so a what-if only affects the next one.</p>';return}
   const how=wFreq==='once'?money(sc.amt)+' on '+cat+' once':money(sc.amt)+' on '+cat+' every '+wFreq+' ('+sc.times+(sc.times===1?' time':' times')+' before '+shortDate(p.e)+')';
-  h+='<p class="big">'+(leftover>=0
-      ?'You’d still finish <span class="under-t">'+money(leftover)+' under</span> budget.'
-      :'You’d need a budget of <span style="color:var(--scenario)">'+money(sc.newProj)+'</span> '+p.label+', which is '+money(-leftover)+' more than you have.')+'</p>';
-  h+='<p>Spending '+esc(how)+' adds '+money(sc.extra)+' and moves your projected total from '+money(c.projected)+' to <b>'+money(sc.newProj)+'</b>.</p>';
-  h+='<p>'+(sc.newPerDay>0?'To stay on budget anyway, keep everything else to <b>'+money(sc.newPerDay)+' a day</b> (down from '+money(c.perDay)+').':'Even spending nothing else, this would put you over budget.')+'</p>';
+  if(c.early){
+    h+='<p class="big">'+(sc.newPerDay>0?'That leaves <span style="color:var(--scenario)">'+money(sc.newPerDay)+' a day</span> for everything else, down from '+money(c.perDay)+'.':'That uses up your whole budget for '+p.label+'.')+'</p>';
+    h+='<p>Spending '+esc(how)+' adds '+money(sc.extra)+'. It’s too early in the period to project your total, so this assumes the rest of your spending stays on pace.</p>';
+  }else{
+    h+='<p class="big">'+(leftover>=0
+        ?'You’d still finish <span class="under-t">'+money(leftover)+' under</span> budget.'
+        :'You’d need a budget of <span style="color:var(--scenario)">'+money(sc.newProj)+'</span> '+p.label+', which is '+money(-leftover)+' more than you have.')+'</p>';
+    h+='<p>Spending '+esc(how)+' adds '+money(sc.extra)+' and moves your projected total from '+money(c.base)+' to <b>'+money(sc.newProj)+'</b>.</p>';
+    h+='<p>'+(sc.newPerDay>0?'To stay on budget anyway, keep everything else to <b>'+money(sc.newPerDay)+' a day</b> (down from '+money(c.perDay)+').':'Even spending nothing else, this would put you over budget.')+'</p>';
+  }
   if(wFreq!=='once'){
     const typ=c.totalAvgDay*p.days;
     const need=typ+sc.perPeriod;
@@ -587,6 +682,14 @@ document.getElementById('entries').addEventListener('click',e=>{
 });
 document.getElementById('listScope').addEventListener('change',e=>{scope=e.target.value;showN=12;render()});
 document.getElementById('wAmt').addEventListener('input',render);
+document.getElementById('histMode').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;histMode=b.dataset.v;
+  document.querySelectorAll('#histMode button').forEach(x=>x.setAttribute('aria-pressed',x===b));renderHistory();
+});
+document.getElementById('histList').addEventListener('click',e=>{
+  const b=e.target.closest('[data-h]');if(!b)return;const k=histMode+b.dataset.h;
+  if(openHist.has(k))openHist.delete(k);else openHist.add(k);renderHistory();
+});
 document.getElementById('wCat').addEventListener('change',render);
 document.getElementById('wFreq').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;wFreq=b.dataset.v;
