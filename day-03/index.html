@@ -118,8 +118,8 @@ ul.tasks{list-style:none;margin:0;padding:0}
   <div id="groups"></div>
 
   <div class="help">
-    <p>Last minute works out the latest time you can start each thing and still finish on time.</p>
-    <p>How long: <code>30m</code> <code>1h</code> <code>1h30</code> <code>2시간</code>. When: <code>by 5pm</code> <code>(1:30)</code> <code>fri</code> <code>tomorrow</code> <code>내일</code> <code>the 10th</code> <code>11/5</code> <code>before the 10th</code> <code>(10:00 - 12:00)</code>.</p>
+    <p>Last minute works out the latest time you can start each thing and still finish on time. Something that takes 20 minutes and has to be done by 2 starts at 1:40.</p>
+    <p>How long: <code>30m</code> <code>1h</code> <code>1h30</code> <code>2시간</code>. When: <code>by 5pm</code> <code>(1:30)</code> <code>fri</code> <code>tomorrow</code> <code>내일</code> <code>the 10th</code> <code>11/5</code> <code>before the 10th</code> <code>between 1-2</code> <code>(10:00 - 12:00)</code>.</p>
     <p>Anything without a time is guessed at 30 minutes. Paste a whole list from Notes to add every line at once.</p>
   </div>
 </div>
@@ -128,7 +128,6 @@ ul.tasks{list-style:none;margin:0;padding:0}
 (function(){
 /* ---------- time helpers ---------- */
 const MIN=60000, DAY=864e5;
-const pad=n=>String(n).padStart(2,'0');
 const startOfDay=d=>{const x=new Date(d);x.setHours(0,0,0,0);return x};
 const sameDay=(a,b)=>startOfDay(a).getTime()===startOfDay(b).getTime();
 function fmtTime(d){return new Date(d).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}).replace(':00 ',' ')}
@@ -169,22 +168,30 @@ function parseTask(raw,refMs){
   let dur=null,date=null,time=null,before=false,event=false,tonight=false;
   const cut=(re,fn)=>{t=t.replace(re,function(){const r=fn([].slice.call(arguments));return r===false?arguments[0]:' '})};
 
-  // time range like (10:00 - 12:00) or 2pm-4pm
-  cut(/\(?\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*[-–~]\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*\)?/i,m=>{
-    const hasSignal=m[2]||m[3]||m[5]||m[6]||/^\s*\(/.test(m[0]);
-    if(!hasSignal)return false;
-    let h1=guessHour(m[1],m[3]||m[6]),h2=guessHour(m[4],m[6]||m[3]);
-    const a=h1*60+(+m[2]||0);let b=h2*60+(+m[5]||0);
+  // time range like (10:00 - 12:00), 2pm-4pm or between 1-2
+  let range=null;
+  cut(/(?:\b(between|from)\s+)?\(?\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*([-–~]|\band\b|\bto\b)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*\)?/i,m=>{
+    const kw=!!m[1],word=/[a-z]/i.test(m[5]);
+    const hasSignal=kw||m[3]||m[4]||m[7]||m[8]||/^\s*\(/.test(m[0]);
+    if(!hasSignal||(word&&!kw))return false;
+    const h1=guessHour(m[2],m[4]||m[8]),h2=guessHour(m[6],m[8]||m[4]);
+    const a=h1*60+(+m[3]||0);let b=h2*60+(+m[7]||0);
     if(b<=a)b+=12*60;if(b<=a)b+=12*60;
-    time=a;dur=b-a;event=true;return true;
+    range={a,b,kw};return true;
   });
   // durations
   cut(/(?:~|about\s+|takes\s+)?(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hour|hours|시간)(?![a-z])\s*(?:(\d{1,2})\s*(?:m|min|mins|minutes|분)?(?![a-z\d]))?/i,m=>{
-    if(event)return false;dur=Math.round(parseFloat(m[1])*60+(+m[2]||0));return true;
+    dur=Math.round(parseFloat(m[1])*60+(+m[2]||0));return true;
   });
   cut(/(?:~|about\s+|takes\s+)?(\d+)\s*(?:m|min|mins|minute|minutes|분)(?![a-z])/i,m=>{
     if(dur!==null)return false;dur=+m[1];return true;
   });
+  // a range with its own length (or "between") is a window to finish inside; otherwise it's a fixed block like a class
+  let winLen=0;
+  if(range){
+    if(range.kw||dur!==null){time=range.b;winLen=range.b-range.a}
+    else{time=range.a;dur=range.b-range.a;event=true}
+  }
   // dates
   const pre='(?:\\b(by|before|until|till|due|on)\\s+)?';
   const mark=k=>{if(k&&k.toLowerCase()==='before')before=true};
@@ -242,9 +249,18 @@ function parseTask(raw,refMs){
   else if(date){dateOnly=true;due=new Date(date);if(before)due.setHours(0,0,0,0);else due.setHours(23,59,0,0)}
   else if(time!==null){due=startOfDay(ref);due.setHours(0,time,0,0);if((event?due.getTime()+dur*MIN:due.getTime())<ref.getTime())due=new Date(due.getTime()+DAY)}
 
-  let title=t.replace(/\(\s*\)/g,' ').replace(/\b(by|before|until|till|due|on|at|takes|about)\s*$/i,' ').replace(/\s+/g,' ').replace(/^[\s,:\-–]+|[\s,:\-–]+$/g,'').trim();
+  let title=t.replace(/\(\s*\)/g,' ')
+    .replace(/\b(?:gonna|going to|will|it'?ll|it will|should|prob(?:ably)?|might)\s+take(?:\s+(?:like|about|around|maybe))?\b/gi,' ')
+    .replace(/\btakes?\s+(?:like|about|around)\b/gi,' ')
+    .replace(/\s+/g,' ');
+  for(let i=0;i<6;i++){
+    const before=title;
+    title=title.replace(/[\s,:\-–]+$/,'').replace(/\b(?:by|before|until|till|due|on|at|takes?|take|about|around|like|maybe|between|from|and|for|gonna|will|ll)\s*$/i,'');
+    if(title===before)break;
+  }
+  title=title.replace(/^[\s,:\-–]+/,'').trim();
   if(!title)title=raw.trim();
-  return{title,dur,due:due?due.getTime():null,event,dateOnly,before};
+  return{title,dur,due:due?due.getTime():null,event,dateOnly,before,winStart:due&&winLen?due.getTime()-winLen*MIN:null};
 }
 
 /* ---------- state ---------- */
@@ -271,7 +287,8 @@ function info(task,now){
   const p=parseTask(task.raw,task.ref);
   const est=p.dur!==null?p.dur:30;
   const need=p.event?0:est*state.mult;
-  const start=p.due!==null?p.due-need*MIN:null;
+  let start=p.due!==null?p.due-need*MIN:null;
+  if(start!==null&&p.winStart!==null&&start<p.winStart)start=p.winStart;
   return{...task,...p,est,guessed:p.dur===null,need,start};
 }
 
@@ -279,16 +296,21 @@ function info(task,now){
 const CHECK='<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 7.4l2.6 2.6L11 4.4" fill="none" stroke="#2A2000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+function dayTxt(ms){return new Date(ms).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}
+function finishTxt(x,now){
+  if(x.dateOnly)return x.before?'finish before '+dayTxt(x.due):'finish by end of '+dayTxt(x.due);
+  return 'finish by '+fmtWhen(x.due,now);
+}
 function metaFor(x,now,group){
   if(x.done)return '';
   const takes=x.event?'from '+fmtTime(x.due)+' to '+fmtTime(x.due+x.est*MIN):'takes '+(x.guessed?'about 30m (a guess)':fmtDur(x.est))+(state.mult>1&&!x.event?', so plan '+fmtDur(x.need):'');
   if(x.due===null)return x.guessed?'':'<span>'+esc(takes)+'</span>';
-  const dueTxt=x.dateOnly?(x.before?'before '+new Date(x.due).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'by end of '+new Date(x.due).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})):'due '+fmtWhen(x.due,now);
+  const dueTxt=finishTxt(x,now);
   let lead;
   if(x.event){lead=x.due+x.est*MIN<=now?'<b>already over</b>':x.due<=now?'<b>happening now</b>, until '+esc(fmtTime(x.due+x.est*MIN)):'<b>starts '+esc(fmtWhen(x.due,now))+'</b>, in '+fmtGap(x.due-now)}
-  else if(x.due<=now)lead='<b>was '+esc(dueTxt)+'</b>';
-  else if(group==='now')lead='<b>start now</b>, '+esc(dueTxt)+' in '+fmtGap(x.due-now);
-  else lead='<b>start by '+esc(fmtWhen(x.start,now))+'</b>, '+esc(dueTxt);
+  else if(x.due<=now)lead='<b>missed</b>, you wanted to '+esc(dueTxt);
+  else if(group==='now')lead='<b>start now</b> to '+esc(dueTxt)+', '+fmtGap(x.due-now)+' left';
+  else lead='<b>start by '+esc(fmtWhen(x.start,now))+'</b> to '+esc(dueTxt)+(x.winStart?' (between '+esc(fmtTime(x.winStart))+' and '+esc(fmtTime(x.due))+')':'');
   return lead+(x.event?'':'<br><span class="'+(x.guessed?'guess':'')+'">'+esc(takes)+'</span>');
 }
 
@@ -313,11 +335,11 @@ function render(){
   if(nowG.length){
     big.textContent='Start now.';big.classList.add('urgent');
     const x=firstNow;
-    then.innerHTML='<b>'+esc(x.title)+'</b> '+(x.event?(x.due+x.est*MIN<=now?'is already over. Check it off?':x.due<=now?'is happening now.':'starts '+esc(fmtWhen(x.due,now))+'.'):(x.due<=now?'is already past due.':'is due in '+fmtGap(x.due-now)+' and takes '+fmtDur(x.need)+'.'))+(nowG.length>1?' '+(nowG.length-1)+' more '+(nowG.length===2?'thing needs':'things need')+' starting too.':'');
+    then.innerHTML='<b>'+esc(x.title)+'</b> '+(x.event?(x.due+x.est*MIN<=now?'is already over. Check it off?':x.due<=now?'is happening now.':'starts '+esc(fmtWhen(x.due,now))+'.'):(x.due<=now?'already missed its time.':'takes '+fmtDur(x.need)+' and you wanted to '+esc(finishTxt(x,now))+'.'))+(nowG.length>1?' '+(nowG.length-1)+' more '+(nowG.length===2?'thing needs':'things need')+' starting too.':'');
   }else if(today.length||later.length){
     const x=(today[0]||later[0]);
     big.textContent='Free until '+fmtWhen(x.start,now)+'.';
-    then.innerHTML='Then start <b>'+esc(x.title)+'</b>'+(x.event?'.':'. It takes '+fmtDur(x.need)+' and it’s '+(x.dateOnly?(x.before?'due before ':'due by end of ')+new Date(x.due).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'due '+esc(fmtWhen(x.due,now)))+'.');
+    then.innerHTML='Then start <b>'+esc(x.title)+'</b>'+(x.event?'.':'. It takes '+fmtDur(x.need)+', so you’ll '+esc(finishTxt(x,now).replace('finish','finish right'))+'.');
   }else if(whenever.length){
     big.textContent='No deadlines.';
     then.textContent='Nothing here has a due time, so nothing is urgent. Add one, like “by fri”, and Last minute will tell you how long you can wait.';
@@ -365,7 +387,7 @@ function renderPreview(){
   else{
     pills.push(x.guessed?'takes about 30m':'takes '+fmtDur(x.est));
     if(x.due!==null){
-      pills.push(x.dateOnly?(x.before?'before ':'by end of ')+new Date(x.due).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'due '+fmtWhen(x.due,now));
+      pills.push(finishTxt(x,now));
       pills.push('start by '+fmtWhen(x.start,now));
     }else pills.push('no deadline');
   }
