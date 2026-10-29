@@ -53,6 +53,15 @@ h1{font-size:clamp(72px,15vw,184px);line-height:.86;letter-spacing:-.055em;font-
 .folder .front{position:absolute;left:0;right:0;bottom:0;height:72%;background:var(--folder);border-radius:6px 6px 10px 10px;padding:10px 12px;display:flex;flex-direction:column;justify-content:flex-end;transform-origin:bottom;transition:transform .25s ease}
 .folder .num{font-size:15px;font-weight:600;letter-spacing:-.01em;color:#2A2216}
 .folder .date{font-size:12px;color:#5A4A30}
+.folder.rated .front{background:var(--rc)}
+.folder.rated .back,.folder.rated .back::before{background:var(--rt)}
+.folder.rated .num,.folder.rated .date{color:#241C10}
+.scale{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:14px;font-size:13px;color:var(--muted)}
+.scale span{display:inline-flex;align-items:center;gap:5px}
+.scale i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.meter{display:flex;align-items:center;gap:10px;margin:0 0 16px;font-size:14px;font-weight:500}
+.meter .bars{display:flex;gap:3px}
+.meter .bars i{width:22px;height:8px;border-radius:4px;background:var(--line)}
 .folder.made:hover .paper{transform:translateY(-10px)}
 .folder.made:hover .front{transform:perspective(500px) rotateX(-14deg)}
 
@@ -96,9 +105,10 @@ dialog::backdrop{background:rgba(14,15,18,.5)}
   <header>
     <h1>30<br>days</h1>
     <div class="intro">
-      <p>Every day for a month I make something I needed that day. Some are tools, some are small fixes, some are just for fun. Even when something like it already exists, I make my own, so it fits the way I actually live. </p>
+      <p>Every day for a month I make something I needed that day. Some are tools, some are small fixes, some are just for fun. Even when something like it already exists, I make my own, so it fits the way I actually live.</p>
       <p class="meta" id="meta">October 23 to November 21, 2026. Interactive Design Concepts, Cooper Union.</p>
       <div class="progress" id="progress" aria-hidden="true"></div>
+      <div class="scale" id="scale" aria-label="Folder colors show how much I like each day"></div>
     </div>
   </header>
 
@@ -124,6 +134,10 @@ const fmt=(d,o)=>d.toLocaleDateString('en-US',o);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function todayNum(){const t=new Date();const d=new Date(t.getFullYear(),t.getMonth(),t.getDate());return Math.round((d-START)/864e5)+1}
 const made=n=>!!(days[n]&&days[n].title);
+// how much I like each day: rating 1 to 5 in days.js
+const RATES=[null,['Not for me','#E5484D','#C93A3F'],['Meh','#F2994A','#D6803A'],['It’s okay','#F2C94C','#D4AE3A'],['Like it','#A3D977','#88BF5F'],['Love it','#3FA66B','#338C59']];
+const rateOf=n=>{const r=+(days[n]&&days[n].rating);return r>=1&&r<=5?Math.round(r):0};
+document.getElementById('scale').innerHTML=RATES.slice(1).map(r=>'<span><i style="background:'+r[1]+'"></i>'+r[0]+'</span>').join('');
 
 function render(){
   const tn=todayNum();
@@ -134,9 +148,10 @@ function render(){
     const cls=['folder',has?'made':'empty'];
     if(n===tn)cls.push('today');
     if(n>tn)cls.push('future');
+    const rt=has?rateOf(n):0;if(rt)cls.push('rated');
     const clickable=has;
-    const label='Day '+n+', '+fmt(date,{month:'long',day:'numeric'})+(has?': '+d.title:'');
-    h+='<li><button class="'+cls.join(' ')+'" data-n="'+n+'" '+(clickable?'':'tabindex="-1" aria-disabled="true"')+' aria-label="'+esc(label)+'">'
+    const label='Day '+n+', '+fmt(date,{month:'long',day:'numeric'})+(has?': '+d.title:'')+(rt?', '+RATES[rt][0]:'');
+    h+='<li><button class="'+cls.join(' ')+'"'+(rt?' style="--rc:'+RATES[rt][1]+';--rt:'+RATES[rt][2]+'"':'')+' data-n="'+n+'" '+(clickable?'':'tabindex="-1" aria-disabled="true"')+' aria-label="'+esc(label)+'">'
       +'<span class="back"></span>'
       +(has?'<span class="paper"><span>'+esc(d.title)+'</span></span>':'')
       +'<span class="front"><span class="num">Day '+n+'</span><span class="date">'+esc(fmt(date,{weekday:'short',month:'short',day:'numeric'}))+'</span></span>'
@@ -155,6 +170,8 @@ function openDay(n){
   const when='Day '+n+', '+fmt(date,{weekday:'long',month:'long',day:'numeric'});
   if(!made(n))return;
   let h='<p class="when">'+esc(when)+'</p><h2>'+esc(d.title)+'</h2>';
+  const rt=rateOf(n);
+  if(rt)h+='<div class="meter"><span class="bars">'+[1,2,3,4,5].map(i=>'<i'+(i<=rt?' style="background:'+RATES[rt][1]+'"':'')+'></i>').join('')+'</span>'+esc(RATES[rt][0])+'</div>';
   if(d.image)h+='<img class="shot" src="'+esc(d.image)+'" alt="Process photo for day '+n+'">';
   if(d.need)h+='<p class="need">'+esc(d.need)+'</p>';
   if(d.notes)h+='<p class="notes">'+esc(d.notes)+'</p>';
