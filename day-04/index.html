@@ -173,6 +173,7 @@ dialog::backdrop{background:rgba(10,10,10,.5)}
       <label class="field">Brand<input type="text" id="fBrand" placeholder="Uniqlo" maxlength="40"></label>
     </div>
     <div class="field">Type<div class="chips" id="fCat" role="group" aria-label="Type"></div></div>
+    <div class="field" id="fKindWrap">Kind<div class="chips" id="fKind" role="group" aria-label="Kind"></div></div>
     <div class="field">Color
       <div class="colorrow"><input type="color" id="fColor" aria-label="Color"><span id="fColorName"></span><span id="fColorFrom" style="color:var(--muted);font-size:13px"></span></div>
     </div>
@@ -191,7 +192,19 @@ dialog::backdrop{background:rgba(10,10,10,.5)}
 <script>
 (function(){
 /* ---------- constants ---------- */
-const CATS=[['top','Top'],['bottom','Bottom'],['dress','Dress'],['outer','Outerwear'],['shoes','Shoes'],['extra','Bag & extras']];
+const CATS=[['top','Top'],['bottom','Bottom'],['dress','Dress'],['outer','Layers & jackets'],['shoes','Shoes'],['extra','Bag & extras']];
+// kinds: [id, label, default warmth]
+const KINDS={
+  top:[['tee','T-shirt',1],['longsleeve','Long sleeve',2],['knit','Sweater',3],['shirt','Button-up',1],['hoodie','Hoodie',3],['tank','Tank or cami',1],['offshoulder','Off-shoulder',1],['halter','Halter',1]],
+  bottom:[['pants','Pants',2],['jeans','Jeans',2],['sweatpants','Sweatpants',2],['shorts','Shorts',1],['skirt','Midi skirt',1],['miniskirt','Mini skirt',1]],
+  dress:[['dress','Dress',1],['maxi','Maxi dress',1]],
+  outer:[['cardigan','Cardigan',2],['jacket','Jacket',2],['blazer','Blazer',2],['coat','Coat',3],['trench','Trench',2],['puffer','Puffer',3]],
+  shoes:[['sneakers','Sneakers',1],['boots','Boots',3],['loafers','Flats or loafers',1],['heels','Heels',1],['sandals','Sandals',1]],
+  extra:[['bag','Bag',1],['hat','Hat',2],['scarf','Scarf',3],['jewelry','Jewelry',1]]
+};
+const KIND_WORDS=[['cardigan',/cardi/i],['offshoulder',/off[\s-]?(the[\s-]?)?shoulder/i],['halter',/halter/i],['tank',/tank|cami/i],['hoodie',/hood/i],['longsleeve',/long[\s-]?sleeve/i],['knit',/sweater|sweatshirt|crewneck|knit|pullover|jumper|turtleneck/i],['tee',/\btee\b|t-?shirt/i],['shirt',/shirt|blouse|button/i],['sweatpants',/sweat|jogger/i],['jeans',/jean|denim pant/i],['shorts',/short/i],['miniskirt',/mini/i],['skirt',/skirt/i],['maxi',/maxi/i],['blazer',/blazer/i],['trench',/trench/i],['puffer',/puff|down jacket/i],['coat',/coat/i],['jacket',/jacket/i],['boots',/boot/i],['heels',/heel|pump/i],['sandals',/sandal|slide/i],['loafers',/loafer|flat|mary jane|ballet/i],['sneakers',/sneaker|trainer|running/i],['hat',/hat|cap|beanie/i],['scarf',/scarf/i],['jewelry',/necklace|earring|ring|bracelet|jewel/i],['bag',/bag|tote|purse/i]];
+function guessKind(it){const list=KINDS[it.cat]||[];if(it.kind&&list.some(k=>k[0]===it.kind))return it.kind;for(const[k,re]of KIND_WORDS)if(re.test(it.name||'')&&list.some(x=>x[0]===k))return k;return list[0]?list[0][0]:'tee'}
+const kindLabel=it=>{const k=(KINDS[it.cat]||[]).find(x=>x[0]===guessKind(it));return k?k[1]:''};
 const STYLES=[['casual','Casual'],['smart','Smart'],['dressy','Dressy'],['active','Active']];
 const OCC=[
   {id:'class',label:'Class',want:['casual','smart']},
@@ -204,15 +217,42 @@ const OCC=[
   {id:'home',label:'Staying in',want:['casual','active']}
 ];
 const NAMED=[['black','#111111'],['charcoal','#36454F'],['grey','#8A8A8A'],['light grey','#CFCFCF'],['white','#F7F7F5'],['cream','#F1E9D2'],['beige','#D9C7A7'],['tan','#C19A6B'],['camel','#B5835A'],['brown','#6B4423'],['navy','#1F2A44'],['blue','#2F5DA8'],['light blue','#A7C7E7'],['denim','#5A7BA6'],['teal','#2A7F7F'],['green','#2E7D32'],['sage','#A3B18A'],['olive','#6B6B3A'],['khaki','#B8AD82'],['red','#C62828'],['burgundy','#6D1A2B'],['pink','#E8A0B4'],['blush','#F2C9C4'],['purple','#6A3D9A'],['lavender','#C3B1E1'],['yellow','#F2D04B'],['mustard','#C9A227'],['orange','#E07B39'],['rust','#B0502C']];
+const L='fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1.5"';
+const LONG='<path d="M30 16 L42 10 Q50 16 58 10 L70 16 L84 30 L91 82 L81 84 L72 42 L70 40 L70 90 L30 90 L30 40 L28 42 L19 84 L9 82 L16 30 Z"/>';
+const JACKET='<path d="M33 11 L44 7 L50 22 L56 7 L67 11 L86 30 L80 91 L20 91 L14 30 Z"/>';
+const COAT='<path d="M33 8 L44 4 L50 18 L56 4 L67 8 L86 28 L82 96 L18 96 L14 28 Z"/>';
 const SHAPES={
-  top:'<path d="M30 18 L42 11 Q50 18 58 11 L70 18 L87 33 L77 43 L70 37 L70 88 L30 88 L30 37 L23 43 L13 33 Z"/>',
-  bottom:'<path d="M31 9 L69 9 L74 91 L56 91 L50 38 L44 91 L26 91 Z"/>',
-  dress:'<path d="M41 7 L59 7 L58 30 L77 91 L23 91 L42 30 Z"/>',
-  outer:'<path d="M33 11 L44 7 L50 22 L56 7 L67 11 L86 30 L80 91 L20 91 L14 30 Z"/><path d="M50 22 L50 91" fill="none" stroke="rgba(0,0,0,.22)" stroke-width="1.5"/>',
-  shoes:'<path d="M9 60 Q11 42 26 44 L40 50 Q56 56 74 58 Q91 60 91 72 L91 79 L9 79 Z"/>',
+  tee:'<path d="M30 18 L42 11 Q50 18 58 11 L70 18 L87 33 L77 43 L70 37 L70 88 L30 88 L30 37 L23 43 L13 33 Z"/>',
+  longsleeve:LONG,
+  knit:LONG+'<path d="M30 84 L70 84 M20 78 L28 79 M72 79 L80 78" '+L+'/>',
+  shirt:LONG+'<path d="M42 10 L50 20 L58 10 M50 20 L50 90" '+L+'/><circle cx="50" cy="40" r="1.4" fill="rgba(0,0,0,.3)"/><circle cx="50" cy="56" r="1.4" fill="rgba(0,0,0,.3)"/><circle cx="50" cy="72" r="1.4" fill="rgba(0,0,0,.3)"/>',
+  hoodie:LONG+'<path d="M38 14 Q50 0 62 14" '+L+'/><path d="M38 62 L62 62 L60 76 L40 76 Z" '+L+'/>',
+  tank:'<path d="M36 10 L42 10 Q50 24 58 10 L64 10 L68 34 L70 90 L30 90 L32 34 Z"/>',
+  offshoulder:'<path d="M12 28 Q50 36 88 28 L86 44 L70 42 L70 90 L30 90 L30 42 L14 44 Z"/>',
+  halter:'<path d="M42 14 Q50 2 58 14" fill="none" stroke="currentColor" stroke-width="3"/><path d="M45 14 L55 14 L72 48 L70 90 L30 90 L28 48 Z"/>',
+  pants:'<path d="M31 9 L69 9 L74 91 L56 91 L50 38 L44 91 L26 91 Z"/>',
+  jeans:'<path d="M31 9 L69 9 L74 91 L56 91 L50 38 L44 91 L26 91 Z"/><path d="M33 20 Q40 24 44 16 M67 20 Q60 24 56 16" '+L+'/>',
+  sweatpants:'<path d="M31 9 L69 9 L72 84 L56 84 L50 38 L44 84 L28 84 Z"/><path d="M28 84 L44 84 L44 91 L28 91 Z M56 84 L72 84 L72 91 L56 91 Z"/><path d="M31 14 L69 14" '+L+'/>',
+  shorts:'<path d="M28 20 L72 20 L78 64 L55 66 L50 42 L45 66 L22 64 Z"/>',
   skirt:'<path d="M33 14 L67 14 L80 88 L20 88 Z"/>',
+  miniskirt:'<path d="M32 24 L68 24 L78 62 L22 62 Z"/>',
+  dress:'<path d="M41 7 L59 7 L58 30 L77 91 L23 91 L42 30 Z"/>',
+  maxi:'<path d="M42 4 L58 4 L58 26 Q60 34 64 40 L78 97 L22 97 L36 40 Q40 34 42 26 Z"/>',
+  cardigan:LONG+'<path d="M42 10 L50 40 L58 10 M50 40 L50 90" '+L+'/><circle cx="50" cy="52" r="1.6" fill="rgba(0,0,0,.3)"/><circle cx="50" cy="66" r="1.6" fill="rgba(0,0,0,.3)"/><circle cx="50" cy="80" r="1.6" fill="rgba(0,0,0,.3)"/>',
+  jacket:JACKET+'<path d="M50 22 L50 91" '+L+'/>',
+  blazer:JACKET+'<path d="M44 7 L48 40 L50 22 L52 40 L56 7" '+L+'/>',
+  coat:COAT+'<path d="M50 18 L50 96" '+L+'/>',
+  trench:COAT+'<path d="M50 18 L50 96 M16 54 L84 54" '+L+'/>',
+  puffer:JACKET+'<path d="M17 44 L83 44 M18 58 L82 58 M19 72 L81 72 M50 22 L50 91" '+L+'/>',
+  sneakers:'<path d="M9 60 Q11 42 26 44 L40 50 Q56 56 74 58 Q91 60 91 72 L91 79 L9 79 Z"/><path d="M9 72 L91 72" '+L+'/>',
   boots:'<path d="M28 14 L48 14 L50 56 Q66 58 82 64 Q91 68 91 76 L91 82 L26 82 Z"/>',
-  extra:'<path d="M38 42 Q38 20 50 20 Q62 20 62 42" fill="none" stroke="currentColor" stroke-width="4"/><path d="M24 40 L76 40 L81 88 L19 88 Z"/>'
+  loafers:'<path d="M9 68 Q12 58 26 58 L60 62 Q86 62 91 72 L91 78 L9 78 Z"/>',
+  heels:'<path d="M10 72 Q12 58 28 58 L50 64 Q68 52 84 40 L90 44 L84 58 L84 82 L79 82 L78 62 Q62 76 40 78 L10 78 Z"/>',
+  sandals:'<path d="M9 74 L91 74 L91 80 L9 80 Z"/><path d="M26 74 L40 58 L52 74 M58 74 L64 60 L72 74" fill="none" stroke="currentColor" stroke-width="4"/>',
+  bag:'<path d="M38 42 Q38 20 50 20 Q62 20 62 42" fill="none" stroke="currentColor" stroke-width="4"/><path d="M24 40 L76 40 L81 88 L19 88 Z"/>',
+  hat:'<path d="M14 66 Q50 74 86 66 Q84 58 68 56 Q66 30 50 30 Q34 30 32 56 Q16 58 14 66 Z"/>',
+  scarf:'<path d="M34 10 L66 10 L66 66 L58 92 L46 92 L52 66 L34 66 Z"/>',
+  jewelry:'<path d="M28 18 Q50 72 72 18" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="50" cy="62" r="7"/>'
 };
 const DEMO=[
   ['White tee','top','#F5F5F2',1,['casual']],['Navy sweater','top','#1F2A44',3,['casual','smart']],['Light blue shirt','top','#A7C7E7',1,['smart','casual']],['Black turtleneck','top','#151515',2,['smart','dressy']],['Grey sports tee','top','#9AA3AD',1,['active']],
@@ -235,8 +275,8 @@ const NAMED_LAB=NAMED.map(n=>[n[0],lab(n[1])]);
 function colorName(hex){const a=lab(hex);let best=NAMED_LAB[0],bd=1e9;for(const n of NAMED_LAB){const d=(a[0]-n[1][0])**2+(a[1]-n[1][1])**2+(a[2]-n[1][2])**2;if(d<bd){bd=d;best=n}}return best[0]}
 function isNeutral(hex){const{h,s,l}=hsl(hex);if(s<.18||l<.14||l>.9)return true;if(h>=18&&h<=55&&s<.6&&l>.2&&l<.96)return true;if(h>=200&&h<=235&&(l<.32||s<.45))return true;return false}
 const hueDiff=(a,b)=>{const d=Math.abs(a-b)%360;return d>180?360-d:d};
-const shapeKey=(it)=>it.cat==='bottom'&&/skirt/i.test(it.name||'')?'skirt':it.cat==='shoes'&&/boot/i.test(it.name||'')?'boots':it.cat;
-const silhouette=(cat,color)=>'<svg viewBox="0 0 100 100" aria-hidden="true" fill="'+esc(color)+'" stroke="rgba(0,0,0,.18)" stroke-width="1.2" style="color:'+esc(color)+'">'+(SHAPES[cat]||SHAPES.top)+'</svg>';
+const shapeKey=(it)=>guessKind(it);
+const silhouette=(cat,color)=>'<svg viewBox="0 0 100 100" aria-hidden="true" fill="'+esc(color)+'" stroke="rgba(0,0,0,.18)" stroke-width="1.2" style="color:'+esc(color)+'">'+(SHAPES[cat]||SHAPES.tee)+'</svg>';
 const picOf=(it)=>it.photo?'<img src="'+esc(it.photo)+'" alt="">':silhouette(shapeKey(it),it.color);
 
 /* ---------- storage (IndexedDB, with a memory fallback) ---------- */
@@ -319,8 +359,10 @@ function scoreOutfit(o,set,T,rain,n){
   if(n.outer==='yes'&&!outer)s-=6;
   if(n.outer==='no'&&outer)s-=6;
   if(outer&&T<45)s-=(3-(outer.warmth||2))*2.5;
+  if(outer&&guessKind(outer)==='cardigan'&&T<50)s-=3;
   if(outer&&T>=55&&(outer.warmth||2)>=3)s-=2;
   if(outer&&T>=66)s-=1.5;
+  for(const p of set){const k=guessKind(p);if(T<58&&['shorts','miniskirt','sandals','tank','halter','offshoulder'].includes(k))s-=k==='sandals'?3:1.5;if(T>=78&&['knit','hoodie','sweatpants'].includes(k))s-=2;if(k==='heels'&&!['interview','date','out','work'].includes(o.id))s-=2}
   const shoes=set.find(p=>p.cat==='shoes');if(shoes&&T<40&&(shoes.warmth||1)<2)s-=1;if(shoes&&T>=72&&(shoes.warmth||1)>=3)s-=2.5;
   s+=harmony(set.filter(p=>p.cat!=='extra')).score;
   const now=Date.now();for(const p of set)if(p.lastWorn&&now-p.lastWorn<2*864e5)s-=2;
@@ -408,7 +450,7 @@ function renderCloset(){
   const counts={};items.forEach(i=>counts[i.cat]=(counts[i.cat]||0)+1);
   $('filters').innerHTML=items.length?['<button type="button" class="chip" data-f="all" aria-pressed="'+(filter==='all')+'">All</button>'].concat(CATS.filter(c=>counts[c[0]]).map(c=>'<button type="button" class="chip" data-f="'+c[0]+'" aria-pressed="'+(filter===c[0])+'">'+c[1]+' '+counts[c[0]]+'</button>')).join(''):'';
   const list=items.filter(i=>filter==='all'||i.cat===filter);
-  $('gridWrap').innerHTML=items.length?'<div class="grid">'+list.map(it=>'<button type="button" class="card" data-id="'+esc(it.id)+'"><div class="pic">'+picOf(it)+'</div><div class="nm">'+esc(it.name)+'</div><div class="sub">'+esc([it.brand,colorName(it.color)].filter(Boolean).join(', '))+'</div></button>').join('')+'</div>'
+  $('gridWrap').innerHTML=items.length?'<div class="grid">'+list.map(it=>'<button type="button" class="card" data-id="'+esc(it.id)+'"><div class="pic">'+picOf(it)+'</div><div class="nm">'+esc(it.name)+'</div><div class="sub">'+esc([it.brand,kindLabel(it),colorName(it.color)].filter(Boolean).join(', '))+'</div></button>').join('')+'</div>'
     :'<div class="empty-closet"><p>Add your clothes with a photo, or type the brand and what it is.</p><div class="actions"><button class="btn primary" type="button" id="emptyAdd">Add clothes</button><button class="btn" type="button" id="demo">Try it with sample clothes</button></div></div>';
   if($('emptyAdd'))$('emptyAdd').onclick=()=>openForm(null);
   if($('demo'))$('demo').onclick=()=>{DEMO.forEach(d=>{const it={id:uid(),name:d[0],cat:d[1],color:d[2],warmth:d[3],styles:d[4],brand:'',photo:null,demo:true};items.push(it);dbPut(it)});renderCloset();generate(true)};
@@ -418,10 +460,12 @@ $('gridWrap').onclick=e=>{const c=e.target.closest('.card');if(!c)return;openFor
 $('addBtn').onclick=()=>openForm(null);
 
 /* ---------- add / edit form ---------- */
-const dlg=$('dlg');let draft=null,editingId=null;
+const dlg=$('dlg');let draft=null,editingId=null,kindTouched=false;
+function autoKind(){if(kindTouched)return;draft.name=$('fName').value;draft.kind=null;draft.kind=guessKind(draft);const k=(KINDS[draft.cat]||[]).find(x=>x[0]===draft.kind);if(k)draft.warmth=k[2]}
 function chipsHTML(list,sel,multi){return list.map(c=>'<button type="button" class="chip" data-v="'+c[0]+'" aria-pressed="'+(multi?sel.includes(c[0]):sel===c[0])+'">'+c[1]+'</button>').join('')}
 function paintForm(){
   $('fCat').innerHTML=chipsHTML(CATS,draft.cat,false);
+  draft.kind=guessKind(draft);$('fKind').innerHTML=chipsHTML(KINDS[draft.cat]||[],draft.kind,false);
   $('fStyle').innerHTML=chipsHTML(STYLES,draft.styles,true);
   document.querySelectorAll('#fWarm button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===draft.warmth));
   $('fColor').value=draft.color;$('fColorName').textContent=colorName(draft.color);
@@ -429,15 +473,17 @@ function paintForm(){
   if(draft.photo){const img=new Image();img.src=draft.photo;img.alt='Your photo';$('photoBox').prepend(img);$('photoHint').hidden=true}else $('photoHint').hidden=false;
 }
 function openForm(it){
-  editingId=it?it.id:null;
-  draft=it?JSON.parse(JSON.stringify(it)):{id:uid(),name:'',brand:'',cat:'top',color:'#888888',warmth:2,styles:['casual'],photo:null};
+  editingId=it?it.id:null;kindTouched=!!it;
+  draft=it?JSON.parse(JSON.stringify(it)):{id:uid(),name:'',brand:'',cat:'top',kind:'tee',color:'#888888',warmth:1,styles:['casual'],photo:null};
   $('dlgTitle').textContent=it?'Edit':'Add clothes';
   $('fName').value=draft.name;$('fBrand').value=draft.brand||'';$('fColorFrom').textContent='';$('fStatus').textContent='';
   $('fDelete').hidden=!it;
   paintForm();
   if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','');
 }
-$('fCat').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;draft.cat=b.dataset.v;paintForm()};
+$('fCat').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;if(draft.cat===b.dataset.v)return;draft.cat=b.dataset.v;kindTouched=false;autoKind();paintForm()};
+$('fName').addEventListener('input',()=>{if(editingId||kindTouched)return;autoKind();paintForm()});
+$('fKind').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;kindTouched=true;draft.kind=b.dataset.v;const k=(KINDS[draft.cat]||[]).find(x=>x[0]===draft.kind);if(k)draft.warmth=k[2];paintForm()};
 $('fStyle').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;const v=b.dataset.v;draft.styles=draft.styles.includes(v)?draft.styles.filter(x=>x!==v):[...draft.styles,v];paintForm()};
 $('fWarm').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;draft.warmth=+b.dataset.v;paintForm()};
 $('fColor').oninput=()=>{draft.color=$('fColor').value;$('fColorName').textContent=colorName(draft.color);$('fColorFrom').textContent=''};
@@ -475,7 +521,7 @@ $('fCancel').onclick=()=>dlg.close();
 $('fDelete').onclick=()=>{if(!editingId)return;if(!confirm('Remove this from your closet?'))return;items=items.filter(i=>i.id!==editingId);dbDel(editingId);dlg.close();renderCloset();generate(true)};
 $('form').addEventListener('submit',e=>{
   e.preventDefault();
-  draft.name=$('fName').value.trim()||(colorName(draft.color)+' '+(CATS.find(c=>c[0]===draft.cat)||['',''])[1].toLowerCase());
+  draft.name=$('fName').value.trim()||(colorName(draft.color)+' '+kindLabel(draft).toLowerCase());
   draft.name=draft.name.charAt(0).toUpperCase()+draft.name.slice(1);
   draft.brand=$('fBrand').value.trim();
   if(!draft.styles.length)draft.styles=['casual'];
@@ -486,7 +532,7 @@ $('form').addEventListener('submit',e=>{
 
 /* ---------- Claude (only on claude.ai) ---------- */
 let sample=null;
-const ITEM_SPEC='Reply with JSON only: {"name": short name like "Black wool turtleneck", "category": one of "top","bottom","dress","outer","shoes","extra", "color": main color as a hex code like "#1f2a44", "warmth": 1 for light, 2 for medium, 3 for warm, "styles": array using only "casual","smart","dressy","active", "brand": brand if known or ""}';
+const ITEM_SPEC='Reply with JSON only: {"name": short name like "Black wool turtleneck", "category": one of "top","bottom","dress","outer","shoes","extra", "kind": the closest of these for that category ('+Object.entries(KINDS).map(([c,l])=>c+': '+l.map(k=>k[0]).join(', ')).join('; ')+'), "color": main color as a hex code like "#1f2a44", "warmth": 1 for light, 2 for medium, 3 for warm, "styles": array using only "casual","smart","dressy","active", "brand": brand if known or ""}';
 function dataUrlToBlob(u){const[h,b]=u.split(',');const bin=atob(b);const a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:(h.match(/:(.*?);/)||[])[1]||'image/jpeg'})}
 function aiError(e){const c=e&&e.code;return c==='not_granted'?'Claude wasn’t allowed this time.':c==='rate_limited'?'Too many requests. Wait a moment and try again.':'Claude couldn’t do that right now.'}
 $('aiFill').onclick=async()=>{
@@ -502,6 +548,7 @@ $('aiFill').onclick=async()=>{
       if(r.name)$('fName').value=String(r.name).slice(0,60);
       if(r.brand&&!brand)$('fBrand').value=String(r.brand).slice(0,40);
       if(CATS.some(c=>c[0]===r.category))draft.cat=r.category;
+      if(r.kind&&(KINDS[draft.cat]||[]).some(k=>k[0]===r.kind))draft.kind=r.kind;else draft.kind=null;
       if(/^#[0-9a-f]{6}$/i.test(r.color||'')){draft.color=r.color.toLowerCase();$('fColorFrom').textContent='from Claude'}
       if([1,2,3].includes(+r.warmth))draft.warmth=+r.warmth;
       if(Array.isArray(r.styles)){const s=r.styles.filter(x=>STYLES.some(y=>y[0]===x));if(s.length)draft.styles=s}
