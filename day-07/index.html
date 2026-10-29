@@ -52,6 +52,15 @@ button,input,textarea{font:inherit;color:inherit}
 textarea{width:100%;border:1px solid var(--line);background:var(--field);border-radius:10px;padding:10px 12px;font-size:16px;resize:vertical;min-height:92px;line-height:1.5}
 input[type=text]{width:100%;border:1px solid var(--line);background:var(--field);border-radius:10px;padding:9px 12px;font-size:16px;margin-top:8px}
 
+.meal{display:grid;grid-template-columns:104px minmax(0,1fr) 30px;gap:8px;align-items:center;margin-bottom:8px}
+.meal input{margin-top:0 !important}
+.meal .ml{border:0;border-bottom:1px dashed transparent;background:transparent;font-weight:700;padding:8px 0;font-size:15px;width:100%;border-radius:0}
+.meal .ml:hover,.meal .ml:focus{border-bottom-color:var(--line);outline:none}
+.meal .mt{width:100%;border:1px solid var(--line);background:var(--field);border-radius:10px;padding:9px 12px;font-size:16px}
+.meal .mx{border:0;background:transparent;color:var(--muted);font-size:20px;cursor:pointer;border-radius:6px;padding:0;opacity:.6}
+.meal .mx:hover{opacity:1}
+.addmeal{border:1px dashed var(--line);background:transparent;border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:700;font-size:14px;color:var(--muted);width:100%}
+.addmeal:hover{border-color:var(--ink);color:var(--ink)}
 .rate{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .rate button{border:1px solid var(--line);background:var(--field);border-radius:12px;padding:10px 0 8px;cursor:pointer;font-weight:800;font-size:20px;display:flex;flex-direction:column;align-items:center;gap:2px}
 .rate button small{font-size:11px;font-weight:600;color:var(--muted)}
@@ -103,8 +112,9 @@ h3{font-size:15px;font-weight:800;margin:34px 0 10px}
       <div class="weight"><input id="weight" type="number" inputmode="decimal" step="0.1" min="20" max="300" placeholder="0.0"><span>kg</span><small id="wDiff"></small></div>
     </div>
     <div class="q">
-      <label for="ate">What I ate</label>
-      <textarea id="ate" placeholder="Breakfast: yogurt and granola&#10;Lunch: bibimbap&#10;Snack: iced latte"></textarea>
+      <span class="lbl">What I ate</span>
+      <div id="meals"></div>
+      <button type="button" class="addmeal" id="addMeal">+ Add a meal</button>
     </div>
     <div class="q">
       <span class="lbl" id="rateL">How did today go</span>
@@ -146,6 +156,14 @@ const keyOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const dateOf=k=>{const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
 const addDays=(k,n)=>{const d=dateOf(k);d.setDate(d.getDate()+n);return keyOf(d)};
 const todayKey=()=>keyOf(new Date());
+const DEFAULT_MEALS=['Breakfast','Lunch','Snack','Dinner'];
+// meals for a day; older entries saved as one block of text get split by line
+function mealsOf(e){
+  if(Array.isArray(e.meals))return e.meals;
+  if(e.ate)return e.ate.split(/\n+/).filter(x=>x.trim()).map(line=>{const m=line.match(/^\s*([^:]{1,20}):\s*(.*)$/);return m?{l:m[1].trim(),t:m[2]}:{l:'',t:line.trim()}});
+  return DEFAULT_MEALS.map(l=>({l,t:''}));
+}
+const mealsText=e=>mealsOf(e).filter(x=>x.t&&x.t.trim()).map(x=>(x.l?x.l+': ':'')+x.t.trim()).join(', ');
 
 /* ---------- storage ---------- */
 const LS='dietlog-day7-v1';
@@ -172,7 +190,7 @@ function renderEntry(){
   $('dayTitle').textContent=(rel?rel+', ':'')+d.toLocaleDateString('en-US',{weekday:rel?undefined:'long',month:'short',day:'numeric'});
   $('next').disabled=cur>=t;
   $('weight').value=e.weight??'';
-  $('ate').value=e.ate||'';
+  renderMeals();
   $('notes').value=e.notes||'';
   $('exWhat').value=e.exWhat||'';
   $('rate').innerHTML=[1,2,3,4,5].map(i=>'<button type="button" data-v="'+i+'" aria-pressed="'+(e.rating===i)+'" style="--c:'+RATES[i][1]+'">'+i+'<small>'+RATES[i][0]+'</small></button>').join('');
@@ -189,7 +207,20 @@ function renderDiff(){
 }
 
 $('weight').addEventListener('input',()=>{const v=$('weight').value;setField('weight',v===''?'':Math.round(parseFloat(v)*10)/10);renderDiff()});
-$('ate').addEventListener('input',()=>setField('ate',$('ate').value));
+function renderMeals(){
+  $('meals').innerHTML=mealsOf(entry()).map((x,i)=>'<div class="meal"><input type="text" class="ml" data-i="'+i+'" data-k="l" value="'+esc(x.l)+'" placeholder="Meal" aria-label="Meal name"><input type="text" class="mt" data-i="'+i+'" data-k="t" value="'+esc(x.t)+'" placeholder="What you had" aria-label="What you had for '+esc(x.l||'this meal')+'"><button type="button" class="mx" data-del="'+i+'" aria-label="Remove '+esc(x.l||'this meal')+'">×</button></div>').join('');
+}
+function setMeals(m){
+  const e=Object.assign({},entry());delete e.ate;
+  const blank=m.length===DEFAULT_MEALS.length&&m.every((x,i)=>x.l===DEFAULT_MEALS[i]&&!x.t.trim());
+  if(blank)delete e.meals;else e.meals=m;
+  if(Object.keys(e).length)log[cur]=e;else delete log[cur];
+  persist();renderSide();
+}
+$('meals').addEventListener('input',e=>{const t=e.target;if(t.dataset.i==null)return;const m=mealsOf(entry()).map(x=>({...x}));m[+t.dataset.i][t.dataset.k]=t.value;setMeals(m)});
+$('meals').addEventListener('keydown',e=>{if(e.key!=='Enter'||!e.target.matches('input'))return;e.preventDefault();const ins=[...$('meals').querySelectorAll('.mt')];const i=+e.target.dataset.i;if(e.target.classList.contains('ml'))ins[i].focus();else if(ins[i+1])ins[i+1].focus();else $('addMeal').click()});
+$('meals').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(!b)return;const m=mealsOf(entry()).map(x=>({...x}));m.splice(+b.dataset.del,1);setMeals(m);renderMeals()});
+$('addMeal').onclick=()=>{const m=mealsOf(entry()).map(x=>({...x}));m.push({l:'',t:''});setMeals(m);renderMeals();const ls=$('meals').querySelectorAll('.ml');ls[ls.length-1].focus()};
 $('notes').addEventListener('input',()=>setField('notes',$('notes').value));
 $('exWhat').addEventListener('input',()=>setField('exWhat',$('exWhat').value));
 $('rate').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;const v=+b.dataset.v;setField('rating',entry().rating===v?'':v);renderEntry()});
@@ -226,7 +257,7 @@ function renderSide(){
   $('hist').innerHTML=keys.length?keys.map(k=>{
     const e=log[k],r=e.rating;
     const tags=[];if(r)tags.push(RATES[r][0]);if(e.poop)tags.push(e.poop==='yes'?'Pooped':'No poop');if(e.ex)tags.push(e.ex==='yes'?'Exercised'+(e.exWhat?': '+e.exWhat:''):'No exercise');
-    return '<li><button type="button" data-k="'+k+'" style="'+(r?'--c:'+RATES[r][1]:'')+'"><span class="d">'+esc(dateOf(k).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}))+'</span><span class="w">'+(e.weight?esc(e.weight)+' kg':'')+'</span>'+(e.ate?'<span class="ate">'+esc(e.ate.replace(/\n+/g,', '))+'</span>':'')+(tags.length?'<span class="tags">'+tags.map(x=>'<span class="tag">'+esc(x)+'</span>').join('')+'</span>':'')+'</button></li>';
+    return '<li><button type="button" data-k="'+k+'" style="'+(r?'--c:'+RATES[r][1]:'')+'"><span class="d">'+esc(dateOf(k).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}))+'</span><span class="w">'+(e.weight?esc(e.weight)+' kg':'')+'</span>'+(mealsText(e)?'<span class="ate">'+esc(mealsText(e))+'</span>':'')+(tags.length?'<span class="tags">'+tags.map(x=>'<span class="tag">'+esc(x)+'</span>').join('')+'</span>':'')+'</button></li>';
   }).join(''):'<li class="empty">Your days will show up here.</li>';
 }
 $('hist').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;cur=b.dataset.k;follow=cur===todayKey();renderEntry();window.scrollTo({top:0,behavior:'smooth'})});
