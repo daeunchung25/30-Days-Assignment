@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Last minute | Day 3 of 30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F4F1;--paper:#FFFFFF;--ink:#1F1F1C;--muted:#77776F;--line:#E2E2DC;
+  --yellow:#F2B620;--yellow-ink:#7A5800;--urgent:#D9472F;--soft:#FFF6DA;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#161614;--paper:#1F1F1C;--ink:#EDEDE8;--muted:#9C9C93;--line:#30302C;
+    --yellow:#F2B620;--yellow-ink:#F6CB5C;--urgent:#F07560;--soft:#2D2716;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#161614;--paper:#1F1F1C;--ink:#EDEDE8;--muted:#9C9C93;--line:#30302C;
+  --yellow:#F2B620;--yellow-ink:#F6CB5C;--urgent:#F07560;--soft:#2D2716;color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Gothic A1","Apple SD Gothic Neo","Malgun Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+.wrap{max-width:680px;margin:0 auto;padding:20px 20px 80px}
+
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.top a{color:var(--muted);font-size:14px;text-decoration:none}
+.top a:hover{text-decoration:underline}
+.top h1{font-size:15px;font-weight:700;margin:0}
+
+.hero{padding:44px 0 28px}
+.hero .big{font-size:clamp(40px,9vw,72px);line-height:1;font-weight:800;letter-spacing:-.035em;margin:0 0 14px}
+.hero .big.urgent{color:var(--urgent)}
+.hero .then{font-size:18px;color:var(--muted);margin:0;max-width:46ch}
+.hero .then b{color:var(--ink);font-weight:700}
+
+.add{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:6px 6px 6px 18px;display:flex;gap:8px;align-items:center}
+.add:focus-within{border-color:var(--yellow)}
+.add input{flex:1;border:0;background:transparent;padding:12px 0;font-size:18px;min-width:0;outline:none}
+.add button{border:0;background:var(--yellow);color:#2A2000;font-weight:700;border-radius:10px;padding:10px 16px;cursor:pointer}
+.preview{min-height:30px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 4px 0;font-size:14px;color:var(--muted)}
+.pill{background:var(--soft);color:var(--yellow-ink);border-radius:999px;padding:3px 10px;font-weight:500}
+
+.est{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:18px 0 8px;font-size:14px;color:var(--muted)}
+.seg{display:flex;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:7px;padding:6px 10px;cursor:pointer;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+.group{margin-top:34px}
+.group h2{font-size:14px;font-weight:700;color:var(--muted);margin:0 0 4px;display:flex;justify-content:space-between;align-items:baseline}
+.group.now h2{color:var(--urgent)}
+.group h2 button{border:0;background:transparent;color:var(--muted);font-size:13px;cursor:pointer;padding:0;font-weight:500}
+.group h2 button:hover{color:var(--ink)}
+ul.tasks{list-style:none;margin:0;padding:0}
+.task{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:start;padding:11px 0;border-bottom:1px solid var(--line)}
+.check{width:24px;height:24px;border-radius:50%;border:1.5px solid #BDBDB5;background:transparent;cursor:pointer;margin-top:1px;display:grid;place-items:center;padding:0}
+.check:hover{border-color:var(--yellow)}
+.task.done .check{background:var(--yellow);border-color:var(--yellow)}
+.check svg{width:14px;height:14px;opacity:0}
+.task.done .check svg{opacity:1}
+.body{min-width:0;cursor:text}
+.title{overflow-wrap:anywhere}
+.task.done .title{color:var(--muted)}
+.meta{font-size:14px;color:var(--muted);margin-top:2px}
+.meta b{font-weight:700;color:var(--ink)}
+.now .meta b{color:var(--urgent)}
+.meta .guess{opacity:.8}
+.edit{width:100%;border:0;border-bottom:1.5px solid var(--yellow);background:transparent;padding:0 0 2px;font-size:17px;outline:none}
+.del{border:0;background:transparent;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;padding:2px 4px;border-radius:6px;opacity:.5}
+.del:hover{opacity:1;color:var(--urgent)}
+.empty{color:var(--muted);font-size:15px;padding:10px 0}
+.help{margin-top:44px;font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+.help p{margin:0 0 6px}
+.help code{font-family:inherit;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--ink)}
+
+@media (prefers-reduced-motion:no-preference){
+  .task.just{animation:pop .35s ease-out}
+  @keyframes pop{from{background:var(--soft)}to{background:transparent}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a id="back" href="../">Day 3 of 30</a>
+    <h1>Last minute</h1>
+  </div>
+
+  <section class="hero" aria-live="polite">
+    <p class="big" id="big"></p>
+    <p class="then" id="then"></p>
+  </section>
+
+  <form class="add" id="addForm" autocomplete="off">
+    <input id="inp" type="text" placeholder="Essay by fri 2h" aria-label="Add a task">
+    <button type="submit">Add</button>
+  </form>
+  <div class="preview" id="preview">Write it like a note. Add how long it takes and when it’s due if you know.</div>
+
+  <div class="est">
+    <span>When I guess how long something takes, I’m usually</span>
+    <div class="seg" id="mult" role="group" aria-label="How accurate your guesses are">
+      <button type="button" data-v="1">Right</button>
+      <button type="button" data-v="1.5">A bit off</button>
+      <button type="button" data-v="2">Way off</button>
+    </div>
+  </div>
+
+  <div id="groups"></div>
+
+  <div class="help">
+    <p>Last minute works out the latest time you can start each thing and still finish on time.</p>
+    <p>How long: <code>30m</code> <code>1h</code> <code>1h30</code> <code>2시간</code>. When: <code>by 5pm</code> <code>(1:30)</code> <code>fri</code> <code>tomorrow</code> <code>내일</code> <code>the 10th</code> <code>11/5</code> <code>before the 10th</code> <code>(10:00 - 12:00)</code>.</p>
+    <p>Anything without a time is guessed at 30 minutes. Paste a whole list from Notes to add every line at once.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+/* ---------- time helpers ---------- */
+const MIN=60000, DAY=864e5;
+const pad=n=>String(n).padStart(2,'0');
+const startOfDay=d=>{const x=new Date(d);x.setHours(0,0,0,0);return x};
+const sameDay=(a,b)=>startOfDay(a).getTime()===startOfDay(b).getTime();
+function fmtTime(d){return new Date(d).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}).replace(':00 ',' ')}
+function fmtWhen(ms,now){
+  const d=new Date(ms),n=new Date(now);
+  if(sameDay(d,n))return fmtTime(d);
+  if(sameDay(d,new Date(n.getTime()+DAY)))return 'tomorrow '+fmtTime(d);
+  const days=(startOfDay(d)-startOfDay(n))/DAY;
+  if(days>0&&days<7)return d.toLocaleDateString('en-US',{weekday:'short'})+' '+fmtTime(d);
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+fmtTime(d);
+}
+function fmtDur(m){
+  m=Math.round(m);
+  if(m<60)return m+'m';
+  const h=Math.floor(m/60),r=m%60;
+  return r?h+'h '+r+'m':h+'h';
+}
+function fmtGap(ms){
+  const m=Math.round(Math.abs(ms)/MIN);
+  if(m<1)return 'less than a minute';
+  if(m<60)return m+' min';
+  if(m<60*24)return fmtDur(m);
+  const d=Math.round(m/1440);return d+(d===1?' day':' days');
+}
+
+/* ---------- parsing ---------- */
+const WD=['sun','mon','tue','wed','thu','fri','sat'];
+const MON=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+function guessHour(h,ap){
+  h=+h;
+  if(ap){ap=ap.toLowerCase().replace(/\./g,'');if(ap==='pm'&&h<12)h+=12;if(ap==='am'&&h===12)h=0;return h}
+  if(h>=1&&h<=7)return h+12;
+  return h;
+}
+function parseTask(raw,refMs){
+  const ref=new Date(refMs);
+  let t=' '+raw+' ';
+  let dur=null,date=null,time=null,before=false,event=false,tonight=false;
+  const cut=(re,fn)=>{t=t.replace(re,function(){const r=fn([].slice.call(arguments));return r===false?arguments[0]:' '})};
+
+  // time range like (10:00 - 12:00) or 2pm-4pm
+  cut(/\(?\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*[-–~]\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*\)?/i,m=>{
+    const hasSignal=m[2]||m[3]||m[5]||m[6]||/^\s*\(/.test(m[0]);
+    if(!hasSignal)return false;
+    let h1=guessHour(m[1],m[3]||m[6]),h2=guessHour(m[4],m[6]||m[3]);
+    const a=h1*60+(+m[2]||0);let b=h2*60+(+m[5]||0);
+    if(b<=a)b+=12*60;if(b<=a)b+=12*60;
+    time=a;dur=b-a;event=true;return true;
+  });
+  // durations
+  cut(/(?:~|about\s+|takes\s+)?(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hour|hours|시간)(?![a-z])\s*(?:(\d{1,2})\s*(?:m|min|mins|minutes|분)?(?![a-z\d]))?/i,m=>{
+    if(event)return false;dur=Math.round(parseFloat(m[1])*60+(+m[2]||0));return true;
+  });
+  cut(/(?:~|about\s+|takes\s+)?(\d+)\s*(?:m|min|mins|minute|minutes|분)(?![a-z])/i,m=>{
+    if(dur!==null)return false;dur=+m[1];return true;
+  });
+  // dates
+  const pre='(?:\\b(by|before|until|till|due|on)\\s+)?';
+  const mark=k=>{if(k&&k.toLowerCase()==='before')before=true};
+  cut(new RegExp(pre+'\\b(today|tonight|tomorrow|tmrw|tmr)\\b','i'),m=>{
+    mark(m[1]);const w=m[2].toLowerCase();
+    date=startOfDay(ref);if(w.startsWith('tom')||w.startsWith('tm'))date=new Date(date.getTime()+DAY);
+    if(w==='tonight')tonight=true;return true;
+  });
+  if(!date)cut(/(오늘|내일|모레)(까지)?/,m=>{
+    date=startOfDay(ref);if(m[1]==='내일')date=new Date(date.getTime()+DAY);if(m[1]==='모레')date=new Date(date.getTime()+2*DAY);return true;
+  });
+  if(!date)cut(new RegExp(pre+'\\b(?:(next)\\s+)?(mon|tue|tues|wed|thu|thur|thurs|fri|sat|sun)(?:day|nesday|sday|urday|s)?\\b','i'),m=>{
+    mark(m[1]);const want=WD.indexOf(m[3].slice(0,3).toLowerCase());
+    let d=startOfDay(ref);let add=(want-d.getDay()+7)%7;if(m[2])add+=7;
+    date=new Date(d.getTime()+add*DAY);return true;
+  });
+  if(!date)cut(new RegExp(pre+'\\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b','i'),m=>{
+    mark(m[1]);const mo=MON.indexOf(m[2].slice(0,3).toLowerCase());
+    let d=new Date(ref.getFullYear(),mo,+m[3]);if(d<startOfDay(ref))d=new Date(ref.getFullYear()+1,mo,+m[3]);
+    date=d;return true;
+  });
+  if(!date)cut(new RegExp(pre+'\\b(\\d{1,2})\\/(\\d{1,2})\\b','i'),m=>{
+    mark(m[1]);let d=new Date(ref.getFullYear(),+m[2]-1,+m[3]);if(d<startOfDay(ref))d=new Date(ref.getFullYear()+1,+m[2]-1,+m[3]);
+    date=d;return true;
+  });
+  if(!date)cut(new RegExp(pre+'(?:the\\s+)?\\b(\\d{1,2})(st|nd|rd|th)\\b','i'),m=>{
+    mark(m[1]);const day=+m[2];if(day<1||day>31)return false;
+    let d=new Date(ref.getFullYear(),ref.getMonth(),day);if(d<startOfDay(ref))d=new Date(ref.getFullYear(),ref.getMonth()+1,day);
+    date=d;return true;
+  });
+  if(!date)cut(/(\d{1,2})일(까지)?/,m=>{
+    const day=+m[1];if(day<1||day>31)return false;
+    let d=new Date(ref.getFullYear(),ref.getMonth(),day);if(d<startOfDay(ref))d=new Date(ref.getFullYear(),ref.getMonth()+1,day);
+    date=d;return true;
+  });
+  // single times
+  if(time===null)cut(/(?:\b(?:at|by|until|till|before|due)\s+|@\s*)?\(?\s*(\d{1,2}):(\d{2})\s*(am|pm|a\.m\.|p\.m\.)?\s*\)?/i,m=>{
+    const h=+m[1];if(h>23)return false;time=guessHour(h,m[3])*60+(+m[2]);return true;
+  });
+  if(time===null)cut(/(?:\b(?:at|by|until|till|before|due)\s+|@\s*)?\b(\d{1,2})\s*(am|pm|a\.m\.|p\.m\.)/i,m=>{
+    time=guessHour(m[1],m[2])*60;return true;
+  });
+  if(time===null)cut(/\b(?:at|by|until|till|due)\s+(\d{1,2})\b(?![\/:]|st|nd|rd|th)/i,m=>{
+    const h=+m[1];if(h>23)return false;time=guessHour(h)*60;return true;
+  });
+  if(time===null)cut(/(오전|오후)?\s*(\d{1,2})시(?!간)\s*(?:(\d{1,2})분)?(까지)?/,m=>{
+    let h=+m[2];if(m[1]==='오후'&&h<12)h+=12;else if(m[1]==='오전'&&h===12)h=0;else if(!m[1])h=guessHour(h);
+    time=h*60+(+m[3]||0);return true;
+  });
+
+  // put it together
+  let due=null,dateOnly=false;
+  if(tonight&&time===null)time=21*60;
+  if(date&&time!==null){due=new Date(date);due.setHours(0,time,0,0)}
+  else if(date){dateOnly=true;due=new Date(date);if(before)due.setHours(0,0,0,0);else due.setHours(23,59,0,0)}
+  else if(time!==null){due=startOfDay(ref);due.setHours(0,time,0,0);if((event?due.getTime()+dur*MIN:due.getTime())<ref.getTime())due=new Date(due.getTime()+DAY)}
+
+  let title=t.replace(/\(\s*\)/g,' ').replace(/\b(by|before|until|till|due|on|at|takes|about)\s*$/i,' ').replace(/\s+/g,' ').replace(/^[\s,:\-–]+|[\s,:\-–]+$/g,'').trim();
+  if(!title)title=raw.trim();
+  return{title,dur,due:due?due.getTime():null,event,dateOnly,before};
+}
+
+/* ---------- state ---------- */
+const LS='lastminute-day3-v1';
+let state={tasks:[],mult:1};
+let docRef=null,saveTimer=null,editing=null,justAdded=null;
+function load(s){if(s&&typeof s==='object'){state={tasks:Array.isArray(s.tasks)?s.tasks:[],mult:+s.mult||1}}}
+function save(){
+  try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}
+  if(!docRef)return;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{docRef.set(JSON.parse(JSON.stringify(state))).catch(()=>{})},400);
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function addLines(text){
+  const lines=String(text).split(/\r?\n/).map(s=>s.replace(/^\s*(?:[-*•◦○●☐☑✓✔]|\[[ xX]?\])\s*/,'').trim()).filter(Boolean);
+  const now=Date.now();
+  lines.forEach((raw,i)=>{const id=uid()+i;state.tasks.push({id,raw,ref:now,done:false,created:now+i});justAdded=id});
+  if(lines.length){save();render()}
+}
+
+/* ---------- derived ---------- */
+function info(task,now){
+  const p=parseTask(task.raw,task.ref);
+  const est=p.dur!==null?p.dur:30;
+  const need=p.event?0:est*state.mult;
+  const start=p.due!==null?p.due-need*MIN:null;
+  return{...task,...p,est,guessed:p.dur===null,need,start};
+}
+
+/* ---------- render ---------- */
+const CHECK='<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 7.4l2.6 2.6L11 4.4" fill="none" stroke="#2A2000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function metaFor(x,now,group){
+  if(x.done)return '';
+  const takes=x.event?'from '+fmtTime(x.due)+' to '+fmtTime(x.due+x.est*MIN):'takes '+(x.guessed?'about 30m (a guess)':fmtDur(x.est))+(state.mult>1&&!x.event?', so plan '+fmtDur(x.need):'');
+  if(x.due===null)return x.guessed?'':'<span>'+esc(takes)+'</span>';
+  const dueTxt=x.dateOnly?(x.before?'before '+new Date(x.due).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'by end of '+new Date(x.due).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})):'due '+fmtWhen(x.due,now);
+  let lead;
+  if(x.event){lead=x.due+x.est*MIN<=now?'<b>already over</b>':x.due<=now?'<b>happening now</b>, until '+esc(fmtTime(x.due+x.est*MIN)):'<b>starts '+esc(fmtWhen(x.due,now))+'</b>, in '+fmtGap(x.due-now)}
+  else if(x.due<=now)lead='<b>was '+esc(dueTxt)+'</b>';
+  else if(group==='now')lead='<b>start now</b>, '+esc(dueTxt)+' in '+fmtGap(x.due-now);
+  else lead='<b>start by '+esc(fmtWhen(x.start,now))+'</b>, '+esc(dueTxt);
+  return lead+(x.event?'':'<br><span class="'+(x.guessed?'guess':'')+'">'+esc(takes)+'</span>');
+}
+
+function render(){
+  const now=Date.now();
+  const all=state.tasks.map(t=>info(t,now));
+  const open=all.filter(x=>!x.done),done=all.filter(x=>x.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
+  const nowG=[],today=[],later=[],whenever=[];
+  open.forEach(x=>{
+    if(x.start===null)whenever.push(x);
+    else if(x.start<=now)nowG.push(x);
+    else if(sameDay(x.start,now))today.push(x);
+    else later.push(x);
+  });
+  const byStart=(a,b)=>a.start-b.start;
+  nowG.sort(byStart);today.sort(byStart);later.sort(byStart);whenever.sort((a,b)=>a.created-b.created);
+
+  // hero
+  const big=document.getElementById('big'),then=document.getElementById('then');
+  big.classList.remove('urgent');
+  const firstNow=nowG.find(x=>!x.event)||nowG[0];
+  if(nowG.length){
+    big.textContent='Start now.';big.classList.add('urgent');
+    const x=firstNow;
+    then.innerHTML='<b>'+esc(x.title)+'</b> '+(x.event?(x.due+x.est*MIN<=now?'is already over. Check it off?':x.due<=now?'is happening now.':'starts '+esc(fmtWhen(x.due,now))+'.'):(x.due<=now?'is already past due.':'is due in '+fmtGap(x.due-now)+' and takes '+fmtDur(x.need)+'.'))+(nowG.length>1?' '+(nowG.length-1)+' more '+(nowG.length===2?'thing needs':'things need')+' starting too.':'');
+  }else if(today.length||later.length){
+    const x=(today[0]||later[0]);
+    big.textContent='Free until '+fmtWhen(x.start,now)+'.';
+    then.innerHTML='Then start <b>'+esc(x.title)+'</b>'+(x.event?'.':'. It takes '+fmtDur(x.need)+' and it’s '+(x.dateOnly?(x.before?'due before ':'due by end of ')+new Date(x.due).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'due '+esc(fmtWhen(x.due,now)))+'.');
+  }else if(whenever.length){
+    big.textContent='No deadlines.';
+    then.textContent='Nothing here has a due time, so nothing is urgent. Add one, like “by fri”, and Last minute will tell you how long you can wait.';
+  }else{
+    big.textContent='Nothing to do.';
+    then.textContent='Type what’s on your mind below, or paste your list from Notes.';
+  }
+
+  // groups
+  const sec=(key,title,list,extra)=>{
+    if(!list.length)return '';
+    return '<section class="group '+key+'"><h2><span>'+title+'</span>'+(extra||'')+'</h2><ul class="tasks">'+list.map(x=>row(x,now,key)).join('')+'</ul></section>';
+  };
+  let h='';
+  h+=sec('now','Start now',nowG);
+  h+=sec('today','Later today',today);
+  h+=sec('later','Coming up',later);
+  h+=sec('whenever','Whenever',whenever);
+  h+=sec('done','Done',done,'<button type="button" data-act="clear">Clear done</button>');
+  if(!state.tasks.length)h='';
+  document.getElementById('groups').innerHTML=h;
+  if(editing){const el=document.querySelector('.edit');if(el){el.focus();const v=el.value;el.value='';el.value=v}}
+  justAdded=null;
+}
+function row(x,now,group){
+  const isEdit=editing===x.id;
+  return '<li class="task'+(x.done?' done':'')+(justAdded===x.id?' just':'')+'" data-id="'+esc(x.id)+'">'
+    +'<button type="button" class="check" data-act="toggle" aria-label="'+(x.done?'Mark not done':'Mark done')+': '+esc(x.title)+'" aria-pressed="'+!!x.done+'">'+CHECK+'</button>'
+    +'<div class="body" data-act="edit">'
+    +(isEdit?'<input class="edit" value="'+esc(x.raw)+'" aria-label="Edit task">':'<div class="title">'+esc(x.title)+'</div><div class="meta">'+metaFor(x,now,group)+'</div>')
+    +'</div>'
+    +'<button type="button" class="del" data-act="del" aria-label="Delete '+esc(x.title)+'">×</button>'
+    +'</li>';
+}
+
+/* ---------- preview ---------- */
+function renderPreview(){
+  const v=document.getElementById('inp').value;
+  const box=document.getElementById('preview');
+  if(!v.trim()){box.innerHTML='Write it like a note. Add how long it takes and when it’s due if you know.';return}
+  if(/\n/.test(v)){box.textContent='Adds '+v.split(/\n/).filter(s=>s.trim()).length+' tasks';return}
+  const now=Date.now(),x=info({raw:v,ref:now,id:'p',created:now},now);
+  const pills=[];
+  if(x.event)pills.push('from '+fmtWhen(x.due,now)+' to '+fmtTime(x.due+x.est*MIN));
+  else{
+    pills.push(x.guessed?'takes about 30m':'takes '+fmtDur(x.est));
+    if(x.due!==null){
+      pills.push(x.dateOnly?(x.before?'before ':'by end of ')+new Date(x.due).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'due '+fmtWhen(x.due,now));
+      pills.push('start by '+fmtWhen(x.start,now));
+    }else pills.push('no deadline');
+  }
+  box.innerHTML=pills.map(p=>'<span class="pill">'+esc(p)+'</span>').join('');
+}
+
+/* ---------- events ---------- */
+const inp=document.getElementById('inp');
+document.getElementById('addForm').addEventListener('submit',e=>{e.preventDefault();addLines(inp.value);inp.value='';renderPreview()});
+inp.addEventListener('input',renderPreview);
+inp.addEventListener('paste',e=>{
+  const txt=(e.clipboardData||window.clipboardData).getData('text');
+  if(txt&&/\n/.test(txt.trim())){e.preventDefault();addLines(txt);renderPreview()}
+});
+document.getElementById('mult').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;state.mult=+b.dataset.v;paintMult();save();render();
+});
+function paintMult(){document.querySelectorAll('#mult button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===state.mult))}
+document.getElementById('groups').addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]');if(!a)return;
+  if(a.dataset.act==='clear'){state.tasks=state.tasks.filter(t=>!t.done);save();render();return}
+  const li=a.closest('.task');if(!li)return;
+  const t=state.tasks.find(x=>x.id===li.dataset.id);if(!t)return;
+  if(a.dataset.act==='toggle'){t.done=!t.done;t.doneAt=t.done?Date.now():null;save();render()}
+  else if(a.dataset.act==='del'){state.tasks=state.tasks.filter(x=>x!==t);save();render()}
+  else if(a.dataset.act==='edit'&&editing!==t.id&&!t.done){editing=t.id;render()}
+});
+function finishEdit(el,commit){
+  const li=el.closest('.task');const t=li&&state.tasks.find(x=>x.id===li.dataset.id);
+  editing=null;
+  if(t&&commit){const v=el.value.trim();if(!v)state.tasks=state.tasks.filter(x=>x!==t);else if(v!==t.raw){t.raw=v;t.ref=Date.now()}save()}
+  render();
+}
+document.getElementById('groups').addEventListener('keydown',e=>{
+  if(!e.target.classList.contains('edit'))return;
+  if(e.key==='Enter'){e.preventDefault();finishEdit(e.target,true)}
+  if(e.key==='Escape'){e.preventDefault();finishEdit(e.target,false)}
+});
+document.getElementById('groups').addEventListener('focusout',e=>{
+  if(e.target.classList.contains('edit')&&editing)finishEdit(e.target,true);
+});
+
+setInterval(()=>{if(!editing)render()},30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!editing)render()});
+
+/* ---------- start ---------- */
+try{const s=localStorage.getItem(LS);if(s)load(JSON.parse(s))}catch(e){}
+paintMult();render();
+
+// On claude.ai, save to your account and link back to the published Day 1 page.
+function connect(){
+  if(docRef||!(window.claude&&typeof window.claude.use==='function'))return false;
+  document.getElementById('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';
+  (async()=>{
+    try{
+      const [db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);
+      if(!db||!user)return;
+      const id=await user.id();if(!id)return;
+      docRef=db.doc('data/users/'+id+'/lastminute');
+      const snap=await docRef.get();
+      if(snap.exists){load(snap.data());paintMult();render()}
+      else if(state.tasks.length)save();
+    }catch(e){docRef=null}
+  })();
+  return true;
+}
+if(!connect())window.addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>
