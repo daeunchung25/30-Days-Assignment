@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resale | Day 5 of 30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F2EE;--paper:#FFFFFF;--ink:#1B1B1A;--muted:#6F6C66;--line:#DEDAD3;--sticker:#FF5A1F;--on-sticker:#1B0A02;--good:#1F7A4D;--field:#FBFAF8;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#151413;--paper:#1F1E1C;--ink:#EEEBE6;--muted:#9D9991;--line:#33312D;--sticker:#FF6B33;--on-sticker:#1B0A02;--good:#5CCB92;--field:#191816;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151413;--paper:#1F1E1C;--ink:#EEEBE6;--muted:#9D9991;--line:#33312D;--sticker:#FF6B33;--on-sticker:#1B0A02;--good:#5CCB92;--field:#191816;color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--sticker);outline-offset:2px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-weight:600;font-variant-numeric:tabular-nums}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 20px 80px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.top a{color:var(--muted);font-size:14px;text-decoration:none}
+.top a:hover{text-decoration:underline}
+.top h1{font-size:20px;margin:0;font-weight:800;letter-spacing:-.01em}
+
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:9px 14px;cursor:pointer;font-weight:500;font-size:15px}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.hot{background:var(--sticker);color:var(--on-sticker);border-color:var(--sticker);font-weight:700}
+.btn:disabled{opacity:.5;cursor:default}
+.link{border:0;background:none;padding:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:14px}
+
+.main{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);gap:36px;padding-top:28px;align-items:start}
+.item{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px;position:sticky;top:16px}
+.item h2{font-size:18px;margin:0 0 12px;font-weight:700}
+.photo{display:grid;place-items:center;height:190px;border:1.5px dashed var(--line);border-radius:12px;background:var(--field);cursor:pointer;overflow:hidden;color:var(--muted);font-size:14px;text-align:center;padding:10px}
+.photo img{max-width:100%;max-height:100%;object-fit:contain}
+.field{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--muted);margin-top:12px}
+.field input,.field select{border:1px solid var(--line);background:var(--field);border-radius:8px;padding:9px 11px;font-size:16px;color:var(--ink);width:100%;min-width:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 12px;font-size:14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.status{font-size:13px;color:var(--muted);margin:10px 0 0;min-height:18px}
+.item .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
+.hero{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;margin-bottom:26px}
+.sticker{background:var(--sticker);color:var(--on-sticker);border-radius:50%;width:168px;height:168px;display:grid;place-content:center;text-align:center;transform:rotate(-8deg);box-shadow:0 2px 0 rgba(0,0,0,.08)}
+.sticker small{display:block;font-size:13px;font-weight:700;letter-spacing:.02em}
+.sticker .mono{font-size:44px;line-height:1.05}
+.hero h3{font-size:clamp(30px,4.6vw,48px);line-height:1.02;margin:0 0 10px;font-weight:800;letter-spacing:-.025em}
+.hero p{margin:0;color:var(--muted);max-width:44ch}
+.hero p b{color:var(--ink)}
+.basis{font-size:13px;color:var(--muted);margin:0 0 10px}
+
+.tags{display:grid;gap:12px}
+.tag{background:var(--paper);border:1px solid var(--line);border-radius:6px 14px 14px 6px;padding:14px 16px 14px 34px;position:relative;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:10px 16px;align-items:center}
+.tag::before{content:"";position:absolute;left:12px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:var(--bg);border:1px solid var(--line)}
+.tag.best{border-color:var(--sticker);box-shadow:0 0 0 1px var(--sticker)}
+.tag .nm{font-weight:700;font-size:17px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tag .nm .badge{background:var(--sticker);color:var(--on-sticker);font-size:12px;border-radius:999px;padding:1px 8px;font-weight:700}
+.tag .aud{font-size:13px;color:var(--muted)}
+.tag .price label{font-size:12px;color:var(--muted);display:block}
+.tag .price .in{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--field);padding:0 8px;max-width:130px}
+.tag .price input{border:0;background:transparent;width:100%;padding:7px 2px;font-size:17px;outline:none}
+.tag .range{font-size:12px;color:var(--muted);margin-top:3px}
+.tag .keep{text-align:right}
+.tag .keep .mono{font-size:26px;line-height:1.1}
+.tag .keep .pct{font-size:13px;color:var(--muted)}
+.tag .fees{grid-column:1/-1;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 14px;border-top:1px dashed var(--line);padding-top:8px}
+.tag .fees a,.tag .fees button{color:var(--muted)}
+.tag .found{grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.tag .found input{flex:1;min-width:180px;border:1px solid var(--line);background:var(--field);border-radius:8px;padding:7px 10px;font-size:15px}
+
+.ship{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--muted);margin:18px 0 0}
+.ship .in{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--field);padding:0 8px;width:96px}
+.ship input{border:0;background:transparent;width:100%;padding:6px 2px;outline:none}
+.fine{font-size:13px;color:var(--muted);margin-top:22px;max-width:70ch}
+
+.saved{border-top:1px solid var(--line);margin-top:44px;padding-top:24px}
+.saved h2{font-size:22px;margin:0 0 12px;font-weight:800}
+.saved-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.sv{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:left;cursor:pointer;display:grid;grid-template-columns:48px 1fr;gap:10px;align-items:center}
+.sv:hover{border-color:var(--ink)}
+.sv .th{width:48px;height:48px;border-radius:8px;background:var(--field);overflow:hidden;display:grid;place-items:center;color:var(--muted);font-size:12px}
+.sv .th img{width:100%;height:100%;object-fit:cover}
+.sv b{display:block;font-size:14px;line-height:1.25}
+.sv span{font-size:12px;color:var(--muted)}
+
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--paper);color:var(--ink);padding:0;width:min(640px,calc(100vw - 24px));max-height:calc(100vh - 32px)}
+dialog::backdrop{background:rgba(10,10,10,.5)}
+.dlg{padding:22px}
+.dlg h2{margin:0 0 6px;font-size:22px}
+.feegrid{display:grid;grid-template-columns:1.2fr repeat(4,minmax(0,1fr));gap:6px 8px;align-items:center;font-size:13px;margin-top:14px}
+.feegrid input{width:100%;border:1px solid var(--line);background:var(--field);border-radius:6px;padding:6px 7px;font-size:14px}
+.feegrid .h{color:var(--muted)}
+
+@media (max-width:860px){
+  .main{grid-template-columns:1fr}
+  .item{position:static}
+  .hero{grid-template-columns:1fr}
+  .sticker{width:132px;height:132px}.sticker .mono{font-size:34px}
+  .tag{grid-template-columns:1fr 1fr}
+  .tag .who{grid-column:1/-1}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a id="back" href="../">Day 5 of 30</a>
+    <h1>Resale</h1>
+  </div>
+
+  <div class="main">
+    <section class="item" aria-labelledby="itemTitle">
+      <h2 id="itemTitle">What are you selling?</h2>
+      <label class="photo" id="photoBox" tabindex="0">
+        <span id="photoHint">Add a photo of it.<br>Good light, plain background.</span>
+        <input type="file" id="file" accept="image/*" capture="environment" hidden>
+      </label>
+      <div class="two">
+        <label class="field">What is it<input id="iName" type="text" placeholder="Wool cardigan" maxlength="80"></label>
+        <label class="field">Brand<input id="iBrand" type="text" placeholder="Aritzia" maxlength="40"></label>
+      </div>
+      <div class="two">
+        <label class="field">Type<select id="iCat"></select></label>
+        <label class="field">What you paid<input id="iPaid" type="number" inputmode="decimal" min="0" step="1" placeholder="$80"></label>
+      </div>
+      <div class="field">Condition<div class="chips" id="iCond" role="group" aria-label="Condition"></div></div>
+      <p class="status" id="status"></p>
+      <div class="actions">
+        <button class="btn hot" id="aiBtn" type="button" hidden>Estimate with Claude</button>
+        <button class="btn primary" id="saveBtn" type="button">Save item</button>
+        <button class="btn" id="newBtn" type="button">New item</button>
+      </div>
+    </section>
+
+    <section aria-live="polite">
+      <div class="hero" id="hero"></div>
+      <p class="basis" id="basis"></p>
+      <div class="tags" id="tags"></div>
+      <div class="ship">
+        <span>Shipping you pay</span>
+        <span class="in"><span class="mono">$</span><input id="ship" class="mono" type="number" inputmode="decimal" min="0" step="0.5" value="0" aria-label="Shipping you pay"></span>
+        <span>Most sites let the buyer pay shipping, so this is usually $0.</span>
+      </div>
+      <p class="fine">Prices are a rough guess from the brand, type, condition and what you paid, unless you add real sold prices with “Prices I found”. Use “Sold listings” to see what similar things actually sold for. Fees are set to what each site was known to charge, but sites change them often, so <button class="link" id="feesBtn" type="button">check or edit the fees</button>.</p>
+    </section>
+  </div>
+
+  <section class="saved" id="savedWrap" hidden>
+    <h2>Saved items</h2>
+    <div class="saved-grid" id="saved"></div>
+  </section>
+</div>
+
+<dialog id="feeDlg" aria-labelledby="feeTitle">
+  <div class="dlg">
+    <h2 id="feeTitle">Site fees</h2>
+    <p style="margin:0;color:var(--muted);font-size:14px">Percent of the sale, plus any fixed amount per order. Poshmark charges a flat fee on small sales, set in the last column.</p>
+    <div class="feegrid" id="feeGrid"></div>
+    <div style="display:flex;justify-content:space-between;gap:8px;margin-top:18px">
+      <button class="btn" type="button" id="feeReset">Reset to defaults</button>
+      <button class="btn primary" type="button" id="feeDone">Done</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>{n=Math.round((+n||0)*100)/100;return '$'+(Number.isInteger(n)?n.toLocaleString('en-US'):n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+/* ---------- sites and fees (editable) ---------- */
+// pct: commission %, fixed: per-order $, proc: payment processing %, flatUnder/flat: flat fee under a price
+const DEFAULT_FEES={
+  depop:{pct:0,fixed:0.45,proc:3.3,flatUnder:0,flat:0},
+  poshmark:{pct:20,fixed:0,proc:0,flatUnder:15,flat:2.95},
+  mercari:{pct:10,fixed:0.5,proc:2.9,flatUnder:0,flat:0},
+  ebay:{pct:13.6,fixed:0.4,proc:0,flatUnder:0,flat:0},
+  grailed:{pct:9,fixed:0.49,proc:3.49,flatUnder:0,flat:0},
+  vinted:{pct:0,fixed:0,proc:0,flatUnder:0,flat:0},
+  fb:{pct:0,fixed:0,proc:0,flatUnder:0,flat:0}
+};
+const SITES=[
+  {id:'depop',name:'Depop',who:'Trendy, vintage and Y2K pieces, younger buyers',url:q=>'https://www.depop.com/search/?q='+q,feeNote:'No selling fee in the US, just payment processing'},
+  {id:'poshmark',name:'Poshmark',who:'Women’s brands and mall brands, lots of offers',url:q=>'https://poshmark.com/search?query='+q+'&availability=sold_out',feeNote:'Buyer pays shipping'},
+  {id:'mercari',name:'Mercari',who:'A bit of everything, quick sales',url:q=>'https://www.mercari.com/search/?keyword='+q+'&status=sold_out'},
+  {id:'ebay',name:'eBay',who:'The biggest audience, good for anything with a brand people search for',url:q=>'https://www.ebay.com/sch/i.html?_nkw='+q+'&LH_Sold=1&LH_Complete=1'},
+  {id:'grailed',name:'Grailed',who:'Menswear, streetwear and designer',url:q=>'https://www.grailed.com/shop?query='+q},
+  {id:'vinted',name:'Vinted',who:'No seller fees, buyers expect low prices',url:q=>'https://www.vinted.com/catalog?search_text='+q,feeNote:'The buyer pays the fees'},
+  {id:'fb',name:'Facebook Marketplace',who:'Local pickup, cash in hand',url:q=>'https://www.facebook.com/marketplace/search/?query='+q,feeNote:'Free for local pickup'}
+];
+const CATS=[['top','Top',30],['knit','Sweater or cardigan',60],['bottom','Pants or jeans',60],['skirt','Skirt or shorts',40],['dress','Dress',70],['outer','Jacket or coat',120],['shoes','Shoes',90],['bag','Bag',80],['acc','Accessory',35],['other','Other',40]];
+const CONDS=[['nwt','New with tags',.55],['like','Like new',.42],['good','Good',.30],['fair','Worn',.17]];
+const TIERS={
+  luxury:/gucci|prada|chanel|louis vuitton|\blv\b|dior|celine|saint laurent|\bysl\b|bottega|miu miu|balenciaga|loewe|hermes|hermès|fendi|burberry|givenchy|valentino|versace|moncler|the row|jacquemus|acne/i,
+  street:/supreme|stussy|stüssy|palace|bape|kith|fear of god|essentials|off-white|nike|jordan|new balance|adidas|carhartt|arc'?teryx|patagonia|the north face|north face|salomon|vintage|y2k|levi|ralph lauren|polo|dickies/i,
+  premium:/lululemon|aritzia|reformation|madewell|everlane|cos\b|arket|sezane|sézane|free people|anthropologie|alo\b|vuori|j\.?crew|tommy|hilfiger|calvin klein|coach|kate spade|michael kors|zara studio/i,
+  fast:/shein|h&m|\bhm\b|zara|forever ?21|old navy|primark|uniqlo|gap\b|target|wild fable|a new day|romwe|boohoo|fashion nova|princess polly|garage|brandy/i
+};
+const TIER_MULT={luxury:1.3,street:1.15,premium:1.1,fast:.55,none:1};
+const SITE_MULT={
+  depop:{fast:.95,street:1.08,luxury:.9,premium:1,none:1},
+  poshmark:{fast:.95,street:.95,luxury:1.05,premium:1.08,none:1},
+  mercari:{fast:.9,street:.95,luxury:.9,premium:.95,none:.92},
+  ebay:{fast:.85,street:1.05,luxury:1.08,premium:.95,none:.95},
+  grailed:{fast:.6,street:1.15,luxury:1.12,premium:.85,none:.85},
+  vinted:{fast:.9,street:.88,luxury:.85,premium:.88,none:.88},
+  fb:{fast:.85,street:.8,luxury:.7,premium:.8,none:.8}
+};
+
+/* ---------- state ---------- */
+let fees=JSON.parse(JSON.stringify(DEFAULT_FEES));
+try{const f=JSON.parse(localStorage.getItem('resale-day5-fees'));if(f)for(const k in DEFAULT_FEES)if(f[k])fees[k]=Object.assign({},DEFAULT_FEES[k],f[k])}catch(e){}
+function blankItem(){return{id:uid(),name:'',brand:'',cat:'top',paid:'',cond:'good',photo:null,prices:{},found:{},ai:null,ship:0}}
+let item=blankItem(),saved=[],idb=null;
+
+/* ---------- pricing ---------- */
+function tierOf(it){const t=(it.brand||'')+' '+(it.name||'');for(const k of['luxury','street','premium','fast'])if(TIERS[k].test(t))return k;return 'none'}
+function median(a){const s=[...a].sort((x,y)=>x-y);const m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2}
+function parseFound(str){return String(str||'').split(/[,\s]+/).map(x=>parseFloat(x.replace(/[^0-9.]/g,''))).filter(x=>x>0&&x<100000)}
+function estimate(site){
+  const found=parseFound(item.found[site.id]);
+  if(found.length)return{low:Math.min(...found),high:Math.max(...found),mid:median(found),src:'found',n:found.length};
+  if(item.ai&&item.ai[site.id]){const[a,b]=item.ai[site.id];return{low:a,high:b,mid:Math.round((a+b)/2),src:'ai'}}
+  const cat=CATS.find(c=>c[0]===item.cat)||CATS[0];
+  const paid=+item.paid>0?+item.paid:cat[2]*(tierOf(item)==='luxury'?6:tierOf(item)==='fast'?.6:1);
+  const cond=(CONDS.find(c=>c[0]===item.cond)||CONDS[2])[2];
+  const t=tierOf(item);
+  const mid=Math.max(3,paid*cond*TIER_MULT[t]*SITE_MULT[site.id][t]);
+  return{low:Math.max(2,Math.round(mid*.78)),high:Math.round(mid*1.22),mid:Math.round(mid),src:'guess'};
+}
+function feeFor(id,price){
+  const f=fees[id];price=+price||0;
+  const commission=f.flatUnder>0&&price<f.flatUnder?f.flat:price*f.pct/100;
+  const processing=price>0?price*f.proc/100+f.fixed:0;
+  const total=Math.min(price,commission+processing);
+  return{commission,processing,total};
+}
+
+/* ---------- render ---------- */
+function rows(){
+  const ship=+item.ship||0;
+  return SITES.map(s=>{
+    const est=estimate(s);
+    const price=item.prices[s.id]!=null&&item.prices[s.id]!==''?+item.prices[s.id]:est.mid;
+    const f=feeFor(s.id,price);
+    const keep=Math.max(0,price-f.total-(s.id==='fb'?0:ship));
+    return{s,est,price,f,keep};
+  });
+}
+function render(){
+  const list=rows();
+  const ranked=[...list].sort((a,b)=>b.keep-a.keep);
+  const best=ranked[0],second=ranked[1];
+  const paid=+item.paid||0;
+  const hasInfo=item.name||item.brand||item.photo||paid;
+  $('hero').innerHTML=
+    '<div class="sticker" aria-hidden="true"><small>YOU KEEP</small><span class="mono">'+esc(money(Math.round(best.keep)))+'</span></div>'
+    +'<div><h3>'+(hasInfo?'Sell it on '+esc(best.s.name)+'.':'Where should you sell it?')+'</h3>'
+    +'<p>'+(hasInfo?'At about <b>'+esc(money(best.price))+'</b> you’d keep about <b>'+esc(money(Math.round(best.keep)))+'</b> after '+esc(money(best.f.total))+' in fees'+(paid?', which is <b>'+Math.round(best.keep/paid*100)+'%</b> of the '+esc(money(paid))+' you paid':'')+'. '+(second?esc(second.s.name)+' is next, at about '+esc(money(Math.round(second.keep)))+'.':''):'Add what you’re selling on the left. Every site below updates as you type.')+'</p></div>';
+  const srcs=new Set(list.map(r=>r.est.src));
+  $('basis').textContent=srcs.has('found')&&srcs.size===1?'Based on the sold prices you found.':item.ai?'Prices are Claude’s estimate from what it knows about this item, not live listings.':'Prices are a rough guess. Add real sold prices for a better answer.';
+  const q=encodeURIComponent([item.brand,item.name].filter(Boolean).join(' ')||'clothing');
+  $('tags').innerHTML=list.map(r=>{
+    const f=fees[r.s.id];
+    const pctTxt=paid?Math.round(r.keep/paid*100)+'% of what you paid':(r.price?Math.round(r.keep/r.price*100)+'% of the sale price':'');
+    const feeParts=[];
+    if(r.f.commission>0)feeParts.push((f.flatUnder>0&&r.price<f.flatUnder?'flat fee ':'commission '+f.pct+'% ')+money(r.f.commission));
+    if(r.f.processing>0)feeParts.push('processing '+money(r.f.processing));
+    if(!feeParts.length)feeParts.push('no fees for you');
+    const srcTxt=r.est.src==='found'?r.est.n+' sold '+(r.est.n===1?'price':'prices')+' you found':r.est.src==='ai'?'Claude’s estimate':'rough guess';
+    return '<article class="tag'+(r===best&&hasInfo?' best':'')+'" data-site="'+r.s.id+'">'
+      +'<div class="who"><div class="nm">'+esc(r.s.name)+(r===best&&hasInfo?'<span class="badge">Best</span>':'')+'</div><div class="aud">'+esc(r.s.who)+'</div></div>'
+      +'<div class="price"><label for="p-'+r.s.id+'">List it at</label><div class="in"><span class="mono">$</span><input class="mono" id="p-'+r.s.id+'" data-price="'+r.s.id+'" type="number" inputmode="decimal" min="0" step="1" value="'+(Math.round(r.price*100)/100)+'"></div><div class="range">Likely '+esc(money(r.est.low))+' to '+esc(money(r.est.high))+', '+srcTxt+'</div></div>'
+      +'<div class="keep"><div class="mono">'+esc(money(r.keep))+'</div><div class="pct">you keep, '+esc(pctTxt)+'</div></div>'
+      +'<div class="fees"><span>Fees '+esc(money(r.f.total))+': '+esc(feeParts.join(', '))+'</span>'+(r.s.feeNote?'<span>'+esc(r.s.feeNote)+'</span>':'')+'<a href="'+esc(r.s.url(q))+'" target="_blank" rel="noopener">Sold listings</a><button type="button" class="link" data-found="'+r.s.id+'">Prices I found</button></div>'
+      +'<div class="found" data-foundrow="'+r.s.id+'"'+(item.found[r.s.id]?'':' hidden')+'><span>Sold prices you saw:</span><input data-foundin="'+r.s.id+'" placeholder="25, 32, 28" value="'+esc(item.found[r.s.id]||'')+'" aria-label="Sold prices on '+esc(r.s.name)+'"></div>'
+      +'</article>';
+  }).join('');
+}
+function renderForm(){
+  $('iName').value=item.name;$('iBrand').value=item.brand;$('iPaid').value=item.paid;$('ship').value=item.ship||0;
+  $('iCat').innerHTML=CATS.map(c=>'<option value="'+c[0]+'"'+(c[0]===item.cat?' selected':'')+'>'+c[1]+'</option>').join('');
+  $('iCond').innerHTML=CONDS.map(c=>'<button type="button" class="chip" data-v="'+c[0]+'" aria-pressed="'+(c[0]===item.cond)+'">'+c[1]+'</button>').join('');
+  $('photoBox').querySelectorAll('img').forEach(i=>i.remove());
+  if(item.photo){const img=new Image();img.src=item.photo;img.alt='Your photo';$('photoBox').prepend(img);$('photoHint').hidden=true}else $('photoHint').hidden=false;
+}
+
+/* ---------- events ---------- */
+const bump=()=>{item.prices={};render()}; // a change to the item resets typed prices to the new estimate
+$('iName').oninput=()=>{item.name=$('iName').value;item.ai=null;bump()};
+$('iBrand').oninput=()=>{item.brand=$('iBrand').value;item.ai=null;bump()};
+$('iPaid').oninput=()=>{item.paid=$('iPaid').value;bump()};
+$('iCat').onchange=()=>{item.cat=$('iCat').value;item.ai=null;bump()};
+$('iCond').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;item.cond=b.dataset.v;item.ai=null;renderForm();bump()};
+$('ship').oninput=()=>{item.ship=$('ship').value;render()};
+$('tags').addEventListener('input',e=>{
+  const p=e.target.dataset.price,f=e.target.dataset.foundin;
+  if(p){item.prices[p]=e.target.value;const pos=e.target.selectionStart;render();const el=$('p-'+p);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}
+  if(f){item.found[f]=e.target.value;delete item.prices[f];const pos=e.target.selectionStart;render();const el=document.querySelector('[data-foundin="'+f+'"]');if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}
+});
+$('tags').addEventListener('click',e=>{
+  const b=e.target.closest('[data-found]');if(!b)return;
+  const row=document.querySelector('[data-foundrow="'+b.dataset.found+'"]');row.hidden=!row.hidden;if(!row.hidden)row.querySelector('input').focus();
+});
+$('photoBox').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('file').click()}});
+$('file').onchange=()=>{
+  const f=$('file').files&&$('file').files[0];if(!f)return;
+  const url=URL.createObjectURL(f),img=new Image();
+  img.onload=()=>{const M=640,sc=Math.min(1,M/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);c.getContext('2d').drawImage(img,0,0,c.width,c.height);item.photo=c.toDataURL('image/jpeg',.82);URL.revokeObjectURL(url);$('file').value='';renderForm();render()};
+  img.src=url;
+};
+$('newBtn').onclick=()=>{item=blankItem();$('status').textContent='';renderForm();render()};
+
+/* ---------- saving (IndexedDB) ---------- */
+function openDB(){return new Promise(res=>{try{const r=indexedDB.open('resale-day5',1);r.onupgradeneeded=()=>r.result.createObjectStore('items',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>res(null)}catch(e){res(null)}})}
+function dbAll(){return new Promise(res=>{if(!idb)return res([]);const q=idb.transaction('items').objectStore('items').getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>res([])})}
+function dbPut(it){if(idb)try{idb.transaction('items','readwrite').objectStore('items').put(it)}catch(e){}}
+function dbDel(id){if(idb)try{idb.transaction('items','readwrite').objectStore('items').delete(id)}catch(e){}}
+function renderSaved(){
+  $('savedWrap').hidden=!saved.length;
+  $('saved').innerHTML=saved.sort((a,b)=>(b.updated||0)-(a.updated||0)).map(s=>{
+    const keepBest=(()=>{const cur=item;item=s;const r=rows().sort((a,b)=>b.keep-a.keep)[0];item=cur;return r})();
+    return '<button type="button" class="sv" data-id="'+esc(s.id)+'"><span class="th">'+(s.photo?'<img src="'+esc(s.photo)+'" alt="">':'no photo')+'</span><span><b>'+esc([s.brand,s.name].filter(Boolean).join(' ')||'Untitled')+'</b><span>'+esc(keepBest.s.name)+', keep '+esc(money(keepBest.keep))+'</span></span></button>';
+  }).join('');
+}
+$('saveBtn').onclick=()=>{
+  if(!item.name&&!item.brand){$('status').textContent='Add a name or brand before saving.';return}
+  item.updated=Date.now();const copy=JSON.parse(JSON.stringify(item));
+  const i=saved.findIndex(s=>s.id===item.id);if(i>=0)saved[i]=copy;else saved.push(copy);
+  dbPut(copy);renderSaved();$('status').textContent='Saved. It’s in your saved items below.';
+};
+$('saved').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;const s=saved.find(x=>x.id===b.dataset.id);if(!s)return;item=JSON.parse(JSON.stringify(s));$('status').innerHTML='Opened. <button class="link" type="button" id="delBtn">Remove from saved</button>';$('delBtn').onclick=()=>{saved=saved.filter(x=>x.id!==item.id);dbDel(item.id);item=blankItem();$('status').textContent='Removed.';renderForm();render();renderSaved()};renderForm();render();window.scrollTo({top:0,behavior:'smooth'})};
+
+/* ---------- fee editor ---------- */
+const FEE_COLS=[['pct','Commission %'],['fixed','Per order $'],['proc','Processing %'],['flat','Flat fee $ (small sales)']];
+function renderFees(){
+  $('feeGrid').innerHTML='<span class="h">Site</span>'+FEE_COLS.map(c=>'<span class="h">'+c[1]+'</span>').join('')
+    +SITES.map(s=>'<b>'+esc(s.name)+'</b>'+FEE_COLS.map(c=>'<input type="number" step="0.01" min="0" data-site="'+s.id+'" data-k="'+c[0]+'" value="'+fees[s.id][c[0]]+'" aria-label="'+esc(s.name+' '+c[1])+'">').join('')).join('');
+}
+$('feesBtn').onclick=()=>{renderFees();$('feeDlg').showModal()};
+$('feeGrid').addEventListener('input',e=>{const t=e.target;if(!t.dataset.site)return;fees[t.dataset.site][t.dataset.k]=Math.max(0,parseFloat(t.value)||0);try{localStorage.setItem('resale-day5-fees',JSON.stringify(fees))}catch(_){};render()});
+$('feeReset').onclick=()=>{fees=JSON.parse(JSON.stringify(DEFAULT_FEES));try{localStorage.removeItem('resale-day5-fees')}catch(_){};renderFees();render()};
+$('feeDone').onclick=()=>$('feeDlg').close();
+
+/* ---------- Claude (only on claude.ai) ---------- */
+let sample=null;
+function dataUrlToBlob(u){const[h,b]=u.split(',');const bin=atob(b);const a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:(h.match(/:(.*?);/)||[])[1]||'image/jpeg'})}
+$('aiBtn').onclick=async()=>{
+  if(!sample)return;
+  if(!item.photo&&!item.name&&!item.brand){$('status').textContent='Add a photo, or a name and brand, first.';return}
+  $('aiBtn').disabled=true;$('status').textContent='Asking Claude…';
+  const cond=(CONDS.find(c=>c[0]===item.cond)||CONDS[2])[1];
+  const prompt='Someone in the US wants to resell a used item'+(item.photo?' (photo attached)':'')+'. Name: "'+item.name+'". Brand: "'+item.brand+'". Type: '+(CATS.find(c=>c[0]===item.cat)||CATS[0])[1]+'. Condition: '+cond+'.'+(+item.paid?' They paid $'+(+item.paid)+'.':'')+'\nFrom what you know about how this kind of item resells, estimate a realistic sold price range in USD on each site. Be conservative; these are prices things actually sell for, not asking prices.\nReply with JSON only: {"name": a short clear name for the item, "brand": the brand if you can tell or "", "depop":[low,high], "poshmark":[low,high], "mercari":[low,high], "ebay":[low,high], "grailed":[low,high], "vinted":[low,high], "fb":[low,high], "tip": one short sentence of advice for listing it}';
+  try{
+    const r=await sample.json(prompt,item.photo?{images:[dataUrlToBlob(item.photo)],modelTier:'default'}:{modelTier:'default'});
+    const ai={};let ok=0;
+    for(const s of SITES){const v=r&&r[s.id];if(Array.isArray(v)&&v.length===2&&v.every(x=>+x>0)){ai[s.id]=[Math.round(+v[0]),Math.round(+v[1])];ok++}}
+    if(!ok)throw{code:'bad'};
+    if(!item.name&&r.name)item.name=String(r.name).slice(0,80);
+    if(!item.brand&&r.brand)item.brand=String(r.brand).slice(0,40);
+    item.ai=ai;item.prices={};renderForm();render();
+    $('status').textContent=r.tip?'Tip from Claude: '+String(r.tip).slice(0,240):'Estimated by Claude.';
+  }catch(e){$('status').textContent=e&&e.code==='not_granted'?'Claude wasn’t allowed this time.':e&&e.code==='rate_limited'?'Too many requests. Try again in a moment.':'Claude couldn’t estimate this right now.'}
+  finally{$('aiBtn').disabled=false}
+};
+function connect(){
+  if(!(window.claude&&typeof window.claude.use==='function'))return false;
+  $('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';
+  window.claude.use('sample').then(s=>{if(s){sample=s;$('aiBtn').hidden=false}}).catch(()=>{});
+  return true;
+}
+
+/* ---------- start ---------- */
+renderForm();render();
+(async()=>{idb=await openDB();saved=await dbAll();renderSaved()})();
+if(!connect())window.addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>
