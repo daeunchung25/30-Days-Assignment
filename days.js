@@ -17,4 +17,11 @@ window.DAYS = {
     notes: "",
     link: "day-02/"
   },
+    3: {
+    title: "Last minute",
+    need: "A to-do list for when I’m procrastinating. I already figure out how long something will take and when it’s due, so this does the math and tells me the latest I can start.",
+    notes: "Started from the checklist I actually use in Notes. You can paste the whole list in.",
+    image: "day-03/notes.png",
+    link: "day-03/"
+  },
 };
