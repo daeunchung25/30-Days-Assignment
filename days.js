@@ -56,8 +56,16 @@ window.DAYS = {
      },
      8: {
        title: "Squish",
+       rating: 3,
        need: "Something just for fun. I keep watching squishy videos, so I made one I can build and squish myself: pick the outside (velvet, glossy tape, silicone, sugar crystal, chalky, snakeskin), what’s inside, the shape and the color.",
        notes: "Rebuilt after the first version looked flat. Now it’s lit in 3D so dents really sink in, the outsides are matched to squishy videos I like, and the sounds are layered: tape crinkles, sugar crackles, dough squelches.",
        link: "day-08/"
+     },
+          9: {
+       title: "Pop",
+       rating: 3,
+       need: "A game I can play without thinking. Endless bubble wrap: press or swipe to pop, and when a sheet is done the next one rolls in.",
+       notes: "Every sheet is a little different (big bubbles, tiny ones, pink, mint, sky). A few bubbles pop quietly on purpose, like real bubble wrap.",
+       link: "day-09/"
      },
 };
