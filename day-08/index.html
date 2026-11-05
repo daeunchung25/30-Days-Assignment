@@ -336,4 +336,77 @@ const audio=(()=>{
     if(ac.state==='suspended')ac.resume();
   }
   function grain(t,freq,q,gain,dur,type){const s=ac.createBufferSource();s.buffer=noise;const f=ac.createBiquadFilter();f.type=type||'bandpass';f.frequency.value=freq;f.Q.value=q;const g=ac.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain,t+.0015);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(g);g.connect(bus);s.start(t,Math.random()*1.9);s.stop(t+dur+.01)}
-  function bubble(t,f0,gain){const dur=.025+Math.random()*.05,o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(f0,t);o.frequency.expon
+  function bubble(t,f0,gain){const dur=.025+Math.random()*.05,o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f0*(1.3+Math.random()*.4),t+dur);const g=ac.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain,t+.003);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(bus);o.start(t);o.stop(t+dur+.01)}
+  function pop(t,gain){const o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(240,t);o.frequency.exponentialRampToValueAtTime(70,t+.03);const g=ac.createGain();g.gain.setValueAtTime(gain,t);g.gain.exponentialRampToValueAtTime(.0001,t+.04);o.connect(g);g.connect(bus);o.start(t);o.stop(t+.05)}
+  const spawn=(rate,dt,fn)=>{const x=rate*dt;let k=Math.floor(x)+(Math.random()<x%1?1:0);const t=ac.currentTime;while(k--)fn(t+Math.random()*dt)};
+  const set=(l,v)=>L[l].g.gain.setTargetAtTime(v,ac.currentTime,.04);
+  let sm=0;
+  function update(act,dt){
+    if(!on||S.vol<=0)return;sm=sm*.8+act*.2;const a=sm,f=S.fill,sk=PICKS[S.pick].snd;
+    // inside
+    if(f==='crunchy')spawn(a*260,dt,t=>{const loud=Math.pow(Math.random(),3);grain(t,1400+Math.random()*5500,1.2,.04+loud*.35,.003+Math.random()*.008)});
+    if(f==='sherbet')spawn(a*120,dt,t=>grain(t,6000+Math.random()*5000,1,.03+Math.random()*.06,.002+Math.random()*.004));
+    if(f==='watery')spawn(a*30,dt,t=>bubble(t,350+Math.random()*1100,.05+Math.random()*.1));
+    if(f==='dough')spawn(a*10,dt,t=>pop(t,.05+Math.random()*.06));
+    set('sand',f==='sherbet'?Math.min(.5,a*.4):0);
+    set('air',f==='soft'?a*.16:0);
+    set('goo',f==='dough'?Math.min(.6,a*.5)*(.7+Math.random()*.6):0);
+    set('hiss',f==='watery'?a*.07:0);
+    // outside
+    set('fuzz',sk==='velvet'?a*.06:0);
+    if(sk==='crust')spawn(a*90,dt,t=>grain(t,2000+Math.random()*4000,1.3,.03+Math.pow(Math.random(),2)*.15,.003+Math.random()*.006));
+    if(sk==='tape')spawn(a*150,dt,t=>grain(t,2800+Math.random()*6000,2.2,.02+Math.pow(Math.random(),2)*.14,.004+Math.random()*.012));
+    if(sk==='sugar')spawn(a*180,dt,t=>grain(t,3500+Math.random()*6000,1.5,.02+Math.pow(Math.random(),2)*.18,.002+Math.random()*.005));
+    if(sk==='silk')spawn(a*8,dt,t=>pop(t,.03+Math.random()*.04));
+  }
+  function event(kind){
+    if(!on||S.vol<=0)return;const t=ac.currentTime,f=S.fill,sk=PICKS[S.pick].snd;
+    if(kind==='press'){
+      grain(t,160,.7,.35,.09,'lowpass');
+      if(f==='crunchy')for(let i=0;i<22;i++)grain(t+Math.random()*.14,1500+Math.random()*5500,1.3,.05+Math.pow(Math.random(),3)*.4,.004+Math.random()*.008);
+      if(f==='watery')for(let i=0;i<5;i++)bubble(t+Math.random()*.1,300+Math.random()*700,.12);
+      if(sk==='tape')for(let i=0;i<10;i++)grain(t+Math.random()*.1,3000+Math.random()*5000,2,.06+Math.random()*.1,.006);
+      if(sk==='sugar')for(let i=0;i<14;i++)grain(t+Math.random()*.12,4000+Math.random()*5000,1.5,.05+Math.random()*.12,.003);
+    }else{
+      if(f==='watery')for(let i=0;i<7;i++)bubble(t+Math.random()*.18,250+Math.random()*900,.1);
+      if(f==='dough'||sk==='silk')for(let i=0;i<2+Math.random()*3;i++)pop(t+.02+Math.random()*.12,.12);
+      if(f==='soft'){L.air.g.gain.setValueAtTime(.12,t);L.air.g.gain.setTargetAtTime(0,t+.05,.5)}
+      if(f==='crunchy')for(let i=0;i<8;i++)grain(t+Math.random()*.2,2000+Math.random()*4000,1.3,.04+Math.random()*.1,.004);
+      if(sk==='tape')for(let i=0;i<6;i++)grain(t+Math.random()*.25,3000+Math.random()*5000,2,.05,.006);
+    }
+  }
+  return{start,update,event,setVol:v=>{if(audio.master)audio.master.gain.setTargetAtTime(v,ac.currentTime,.05)}};
+})();
+$('vol').value=S.vol;
+$('vol').oninput=()=>{S.vol=+$('vol').value;audio.setVol(S.vol);save()};
+
+/* ---------- pickers ---------- */
+const miniStates={};
+function mini(canvas,o){
+  const w=canvas.clientWidth||46,dpr=Math.min(2,window.devicePixelRatio||1),g=Math.round(Math.min(150,w*dpr*1.1));
+  const m=miniStates[g]||(miniStates[g]=makeState(g));m.D.fill(0);m.B.fill(0);m.sq=0;
+  shade(m,o);canvas.width=Math.round(w*dpr);canvas.height=Math.round(w*dpr);const c=canvas.getContext('2d');c.imageSmoothingQuality='high';c.clearRect(0,0,canvas.width,canvas.height);c.drawImage(m.cv,0,0,canvas.width,canvas.height);
+}
+function paint(){
+  $('picks').innerHTML=Object.entries(PICKS).map(([k,v])=>'<button type="button" class="opt" data-pick="'+k+'" aria-pressed="'+(S.pick===k)+'"><canvas></canvas><b>'+v.label+'</b></button>').join('');
+  $('fills').innerHTML=Object.entries(FILLS).map(([k,v])=>'<button type="button" class="opt" data-fill="'+k+'" aria-pressed="'+(S.fill===k)+'"><canvas></canvas><span><b>'+v.label+'</b><span>'+v.sub+'</span></span></button>').join('');
+  document.querySelectorAll('#picks canvas').forEach((cn,i)=>{const k=Object.keys(PICKS)[i];mini(cn,{pick:k,fill:PICKS[k].fill})});
+  document.querySelectorAll('#fills canvas').forEach((cn,i)=>mini(cn,{pick:'sugar',fill:Object.keys(FILLS)[i]}));
+  $('name').textContent=PICKS[S.pick].label+', '+FILLS[S.fill].label.toLowerCase()+' inside';
+  $('count').textContent=S.count?S.count+(S.count===1?' squish':' squishes'):'';
+}
+document.querySelector('.main').addEventListener('click',e=>{
+  const b=e.target.closest('[data-pick],[data-fill]');if(!b)return;
+  if(b.dataset.pick){S.pick=b.dataset.pick;S.fill=PICKS[S.pick].fill}
+  if(b.dataset.fill)S.fill=b.dataset.fill;
+  if(st){st.D.fill(0);st.V.fill(0);st.B.fill(0);st.sq=0;st.sqv=0}
+  save();paint();
+});
+paint();
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(paint,200)});
+function connect(){if(!(window.claude&&typeof window.claude.use==='function'))return false;$('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';return true}
+if(!connect())window.addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>
