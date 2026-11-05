@@ -68,4 +68,11 @@ window.DAYS = {
        notes: "Every sheet is a little different (big bubbles, tiny ones, pink, mint, sky). A few bubbles pop quietly on purpose, like real bubble wrap.",
        link: "day-09/"
      },
+          10: {
+       title: "What to eat",
+       rating: 4,
+       need: "I can never decide what to eat. A roulette with breakfast, lunch and dinner menus. I write what I don’t eat, and it takes those off the wheel for me before I spin.",
+       notes: "Each dish knows what’s in it, so writing “mushrooms” or “seafood” takes out every dish with them. It works with Korean words too, and it can skip what I picked recently.",
+       link: "day-10/"
+     },
 };
