@@ -45,29 +45,17 @@ button{font:inherit;color:inherit}
 .group{margin-bottom:18px}
 .group h2{font-size:19px;margin:0 0 8px}
 .opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.picks{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}
+.picks .opt{grid-template-columns:1fr;text-align:center;padding:8px}
+.picks .opt canvas{width:100%;height:auto;aspect-ratio:1}
 .opt{display:grid;grid-template-columns:46px 1fr;gap:10px;align-items:center;text-align:left;border:1.5px solid var(--line);background:var(--paper);border-radius:16px;padding:7px 10px;cursor:pointer}
 .opt:hover{border-color:var(--muted)}
 .opt[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
 .opt canvas{width:46px;height:46px;border-radius:10px;background:#F1EEEC}
 .opt b{display:block;font-size:15px;line-height:1.2}
 .opt span{font-size:12px;color:var(--muted);line-height:1.3;display:block}
-.swatches{display:flex;flex-wrap:wrap;gap:8px}
-.sw{width:38px;height:38px;border-radius:50%;border:2px solid var(--paper);box-shadow:0 0 0 1.5px var(--line);cursor:pointer}
-.sw[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent)}
-.btn{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:9px 16px;cursor:pointer;font-weight:800;font-size:14px}
-.btn:hover{border-color:var(--ink)}
-.btn.hot{background:var(--accent);border-color:var(--accent);color:#2A0C14}
 .vol{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
 .vol input{width:90px;accent-color:var(--accent)}
-.shelf{border-top:1px solid var(--line);margin-top:36px;padding-top:20px}
-.shelf h2{font-size:22px;margin:0 0 10px}
-.shelfgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
-.shelfgrid .item{border:1.5px solid var(--line);background:var(--paper);border-radius:16px;padding:8px;cursor:pointer;text-align:center;position:relative}
-.shelfgrid .item:hover{border-color:var(--accent)}
-.shelfgrid canvas{width:100%;aspect-ratio:1;display:block;border-radius:10px;background:#F1EEEC}
-.shelfgrid small{display:block;font-size:12px;color:var(--muted);line-height:1.3;margin-top:4px}
-.shelfgrid .rm{position:absolute;top:4px;right:8px;font-size:16px;color:var(--muted);border:0;background:none;cursor:pointer}
-.empty{color:var(--muted);font-size:14px}
 @media (max-width:820px){.main{grid-template-columns:1fr}.stagewrap{position:static}.title{display:none}}
 </style>
 </head>
@@ -87,33 +75,22 @@ button{font:inherit;color:inherit}
       </div>
       <div class="stagebar">
         <span class="name round" id="name"></span>
-        <span style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <label class="vol">Sound <input type="range" id="vol" min="0" max="1" step="0.05" aria-label="Volume"></label>
-          <button class="btn hot" id="keep" type="button">Keep it</button>
-        </span>
+        <label class="vol">Sound <input type="range" id="vol" min="0" max="1" step="0.05" aria-label="Volume"></label>
       </div>
     </div>
 
     <div>
       <p class="title round">Squish</p>
-      <p class="lede">Build a squishy and squish it. Pick what’s inside, the outside, the shape and the color. Turn the sound up.</p>
-      <div class="group"><h2 class="round">Outside</h2><div class="opts" id="skins" role="group" aria-label="Outside"></div></div>
+      <p class="lede">Pick a squishy and squish it. Each one comes with its own filling, and you can swap what’s inside. Turn the sound up.</p>
+      <div class="group"><h2 class="round">Squishies</h2><div class="opts picks" id="picks" role="group" aria-label="Squishy"></div></div>
       <div class="group"><h2 class="round">Inside</h2><div class="opts" id="fills" role="group" aria-label="Filling"></div></div>
-      <div class="group"><h2 class="round">Shape</h2><div class="opts" id="shapes" role="group" aria-label="Shape"></div></div>
-      <div class="group"><h2 class="round">Color</h2><div class="swatches" id="colors" role="group" aria-label="Color"></div></div>
     </div>
   </div>
-
-  <section class="shelf">
-    <h2 class="round">My shelf</h2>
-    <div class="shelfgrid" id="shelf"></div>
-  </section>
 </div>
 
 <script>
 (function(){
 const $=id=>document.getElementById(id);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clamp=(x,a,b)=>x<a?a:x>b?b:x;
 
 /* ---------- options ---------- */
@@ -125,23 +102,33 @@ const FILLS={
   watery:{label:'Watery',sub:'Wobbly and wet',k:.16,damp:.93,depth:.5,size:1,squash:.14,rate:7,flow:.25},
   sherbet:{label:'Sherbet',sub:'Sandy, icy grains',k:.035,damp:.78,depth:.48,size:.95,squash:.09,rate:3.5,flow:.06}
 };
-// how each outside catches the light, based on the reference photos
-const SKINS={
-  velvet:{label:'Toasted velvet',sub:'Fuzzy, airbrushed',amb:.44,kd:.6,wrap:.75,ks:0,shin:1,ks2:0,rim:0,sheen:.32,sss:.06},
-  tape:{label:'Glossy tape',sub:'Shiny with creases',amb:.42,kd:.66,wrap:.2,ks:1.1,shin:160,ks2:.2,rim:.28,sheen:0,sss:.06},
-  silicone:{label:'Cream silicone',sub:'Smooth, wet shine',amb:.33,kd:.72,wrap:.32,ks:.8,shin:60,ks2:.22,rim:.22,sheen:0,sss:.22},
-  sugar:{label:'Sugar crystal',sub:'Sparkly and see-through',amb:.36,kd:.58,wrap:.45,ks:1.3,shin:220,ks2:.12,rim:.35,sheen:0,sss:.4},
-  chalk:{label:'Chalky matte',sub:'Dry and papery',amb:.46,kd:.6,wrap:.5,ks:0,shin:1,ks2:.02,rim:0,sheen:.05,sss:0},
-  snake:{label:'Snakeskin',sub:'Shiny scales',amb:.3,kd:.74,wrap:.2,ks:.9,shin:90,ks2:.18,rim:.22,sheen:0,sss:.05}
+// ready-made squishies, each matched to a reference photo
+// foot: the shape, mat: how it catches the light, snd: what the outside sounds like
+const MAT={
+  velvet:{amb:.46,kd:.58,wrap:.75,ks:0,shin:1,ks2:0,rim:0,sheen:.3,sss:.06},
+  silk:{amb:.4,kd:.64,wrap:.5,ks:.14,shin:18,ks2:.05,rim:.08,sheen:.08,sss:.16},
+  satin:{amb:.4,kd:.64,wrap:.45,ks:.28,shin:26,ks2:.08,rim:.12,sheen:.05,sss:.28},
+  glossy:{amb:.42,kd:.66,wrap:.22,ks:1,shin:140,ks2:.2,rim:.28,sheen:0,sss:.08},
+  sugar:{amb:.36,kd:.58,wrap:.45,ks:1.3,shin:220,ks2:.12,rim:.35,sheen:0,sss:.4},
+  scales:{amb:.3,kd:.74,wrap:.2,ks:.9,shin:90,ks2:.18,rim:.22,sheen:0,sss:.05}
 };
-const SHAPES={ball:{label:'Ball',sub:'Round and full'},bun:{label:'Bun',sub:'Low and wide'},block:{label:'Block',sub:'Soft cube'}};
-const COLORS=[['Lemon','#F6C42E'],['Cream','#F3DE9E'],['White','#F5F4F1'],['Sky','#4FB3D6'],['Choco','#6A4130'],['Pink','#F3A2B4'],['Matcha','#A9CB86'],['Taro','#BBA5E6']];
-
-let S={fill:'soft',skin:'velvet',shape:'bun',color:'#F6C42E',count:0,vol:.8};
-let shelf=[];
-try{const s=JSON.parse(localStorage.getItem('squish-day8'));if(s){S=Object.assign(S,s.cur||{});shelf=s.shelf||[]}}catch(e){}
-if(!SKINS[S.skin])S.skin='velvet';if(!FILLS[S.fill])S.fill='soft';if(!SHAPES[S.shape])S.shape='bun';
-const save=()=>{try{localStorage.setItem('squish-day8',JSON.stringify({cur:S,shelf}))}catch(e){}};
+const PICKS={
+  salttoast:{label:'Salt toast',foot:'square',mat:'velvet',fill:'soft',snd:'velvet',base:'#A9D6CC'},
+  peach:{label:'White peach',foot:'peach',mat:'satin',fill:'watery',snd:'silk',base:'#F5A9AA'},
+  honey:{label:'Honey bread',foot:'oval',mat:'velvet',fill:'soft',snd:'velvet',base:'#F7D54C'},
+  jumbo:{label:'Jumbo morning bun',foot:'round',mat:'silk',fill:'soft',snd:'silk',base:'#F6DC8E'},
+  crispy:{label:'Crispy morning bun',foot:'bun',mat:'silk',fill:'crunchy',snd:'crust',base:'#F0ECD8'},
+  eggtoast:{label:'Egg toast',foot:'square',mat:'velvet',fill:'soft',snd:'velvet',base:'#F5C12E'},
+  cheese:{label:'Chubby cheese',foot:'cube',mat:'glossy',fill:'crunchy',snd:'tape',base:'#F4E4A6'},
+  pistachio:{label:'Pistachio',foot:'egg',mat:'glossy',fill:'dough',snd:'tape',base:'#F6F5F0'},
+  tape:{label:'Glossy tape',foot:'round',mat:'glossy',fill:'dough',snd:'tape',base:'#F5F4F1'},
+  sugar:{label:'Sugar crystal',foot:'bun',mat:'sugar',fill:'sherbet',snd:'sugar',base:'#4FB3D6'},
+  choco:{label:'Choco snake',foot:'round',mat:'scales',fill:'dough',snd:'silk',base:'#6A4130'}
+};
+let S={pick:'salttoast',fill:'soft',count:0,vol:.8};
+try{const s=JSON.parse(localStorage.getItem('squish-day8b'));if(s)S=Object.assign(S,s)}catch(e){}
+if(!PICKS[S.pick])S.pick='salttoast';if(!FILLS[S.fill])S.fill=PICKS[S.pick].fill;
+const save=()=>{try{localStorage.setItem('squish-day8b',JSON.stringify(S))}catch(e){}};
 
 /* ---------- surface textures ---------- */
 function rng(seed){return()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646}}
@@ -149,26 +136,23 @@ const hexRgb=h=>{const n=parseInt(h.replace('#',''),16);return[(n>>16)&255,(n>>8
 const TEXC={};
 function valueNoise(G,cells,seed){const r=rng(seed),g=[],out=new Float32Array(G*G),C=cells+1;for(let i=0;i<C*C;i++)g.push(r());
   for(let y=0;y<G;y++)for(let x=0;x<G;x++){const fx=x/G*cells,fy=y/G*cells,ix=fx|0,iy=fy|0,tx=fx-ix,ty=fy-iy,sx=tx*tx*(3-2*tx),sy=ty*ty*(3-2*ty);const a=g[iy*C+ix],b=g[iy*C+ix+1],c=g[(iy+1)*C+ix],d=g[(iy+1)*C+ix+1];const top=a+(b-a)*sx,bot=c+(d-c)*sx;out[y*G+x]=top+(bot-top)*sy}return out}
-function lines(G,n,seed,sharp,wMin,wMax,ampScale){
-  const r=rng(seed),out=new Float32Array(G*G);
-  for(let k=0;k<n;k++){const x0=r()*G,y0=r()*G,a=r()*Math.PI,ca=Math.cos(a),sa=Math.sin(a),amp=(r()<.35?-1:1)*(.6+r())*ampScale,len=G*(.12+r()*.35),w=wMin+r()*(wMax-wMin);
-    for(let y=0;y<G;y++)for(let x=0;x<G;x++){const dx=x-x0,dy=y-y0,al=dx*ca+dy*sa;if(Math.abs(al)>len)continue;const ac=Math.abs(-dx*sa+dy*ca);const prof=sharp?Math.max(0,1-ac/w):Math.exp(-ac*ac/(2*w*w));out[y*G+x]+=amp*(1-Math.abs(al)/len)*prof}}
-  return out;
-}
 function blur(a,G,r){const o=new Float32Array(a.length);for(let y=0;y<G;y++)for(let x=0;x<G;x++){let s=0,n=0;for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){const xx=x+dx,yy=y+dy;if(xx>=0&&yy>=0&&xx<G&&yy<G){s+=a[yy*G+xx];n++}}o[y*G+x]=s/n}a.set(o)}
 function tex(G){
   if(TEXC[G])return TEXC[G];
   const t={lumps:valueNoise(G,5,3),fine:valueNoise(G,Math.round(G/2.2),5),mid:valueNoise(G,Math.round(G/8),7)};
-  // tape: flat facets with sharp creases between them, like tape wrapped around a ball
+  // tape: flat facets with creases between them, like tape wrapped around a ball
   t.creases=new Float32Array(G*G);{const r=rng(13),pts=[...Array(16)].map(()=>[r()*G,r()*G,(r()-.5)*.09,(r()-.5)*.09]);const w=G*.045;
     for(let y=0;y<G;y++)for(let x=0;x<G;x++){let d1=1e9,d2=1e9,k1=0;for(let k=0;k<pts.length;k++){const d=Math.hypot(x-pts[k][0],y-pts[k][1]);if(d<d1){d2=d1;d1=d;k1=k}else if(d<d2)d2=d}
       const p=pts[k1],tilt=(x-p[0])*p[2]+(y-p[1])*p[3],e=Math.max(0,1-(d2-d1)/w);t.creases[y*G+x]=tilt*1.4+e*e*(3-2*e)*.9}
     blur(t.creases,G,2);blur(t.creases,G,2)}
-  t.folds=lines(G,12,23,false,2.5,6,1);        // soft chalky folds
   // sugar crystals: lots of little faceted bumps
   t.crystal=new Float32Array(G*G);{const r=rng(31),n=Math.round(G*G/10);for(let k=0;k<n;k++){const cx=r()*G,cy=r()*G,rad=(1.4+r()*3)*G/200,h=.7+r()*1.6;for(let y=Math.max(0,cy-rad|0);y<Math.min(G,cy+rad+1);y++)for(let x=Math.max(0,cx-rad|0);x<Math.min(G,cx+rad+1);x++){const d=Math.max(Math.abs(x-cx),Math.abs(y-cy)*.8+Math.abs(x-cx)*.3)/rad;if(d<1){const i=y*G+x;t.crystal[i]=Math.max(t.crystal[i],h*(1-d))}}}}
   // snakeskin: rows of rounded scales
   t.scales=new Float32Array(G*G);{const sz=G/26;for(let y=0;y<G;y++)for(let x=0;x<G;x++){const row=Math.floor(y/(sz*.8)),off=row%2?sz/2:0,cx=Math.floor((x+off)/sz)*sz-off+sz/2,cy=row*sz*.8+sz*.4;let best=1e9;for(const[ax,ay]of[[cx,cy],[cx+sz,cy],[cx-sz,cy],[cx+sz/2,cy+sz*.8],[cx-sz/2,cy+sz*.8],[cx+sz/2,cy-sz*.8],[cx-sz/2,cy-sz*.8]]){const d=Math.hypot((x-ax)/sz,(y-ay)/(sz*.8));if(d<best)best=d}t.scales[y*G+x]=Math.max(0,1-best*best*1.6)}}
+  // cheese holes
+  t.holes=new Float32Array(G*G);{const r=rng(51);for(let k=0;k<13;k++){const cx=(.14+r()*.72)*G,cy=(.14+r()*.72)*G,rad=(.02+r()*.045)*G;for(let y=Math.max(0,cy-rad|0);y<Math.min(G,cy+rad+1);y++)for(let x=Math.max(0,cx-rad|0);x<Math.min(G,cx+rad+1);x++){const d=Math.hypot(x-cx,y-cy)/rad;if(d<1){const i=y*G+x;t.holes[i]=Math.max(t.holes[i],clamp((1-d)*3.5,0,1))}}}}
+  // pepper speckle
+  t.pepper=new Float32Array(G*G);{const r=rng(61);for(let k=0;k<G*G*.05;k++){const x=r()*G|0,y=r()*G|0;t.pepper[y*G+x]=.4+r()*.6}}
   return TEXC[G]=t;
 }
 function fillTex(G,fill,color){
@@ -185,11 +169,19 @@ function fillTex(G,fill,color){
 
 /* ---------- the squishy as a height map, lit in 3D ---------- */
 const RAD=.78;
-function foot(shape,u,v){
-  if(shape==='block'){const r=Math.pow(u*u*u*u+v*v*v*v,.25)/RAD;if(r>=1)return null;const e=clamp((1-r)/.32,0,1);return[Math.sqrt(1-(1-e)*(1-e))*.72,r]}
-  const r2=(u*u+v*v)/(RAD*RAD);if(r2>=1)return null;const r=Math.sqrt(r2);
-  if(shape==='bun')return[Math.pow(1-r2,.4)*.58,r];
-  return[Math.sqrt(1-r2),r];
+function superE(u,v,p,rad){return Math.pow(Math.pow(Math.abs(u),p)+Math.pow(Math.abs(v),p),1/p)/rad}
+function foot(kind,u,v){
+  let r,h;
+  switch(kind){
+    case 'square':r=superE(u,v,4,.74);if(r>=1)return null;{const e=clamp((1-r)/.3,0,1);h=Math.sqrt(1-(1-e)*(1-e))*.48}break;
+    case 'cube':r=superE(u,v,5,.66);if(r>=1)return null;{const e=clamp((1-r)/.26,0,1);h=Math.sqrt(1-(1-e)*(1-e))*.78}break;
+    case 'oval':{const c=Math.cos(.35),sn=Math.sin(.35),uu=u*c+v*sn,vv=-u*sn+v*c,r2=(uu/.66)**2+(vv/.8)**2;if(r2>=1)return null;r=Math.sqrt(r2);h=Math.pow(1-r2,.45)*.55}break;
+    case 'peach':{const r2=(u/.74)**2+((v+.02)/.72)**2;if(r2>=1)return null;r=Math.sqrt(r2);h=Math.sqrt(1-r2)*.95}break;
+    case 'egg':{const w=.56*(1+.2*v),r2=(u/w)**2+(v/.8)**2;if(r2>=1)return null;r=Math.sqrt(r2);h=Math.sqrt(1-r2)*.9}break;
+    case 'bun':{const r2=(u*u+v*v)/(RAD*RAD);if(r2>=1)return null;r=Math.sqrt(r2);h=Math.pow(1-r2,.42)*.6}break;
+    default:{const r2=(u*u+v*v)/(RAD*RAD);if(r2>=1)return null;r=Math.sqrt(r2);h=Math.sqrt(1-r2)}
+  }
+  return[h,r];
 }
 function makeState(G){
   const n=G*G,st={G,D:new Float32Array(n),V:new Float32Array(n),T:new Float32Array(n),B:new Float32Array(n),H:new Float32Array(n),A:new Float32Array(n),H0:new Float32Array(n),tmp:new Float32Array(n),sq:0,sqv:0};
@@ -197,47 +189,59 @@ function makeState(G){
 }
 const Lv=(()=>{const v=[-.45,-.6,.66],n=Math.hypot(...v);return v.map(x=>x/n)})();
 const Hv=(()=>{const v=[Lv[0],Lv[1],Lv[2]+1],n=Math.hypot(...v);return v.map(x=>x/n)})();
+const blob=(u,v,cx,cy,sx,sy)=>Math.exp(-((u-cx)**2/(2*sx*sx)+(v-cy)**2/(2*sy*sy)));
+const mixc=(c,t,k)=>{c[0]+=(t[0]-c[0])*k;c[1]+=(t[1]-c[1])*k;c[2]+=(t[2]-c[2])*k};
 function shade(st,o){
-  const G=st.G,HT=G*.34,t=tex(G),sk=SKINS[o.skin],base=hexRgb(o.color),ft=o.skin==='sugar'?fillTex(G,o.fill,o.color):null;
-  const s=1+st.sq*.55,hs=1-st.sq*.9,D=st.D,B=st.B,H=st.H,A=st.A,H0=st.H0,data=st.img.data,sc=G/200;
-  for(let y=0;y<G;y++){const v=((y+.5)/G*2-1)/s;for(let x=0;x<G;x++){const i=y*G+x,u=((x+.5)/G*2-1)/s,f=foot(o.shape,u,v);
+  const G=st.G,HT=G*.34,t=tex(G),P=PICKS[o.pick],sk=MAT[P.mat],base=hexRgb(P.base),ft=P.mat==='sugar'?fillTex(G,o.fill,P.base):null;
+  const s=1+st.sq*.55,hs=1-st.sq*.9,D=st.D,B=st.B,H=st.H,A=st.A,H0=st.H0,data=st.img.data,sc=G/200,id=o.pick;
+  for(let y=0;y<G;y++){const v=((y+.5)/G*2-1)/s;for(let x=0;x<G;x++){const i=y*G+x,u=((x+.5)/G*2-1)/s,f=foot(P.foot,u,v);
     if(!f){H[i]=0;A[i]=0;H0[i]=0;continue}
     const h0=f[0]*HT*hs,dn=clamp(D[i]/HT,0,1);let h=h0-D[i]+B[i];
-    switch(o.skin){
-      case 'tape':h+=t.lumps[i]*HT*.05+t.creases[i]*(1.6+dn*3)*sc;break;
-      case 'silicone':h+=t.lumps[i]*HT*.025;break;
-      case 'velvet':h+=(t.fine[i]-.5)*.5*sc;break;
-      case 'sugar':h+=t.crystal[i]*2.4*sc+t.lumps[i]*HT*.02;break;
-      case 'chalk':h+=t.folds[i]*(1.6+dn*4)*sc+(t.fine[i]-.5)*.25*sc+t.lumps[i]*HT*.04;break;
-      case 'snake':h+=t.scales[i]*1.1*sc+t.lumps[i]*HT*.03;break;
+    if(P.mat==='velvet')h+=(t.fine[i]-.5)*.5*sc+t.lumps[i]*HT*.03;
+    else if(P.mat==='silk'||P.mat==='satin')h+=t.lumps[i]*HT*.03;
+    if(id==='tape')h+=t.lumps[i]*HT*.05+t.creases[i]*(1.6+dn*3)*sc;
+    if(id==='cheese')h+=t.lumps[i]*HT*.07-t.holes[i]*HT*.12;
+    if(id==='pistachio')h+=t.creases[i]*(.45+dn*1.5)*sc+t.lumps[i]*HT*.03;
+    if(id==='sugar')h+=t.crystal[i]*2.4*sc+t.lumps[i]*HT*.02;
+    if(id==='choco')h+=t.scales[i]*1.1*sc+t.lumps[i]*HT*.03;
+    if(id==='crispy')h+=((t.lumps[i]-.5)*HT*.14+(t.mid[i]-.5)*HT*.025)*blob(u,v,0,-.05,.3,.3);
+    if(id==='peach'){ // the little crease and the leaf on top
+      h-=HT*.05*Math.exp(-((u-.02-.12*(v+.6))**2)/(2*.03*.03))*clamp((v+.72)*6,0,1)*clamp((-.3-v)*6,0,1);
+      const lu=(u-.16)*Math.cos(.35)+(v+.5)*Math.sin(.35),lv=-(u-.16)*Math.sin(.35)+(v+.5)*Math.cos(.35),lf=1-(lu/.3)**2-(lv/.075)**2;
+      if(lf>0)h+=HT*.06*Math.sqrt(lf);
     }
     H[i]=Math.max(h,h0*.12);H0[i]=f[0];A[i]=clamp((1-f[1])*G*RAD*.45,0,1);
   }}
   for(let y=0;y<G;y++)for(let x=0;x<G;x++){
     const i=y*G+x,p=i*4;if(A[i]<=0){data[p+3]=0;continue}
-    const l=x>0?H[i-1]:H[i],r=x<G-1?H[i+1]:H[i],u=y>0?H[i-G]:H[i],d=y<G-1?H[i+G]:H[i];
-    let nx=-(r-l)*.5,ny=-(d-u)*.5,nz=1;const nl=Math.hypot(nx,ny,nz);nx/=nl;ny/=nl;nz/=nl;
+    const l=x>0?H[i-1]:H[i],r=x<G-1?H[i+1]:H[i],uu0=y>0?H[i-G]:H[i],d=y<G-1?H[i+G]:H[i];
+    let nx=-(r-l)*.5,ny=-(d-uu0)*.5,nz=1;const nl=Math.hypot(nx,ny,nz);nx/=nl;ny/=nl;nz/=nl;
+    const u=((x+.5)/G*2-1)/s,v=((y+.5)/G*2-1)/s,dent=clamp(D[i]/HT,0,1);
+    // color, painted like the real ones
+    const c=[base[0],base[1],base[2]];let km=1;
+    switch(id){
+      case 'salttoast':{const tz=blob(u,v,-.08,.05,.3,.25);mixc(c,[150,170,160],tz*.45+dent*.2);if(t.pepper[i]>1.02-(.22+tz*.8))mixc(c,[45,45,45],t.pepper[i]*(.45+tz*.55));break}
+      case 'peach':{mixc(c,[248,200,196],clamp(H0[i]<.5?(.5-H0[i])*1.6:0,0,.6));mixc(c,[236,140,146],blob(u,v,.1,.25,.35,.3)*.35);
+        const lu=(u-.16)*Math.cos(.35)+(v+.5)*Math.sin(.35),lv=-(u-.16)*Math.sin(.35)+(v+.5)*Math.cos(.35),lf=1-(lu/.3)**2-(lv/.075)**2;if(lf>0){c[0]=78;c[1]=158;c[2]=92;km=1.8}break}
+      case 'honey':{const c2=Math.cos(.35),s2=Math.sin(.35),vv=-u*s2+v*c2,band=Math.pow(Math.max(0,Math.sin(vv*7.5+.6)),2);mixc(c,[232,112,38],band*.75+blob(u,v,.3,-.1,.25,.25)*.3+dent*.3);break}
+      case 'jumbo':{mixc(c,[248,232,190],clamp(1-H0[i],0,1)*.6);mixc(c,[230,128,40],blob(u,v,.08,.12,.28,.28)*.85+dent*.25);break}
+      case 'crispy':{const tz=blob(u,v,0,-.05,.33,.3);mixc(c,[214,110,52],clamp(tz*1.05,0,1));km=tz>.4?2.6:1;break}
+      case 'eggtoast':{mixc(c,[226,70,40],clamp(blob(u,v,.05,.05,.24,.24)*.95+blob(u,v,.05,.05,.5,.5)*.2+dent*.35,0,1));break}
+      case 'cheese':{mixc(c,[205,175,95],t.holes[i]*.55);break}
+      case 'pistachio':{const w=.38*clamp(.15-v,0,1)*1.6;if(Math.abs(u+.02)<w&&v<.12)mixc(c,[140,198,64],clamp((w-Math.abs(u+.02))*14,0,1)*.95);break}
+      case 'choco':{const k=.82+t.scales[i]*.25;c[0]*=k;c[1]*=k;c[2]*=k;break}
+    }
+    if(P.mat==='velvet'){const sp=(t.fine[i]-.5)*.07;c[0]*=1+sp;c[1]*=1+sp;c[2]*=1+sp}
     const ndl=nx*Lv[0]+ny*Lv[1]+nz*Lv[2],diff=Math.max(0,(ndl+sk.wrap)/(1+sk.wrap));
     const ndh=Math.max(0,nx*Hv[0]+ny*Hv[1]+nz*Hv[2]);
-    const spec=(sk.ks?sk.ks*Math.pow(ndh,sk.shin):0)+(sk.ks2?sk.ks2*Math.pow(ndh,10):0);
+    const spec=((sk.ks?sk.ks*Math.pow(ndh,sk.shin):0)+(sk.ks2?sk.ks2*Math.pow(ndh,10):0))*km+(km>2?.5*Math.pow(ndh,90):0);
     const edge=1-nz,fres=sk.rim*edge*edge*edge,sheen=sk.sheen*edge*edge;
-    const dent=clamp(D[i]/HT,0,1),ao=1-clamp(dent*1.5,0,.5)-(1-H0[i])*.06;
-    let cr=base[0],cg=base[1],cb=base[2];
-    if(o.skin==='velvet'){ // airbrushed toast in the middle, and fuzzy speckle
-      const uu=(x/G*2-1)+.12,vv=(y/G*2-1)+.18,tz=Math.exp(-(uu*uu+vv*vv*1.3)/(2*.24*.24))*.8+Math.exp(-(uu*uu+vv*vv)/(2*.45*.45))*.25+dent*.45,tt=clamp(tz,0,1);
-      cr+=(214-cr)*tt;cg+=(78-cg)*tt;cb+=(28-cb)*tt;
-      const sp=(t.fine[i]-.5)*.07;cr*=1+sp;cg*=1+sp;cb*=1+sp;
-    }
-    if(o.skin==='chalk'){const g=(t.fine[i]-.5)*.06;cr*=1+g;cg*=1+g;cb*=1+g}
-    if(o.skin==='snake'){const g=t.scales[i];const k=.82+g*.25;cr*=k;cg*=k;cb*=k}
-    if(ft){const ox=clamp(x+Math.round(nx*6),0,G-1),oy=clamp(y+Math.round(ny*6),0,G-1),q=(oy*G+ox)*4,m=.25*H0[i];cr=cr*(1-m)+ft[q]*m;cg=cg*(1-m)+ft[q+1]*m;cb=cb*(1-m)+ft[q+2]*m;
-      const lift=.18*(1-H0[i]*.5);cr+=(255-cr)*lift*.4;cg+=(255-cg)*lift*.4;cb+=(255-cb)*lift*.4}
-    const lit=(sk.amb+diff*sk.kd)*ao,glow=sk.sss*edge*.7;
-    const cool=o.skin==='chalk'?(1-diff)*.06:0; // chalky shadows look a little blue
-    const hi=(spec+fres)*255,sh=sheen*255;
-    data[p]=clamp(cr*(lit+glow)*(1-cool)+hi+sh*.9,0,255);
-    data[p+1]=clamp(cg*(lit+glow)*(1-cool*.5)+hi+sh*.9,0,255);
-    data[p+2]=clamp(cb*(lit+glow*.9)+hi+sh*.85,0,255);
+    const ao=1-clamp(dent*1.5,0,.5)-(1-H0[i])*.06;
+    if(ft){const ox=clamp(x+Math.round(nx*6),0,G-1),oy=clamp(y+Math.round(ny*6),0,G-1),q=(oy*G+ox)*4,m=.25*H0[i];c[0]=c[0]*(1-m)+ft[q]*m;c[1]=c[1]*(1-m)+ft[q+1]*m;c[2]=c[2]*(1-m)+ft[q+2]*m}
+    const lit=(sk.amb+diff*sk.kd)*ao,glow=sk.sss*edge*.7,hi=(spec+fres)*255,sh=sheen*255;
+    data[p]=clamp(c[0]*(lit+glow)+hi+sh*.9,0,255);
+    data[p+1]=clamp(c[1]*(lit+glow)+hi+sh*.9,0,255);
+    data[p+2]=clamp(c[2]*(lit+glow*.9)+hi+sh*.85,0,255);
     data[p+3]=A[i]*255;
   }
   st.cx.putImageData(st.img,0,0);
@@ -332,93 +336,4 @@ const audio=(()=>{
     if(ac.state==='suspended')ac.resume();
   }
   function grain(t,freq,q,gain,dur,type){const s=ac.createBufferSource();s.buffer=noise;const f=ac.createBiquadFilter();f.type=type||'bandpass';f.frequency.value=freq;f.Q.value=q;const g=ac.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain,t+.0015);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(g);g.connect(bus);s.start(t,Math.random()*1.9);s.stop(t+dur+.01)}
-  function bubble(t,f0,gain){const dur=.025+Math.random()*.05,o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f0*(1.3+Math.random()*.4),t+dur);const g=ac.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain,t+.003);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(bus);o.start(t);o.stop(t+dur+.01)}
-  function pop(t,gain){const o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(240,t);o.frequency.exponentialRampToValueAtTime(70,t+.03);const g=ac.createGain();g.gain.setValueAtTime(gain,t);g.gain.exponentialRampToValueAtTime(.0001,t+.04);o.connect(g);g.connect(bus);o.start(t);o.stop(t+.05)}
-  const spawn=(rate,dt,fn)=>{const x=rate*dt;let k=Math.floor(x)+(Math.random()<x%1?1:0);const t=ac.currentTime;while(k--)fn(t+Math.random()*dt)};
-  const set=(l,v)=>L[l].g.gain.setTargetAtTime(v,ac.currentTime,.04);
-  let sm=0;
-  function update(act,dt){
-    if(!on||S.vol<=0)return;sm=sm*.8+act*.2;const a=sm,f=S.fill,sk=S.skin;
-    // inside
-    if(f==='crunchy')spawn(a*260,dt,t=>{const loud=Math.pow(Math.random(),3);grain(t,1400+Math.random()*5500,1.2,.04+loud*.35,.003+Math.random()*.008)});
-    if(f==='sherbet')spawn(a*120,dt,t=>grain(t,6000+Math.random()*5000,1,.03+Math.random()*.06,.002+Math.random()*.004));
-    if(f==='watery')spawn(a*30,dt,t=>bubble(t,350+Math.random()*1100,.05+Math.random()*.1));
-    if(f==='dough')spawn(a*10,dt,t=>pop(t,.05+Math.random()*.06));
-    set('sand',f==='sherbet'?Math.min(.5,a*.4):0);
-    set('air',f==='soft'?a*.16:0);
-    set('goo',f==='dough'?Math.min(.6,a*.5)*(.7+Math.random()*.6):0);
-    set('hiss',f==='watery'?a*.07:0);
-    // outside
-    set('fuzz',sk==='velvet'?a*.06:sk==='chalk'?a*.05:0);
-    if(sk==='tape')spawn(a*150,dt,t=>grain(t,2800+Math.random()*6000,2.2,.02+Math.pow(Math.random(),2)*.14,.004+Math.random()*.012));
-    if(sk==='chalk')spawn(a*70,dt,t=>grain(t,1200+Math.random()*2500,1,.03+Math.random()*.07,.01+Math.random()*.02));
-    if(sk==='sugar')spawn(a*180,dt,t=>grain(t,3500+Math.random()*6000,1.5,.02+Math.pow(Math.random(),2)*.18,.002+Math.random()*.005));
-    if(sk==='silicone'||sk==='snake')spawn(a*14,dt,t=>pop(t,.04+Math.random()*.05));
-  }
-  function event(kind){
-    if(!on||S.vol<=0)return;const t=ac.currentTime,f=S.fill,sk=S.skin;
-    if(kind==='press'){
-      grain(t,160,.7,.35,.09,'lowpass');
-      if(f==='crunchy')for(let i=0;i<22;i++)grain(t+Math.random()*.14,1500+Math.random()*5500,1.3,.05+Math.pow(Math.random(),3)*.4,.004+Math.random()*.008);
-      if(f==='watery')for(let i=0;i<5;i++)bubble(t+Math.random()*.1,300+Math.random()*700,.12);
-      if(sk==='tape')for(let i=0;i<10;i++)grain(t+Math.random()*.1,3000+Math.random()*5000,2,.06+Math.random()*.1,.006);
-      if(sk==='sugar')for(let i=0;i<14;i++)grain(t+Math.random()*.12,4000+Math.random()*5000,1.5,.05+Math.random()*.12,.003);
-    }else{
-      if(f==='watery')for(let i=0;i<7;i++)bubble(t+Math.random()*.18,250+Math.random()*900,.1);
-      if(f==='dough'||sk==='silicone'||sk==='snake')for(let i=0;i<2+Math.random()*3;i++)pop(t+.02+Math.random()*.12,.12);
-      if(f==='soft'){L.air.g.gain.setValueAtTime(.12,t);L.air.g.gain.setTargetAtTime(0,t+.05,.5)}
-      if(f==='crunchy')for(let i=0;i<8;i++)grain(t+Math.random()*.2,2000+Math.random()*4000,1.3,.04+Math.random()*.1,.004);
-      if(sk==='tape')for(let i=0;i<6;i++)grain(t+Math.random()*.25,3000+Math.random()*5000,2,.05,.006);
-    }
-  }
-  return{start,update,event,setVol:v=>{if(audio.master)audio.master.gain.setTargetAtTime(v,ac.currentTime,.05)}};
-})();
-$('vol').value=S.vol;
-$('vol').oninput=()=>{S.vol=+$('vol').value;audio.setVol(S.vol);save()};
-
-/* ---------- pickers ---------- */
-const miniStates={};
-function mini(canvas,o){
-  const w=canvas.clientWidth||46,dpr=Math.min(2,window.devicePixelRatio||1),g=Math.round(Math.min(110,w*dpr*1.2));
-  const m=miniStates[g]||(miniStates[g]=makeState(g));m.D.fill(0);m.B.fill(0);m.sq=0;
-  shade(m,o);canvas.width=Math.round(w*dpr);canvas.height=Math.round(w*dpr);const c=canvas.getContext('2d');c.imageSmoothingQuality='high';c.clearRect(0,0,canvas.width,canvas.height);c.drawImage(m.cv,canvas.width*.02,canvas.height*.02,canvas.width*.96,canvas.height*.96);
-}
-function nameOf(o){const col=(COLORS.find(c=>c[1]===o.color)||['Custom'])[0];return col+' '+SKINS[o.skin].label.toLowerCase()+' '+SHAPES[o.shape].label.toLowerCase()+', '+FILLS[o.fill].label.toLowerCase()+' inside'}
-function opts(id,list,key){$(id).innerHTML=Object.entries(list).map(([k,v])=>'<button type="button" class="opt" data-'+key+'="'+k+'" aria-pressed="'+(S[key]===k)+'"><canvas></canvas><span><b>'+v.label+'</b><span>'+v.sub+'</span></span></button>').join('')}
-function paint(){
-  opts('skins',SKINS,'skin');opts('fills',FILLS,'fill');opts('shapes',SHAPES,'shape');
-  $('colors').innerHTML=COLORS.map(c=>'<button type="button" class="sw" data-color="'+c[1]+'" aria-pressed="'+(S.color===c[1])+'" aria-label="'+c[0]+'" title="'+c[0]+'" style="background:'+c[1]+'"></button>').join('');
-  document.querySelectorAll('#skins canvas').forEach((cn,i)=>mini(cn,{fill:S.fill,skin:Object.keys(SKINS)[i],shape:'ball',color:S.color}));
-  document.querySelectorAll('#fills canvas').forEach((cn,i)=>mini(cn,{fill:Object.keys(FILLS)[i],skin:'sugar',shape:'ball',color:S.color}));
-  document.querySelectorAll('#shapes canvas').forEach((cn,i)=>mini(cn,{fill:S.fill,skin:S.skin,shape:Object.keys(SHAPES)[i],color:S.color}));
-  $('name').textContent=nameOf(S);
-  $('count').textContent=S.count?S.count+(S.count===1?' squish':' squishes'):'';
-}
-document.querySelector('.main').addEventListener('click',e=>{
-  const b=e.target.closest('[data-fill],[data-skin],[data-shape],[data-color]');if(!b)return;
-  if(b.dataset.fill&&b.dataset.fill!==S.fill&&st){st.D.fill(0);st.V.fill(0);st.B.fill(0);st.sq=0;st.sqv=0}
-  for(const k of['fill','skin','shape','color'])if(b.dataset[k])S[k]=b.dataset[k];
-  save();paint();
-});
-
-/* ---------- shelf ---------- */
-function paintShelf(){
-  $('shelf').innerHTML=shelf.length?shelf.map((o,i)=>'<div class="item" role="button" tabindex="0" data-i="'+i+'" aria-label="Load '+esc(nameOf(o))+'"><canvas></canvas><small>'+esc(nameOf(o))+'</small><button type="button" class="rm" data-rm="'+i+'" aria-label="Remove">×</button></div>').join(''):'<p class="empty">Make one you like and tap “Keep it” to put it here.</p>';
-  document.querySelectorAll('#shelf canvas').forEach((cn,i)=>mini(cn,shelf[i]));
-}
-$('keep').onclick=()=>{const o={fill:S.fill,skin:S.skin,shape:S.shape,color:S.color};if(!shelf.some(x=>JSON.stringify(x)===JSON.stringify(o))){shelf.unshift(o);shelf=shelf.slice(0,24);save();paintShelf()}$('keep').textContent='On your shelf';setTimeout(()=>$('keep').textContent='Keep it',1400)};
-$('shelf').addEventListener('click',e=>{
-  const rm=e.target.closest('[data-rm]');if(rm){shelf.splice(+rm.dataset.rm,1);save();paintShelf();return}
-  const b=e.target.closest('[data-i]');if(!b)return;const o=shelf[+b.dataset.i];S.shape=o.shape;S.fill=o.fill;S.skin=o.skin;S.color=o.color;save();paint();window.scrollTo({top:0,behavior:'smooth'});
-});
-$('shelf').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset.i!=null)e.target.click()});
-shelf=shelf.filter(o=>SKINS[o.skin]&&FILLS[o.fill]&&SHAPES[o.shape]);
-
-paint();paintShelf();
-let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{paint();paintShelf()},200)});
-function connect(){if(!(window.claude&&typeof window.claude.use==='function'))return false;$('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';return true}
-if(!connect())window.addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
-})();
-</script>
-</body>
-</html>
+  function bubble(t,f0,gain){const dur=.025+Math.random()*.05,o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(f0,t);o.frequency.expon
