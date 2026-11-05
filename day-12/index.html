@@ -27,24 +27,23 @@ button,input,textarea{font:inherit;color:inherit}
 .top a{color:var(--muted);font-size:14px;text-decoration:none}
 .top a:hover{text-decoration:underline}
 .top h1{font-size:30px;margin:0;font-style:italic}
-.lede{color:var(--muted);margin:4px 0 20px;max-width:58ch}
+.lede{color:var(--muted);margin:4px 0 20px;max-width:60ch}
 
-.boards{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.board{position:relative;border-radius:28px;overflow:hidden;background:#EDE8DE;box-shadow:0 1px 0 rgba(0,0,0,.04),0 12px 30px -18px rgba(0,0,0,.35)}
-.board canvas{display:block;width:100%;aspect-ratio:4/5;touch-action:none}
-#face{cursor:crosshair}
-.tag{position:absolute;left:14px;top:12px;font-size:13px;font-weight:600;color:#171614;background:rgba(255,253,248,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:999px;padding:3px 10px;pointer-events:none}
+.main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px;align-items:start}
+.stagewrap{position:sticky;top:14px}
+.board{position:relative;border-radius:28px;overflow:hidden;background:#F6F1E4;box-shadow:0 1px 0 rgba(0,0,0,.04),0 12px 30px -18px rgba(0,0,0,.35)}
+.board canvas{display:block;width:100%;aspect-ratio:4/5;touch-action:none;cursor:crosshair}
+.tag{position:absolute;left:14px;top:12px;font-size:13px;font-weight:600;color:#171614;background:rgba(255,253,248,.85);border-radius:999px;padding:3px 10px;pointer-events:none}
 .big{position:absolute;right:16px;bottom:10px;pointer-events:none;text-align:right;color:#171614}
-.big b{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:56px;line-height:1;display:block;text-shadow:0 1px 0 rgba(255,253,248,.7)}
-.big span{font-size:13px;font-weight:600;background:rgba(255,253,248,.82);border-radius:999px;padding:2px 8px}
+.big b{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:56px;line-height:1;display:block}
+.big span{font-size:13px;font-weight:600;background:rgba(255,253,248,.85);border-radius:999px;padding:2px 8px}
 .tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
-.btn{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:14px}
 .btn:hover{border-color:var(--ink)}
 .btn.hot{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 
-.panel{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;margin-top:22px;align-items:start}
-.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:18px}
-.card h2{font-size:26px;margin:0 0 2px;line-height:1.1}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:16px}
+.card h2{font-size:28px;margin:0 0 2px;line-height:1.1}
 .card p.sub{margin:0 0 12px;color:var(--muted);font-size:14px}
 .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}
 .type{border:1px solid var(--line);background:var(--field);border-radius:14px;padding:8px 10px;cursor:pointer;text-align:left;display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:center}
@@ -60,14 +59,19 @@ input[type=range]::-webkit-slider-runnable-track{height:12px;border-radius:6px;b
 input[type=range]::-moz-range-track{height:12px;border-radius:6px;background:linear-gradient(90deg,#BFE3F0,#F2D21B,#F08A24,#E2392B,#8B3FA8)}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;margin-top:-7px;border-radius:50%;background:var(--paper);border:3px solid var(--ink)}
 input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--paper);border:3px solid var(--ink)}
-.say{font-family:"Instrument Serif",Georgia,serif;font-size:24px;line-height:1.25;margin:0 0 12px}
-.spots{list-style:none;margin:0 0 6px;padding:0}
-.spots li{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
-.spots li:first-child{border-top:0}
-.spots i{width:12px;height:12px;border-radius:50%;flex:none}
-.spots button.name{border:0;background:none;padding:0;text-align:left;cursor:pointer;flex:1;font-weight:600;font-size:15px}
-.spots small{color:var(--muted);font-weight:400}
-.spots .x{border:0;background:none;color:var(--muted);cursor:pointer;font-size:18px}
+
+.why{list-style:none;margin:0;padding:0}
+.why>li{padding:14px 0;border-top:1px solid var(--line)}
+.why>li:first-child{border-top:0;padding-top:4px}
+.why h3{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:24px;margin:0;display:flex;align-items:center;gap:10px}
+.why h3 i{width:12px;height:12px;border-radius:50%;flex:none}
+.why h3 small{font-family:"Instrument Sans",sans-serif;font-size:14px;color:var(--muted)}
+.why h3 button{margin-left:auto;border:0;background:none;color:var(--muted);cursor:pointer;font-size:18px}
+.why .kind{margin:6px 0 6px;font-size:15px}
+.why ul{margin:0 0 8px;padding-left:18px}
+.why ul li{margin:2px 0}
+.why .help{font-size:14px;color:var(--muted);margin:0}
+.why .help b{color:var(--ink)}
 textarea{width:100%;border:1px solid var(--line);background:var(--field);border-radius:14px;padding:10px 12px;min-height:60px;resize:vertical}
 .log{list-style:none;margin:0;padding:0}
 .log li{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--line);align-items:center}
@@ -76,70 +80,65 @@ textarea{width:100%;border:1px solid var(--line);background:var(--field);border-
 .log .d{font-size:12px;color:var(--muted)}
 .log .t{font-size:14px}
 .log .x{border:0;background:none;color:var(--muted);cursor:pointer;font-size:13px;text-decoration:underline;padding:0}
-.care{font-size:13px;color:var(--muted);margin-top:20px;line-height:1.5;max-width:80ch}
+.care{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
 .care b{color:var(--ink)}
-@media (max-width:820px){.boards,.panel{grid-template-columns:1fr}.big b{font-size:44px}}
+@media (max-width:860px){.main{grid-template-columns:1fr}.stagewrap{position:static}.big b{font-size:44px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top"><a id="back" href="../">Day 12 of 30</a><h1 class="serif">Brain map</h1></div>
-  <p class="lede">Tap where your head hurts. Each kind of pain gets its own doodle on your face and its own pattern on the map, and both move the way it feels.</p>
+  <p class="lede">Your head from above, front at the top. Tap where it hurts and pick how it feels. The pattern spreads out from the pain and moves the way it feels.</p>
 
-  <div class="boards">
-    <div>
+  <div class="main">
+    <div class="stagewrap">
       <div class="board">
-        <canvas id="face" role="img" aria-label="Your face. Tap where it hurts to add a mark, drag a mark to move it."></canvas>
-        <span class="tag" id="faceTag">Tap where it hurts</span>
-      </div>
-      <div class="tools">
-        <label class="btn"><input type="file" id="photo" accept="image/*" capture="user" hidden>Use a selfie</label>
-        <button class="btn" id="noPhoto" type="button" hidden>Use the drawing</button>
-        <button class="btn" id="clearAll" type="button">Clear marks</button>
-      </div>
-    </div>
-    <div>
-      <div class="board">
-        <canvas id="map" role="img" aria-label="Brain map pattern made from your marks"></canvas>
-        <span class="tag">Brain map</span>
+        <canvas id="cv" role="img" aria-label="Top view of a brain. Tap where your head hurts. Front is at the top."></canvas>
+        <span class="tag" id="tag">Tap where it hurts</span>
         <div class="big" aria-live="polite"><b id="ovNum">0</b><span id="ovWord">Calm</span></div>
       </div>
       <div class="tools">
         <button class="btn hot" id="saveImg" type="button">Save image</button>
+        <button class="btn" id="clearAll" type="button">Clear</button>
       </div>
     </div>
-  </div>
 
-  <div class="panel">
-    <div class="card" id="editor">
-      <h2 class="serif" id="edName">Nothing picked</h2>
-      <p class="sub" id="edSub">Tap the face to add a mark.</p>
-      <div id="edBody" hidden>
-        <div class="types" id="types" role="group" aria-label="Kind of pain"></div>
-        <div class="level">
-          <label for="lvl"><span>How bad</span><b id="lvlOut"></b></label>
-          <input type="range" id="lvl" min="1" max="10" step="1">
+    <div>
+      <div class="card" id="editor">
+        <h2 class="serif" id="edName">Nothing picked</h2>
+        <p class="sub" id="edSub">Tap the brain to mark where it hurts.</p>
+        <div id="edBody" hidden>
+          <div class="types" id="types" role="group" aria-label="Kind of pain"></div>
+          <div class="level">
+            <label for="lvl"><span>How bad</span><b id="lvlOut"></b></label>
+            <input type="range" id="lvl" min="1" max="10" step="1">
+          </div>
+          <div class="tools"><button class="btn" id="rmSpot" type="button">Remove this spot</button></div>
         </div>
-        <div class="tools"><button class="btn" id="rmSpot" type="button">Remove this mark</button></div>
       </div>
-    </div>
-    <div class="card">
-      <h2 class="serif">In words</h2>
-      <p class="sub">For telling a doctor or a friend.</p>
-      <p class="say" id="say"></p>
-      <ul class="spots" id="spots"></ul>
-      <textarea id="note" placeholder="What might be related: sleep, screens, caffeine, stress, your period" aria-label="Notes"></textarea>
-      <div class="tools"><button class="btn hot" id="saveLog" type="button">Save to my log</button><button class="btn" id="copy" type="button">Copy words</button></div>
+
+      <div class="card">
+        <h2 class="serif">Why it might hurt</h2>
+        <p class="sub">Common reasons for pain in each spot. These aren’t a diagnosis.</p>
+        <ul class="why" id="why"></ul>
+        <p class="sub" id="noWhy" style="margin:0">Mark a spot to see what might be causing it.</p>
+      </div>
+
+      <div class="card">
+        <h2 class="serif">Save it</h2>
+        <textarea id="note" placeholder="What might be related: sleep, screens, caffeine, stress, your period" aria-label="Notes"></textarea>
+        <div class="tools"><button class="btn hot" id="saveLog" type="button">Save to my log</button></div>
+      </div>
+
+      <div class="card" id="logCard" hidden>
+        <h2 class="serif">My log</h2>
+        <p class="sub">Tap a map to bring it back.</p>
+        <ul class="log" id="log"></ul>
+      </div>
+
+      <p class="care"><b>Get help right away</b> if this is the worst headache of your life, it came on suddenly like a thunderclap, or it comes with a fever and stiff neck, confusion, weakness or numbness, trouble speaking or seeing, or after hitting your head. If headaches keep coming back, show your log to a doctor.</p>
     </div>
   </div>
-
-  <div class="card" id="logCard" style="margin-top:18px" hidden>
-    <h2 class="serif">My log</h2>
-    <p class="sub">Tap a map to bring it back.</p>
-    <ul class="log" id="log"></ul>
-  </div>
-
-  <p class="care"><b>Get help right away</b> if this is the worst headache of your life, it came on suddenly like a thunderclap, or it comes with a fever and stiff neck, confusion, weakness or numbness, trouble speaking or seeing, or after hitting your head. If headaches keep coming back, your log is a good thing to show a doctor. Your photo stays on your device.</p>
 </div>
 
 <script>
@@ -148,40 +147,44 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clamp=(x,a,b)=>x<a?a:x>b?b:x;
 
-/* ---------- palette from the reference ---------- */
-const P={cream:'#F6F1E4',sky:'#BFE3F0',lemon:'#F2D21B',orange:'#F08A24',red:'#E2392B',pink:'#F27BA8',purple:'#8B6CC9',teal:'#1C8C8C',ink:'#1A1A1A',olive:'#8A9A2B',lilac:'#C9B8F0',mint:'#9ED8B8'};
-// each step up in pain uses a hotter pair of colors
-const BANDS=[[P.sky,P.cream],[P.sky,P.mint],[P.lemon,P.teal],[P.orange,P.lemon],[P.pink,P.purple],[P.red,P.orange],[P.ink,P.red]];
-
+/* ---------- palette ---------- */
+const P={cream:'#F6F1E4',sky:'#BFE3F0',lemon:'#F2D21B',orange:'#F08A24',red:'#E2392B',pink:'#F27BA8',purple:'#8B6CC9',teal:'#1C8C8C',ink:'#1A1A1A',mint:'#9ED8B8'};
+const BANDS=[[P.sky,P.mint],[P.sky,P.mint],[P.lemon,P.teal],[P.orange,P.lemon],[P.pink,P.purple],[P.red,P.orange],[P.ink,P.red]];
 const TYPES={
-  throbbing:{name:'Throbbing',sub:'Like a heartbeat',word:'throbbing pain',glyphs:['target','dot','ring','dot']},
-  pressure:{name:'Pressure',sub:'Tight, squeezing',word:'pressure',glyphs:['plus','square','plus','ring']},
-  stabbing:{name:'Stabbing',sub:'Sharp jabs',word:'stabbing pain',glyphs:['x','tri','bowtie','x']},
-  dull:{name:'Dull ache',sub:'Heavy and foggy',word:'a dull ache',glyphs:['ring','dot','ring','half']},
-  burning:{name:'Burning',sub:'Hot, tingly',word:'burning pain',glyphs:['half','tri','target','half']}
+  throbbing:{name:'Throbbing',sub:'Like a heartbeat',glyphs:['target','dot','ring','dot'],
+    why:'Throbbing, pulsing pain is typical of a migraine, especially if light or sound bothers you or you feel sick. Caffeine withdrawal and hangovers can throb too.'},
+  pressure:{name:'Pressure',sub:'Tight, squeezing',glyphs:['plus','square','plus','ring'],
+    why:'A tight, band-like squeeze is the classic tension headache, usually from stress, tired muscles or not enough sleep.'},
+  stabbing:{name:'Stabbing',sub:'Sharp jabs',glyphs:['x','tri','bowtie','x'],
+    why:'Quick jabs that last a few seconds are often harmless “ice pick” headaches, and they’re more common if you get migraines. Tell a doctor if they’re new or keep coming.'},
+  dull:{name:'Dull ache',sub:'Heavy and foggy',glyphs:['ring','dot','ring','half'],
+    why:'A steady, dull ache often comes from being tired, dehydrated, hungry or stressed, or from screens.'},
+  burning:{name:'Burning',sub:'Hot, tingly',glyphs:['half','tri','target','half'],
+    why:'A burning or tingly scalp can come from an irritated nerve, tight hairstyles, or a sensitive scalp during a migraine.'}
 };
-
-/* ---------- saved ---------- */
-const SAVE='brainmap-day12';
-let D={spots:[],sel:null,photo:null,log:[]};
-try{Object.assign(D,JSON.parse(localStorage.getItem(SAVE))||{})}catch(e){}
-const save=()=>{try{localStorage.setItem(SAVE,JSON.stringify(D))}catch(e){try{const p=D.photo;D.photo=null;localStorage.setItem(SAVE,JSON.stringify(D));D.photo=p}catch(_){}}};
-const uid=()=>Math.random().toString(36).slice(2,8);
-let photoImg=null;function loadPhoto(){photoImg=null;if(D.photo){const i=new Image();i.onload=()=>{photoImg=i};i.src=D.photo}$('noPhoto').hidden=!D.photo}
-loadPhoto();
-
-/* ---------- where on the head a mark is ---------- */
-function where(x,y){
-  const u=(x-.5)/.29,v=(y-.46)/.34; // face oval
-  if(v>1.12)return'neck';
-  if(Math.abs(u)>.8&&v>-.6&&v<.3)return u>0?'templeL':'templeR';
-  if(v<-.72)return'top';
-  if(v<-.28)return'forehead';
-  if(v<.08)return Math.abs(u)<.16?'brow':(u>0?'eyeL':'eyeR');
-  if(v<.5)return'cheeks';
-  return'jaw';
+// parts of the head seen from above (front at the top, your left on the left)
+const PLACES={
+  front:{name:'Front of the head',sub:'Forehead',reasons:['Eye strain from screens or reading','Stuffy sinuses, from a cold or allergies','Frowning or squinting a lot','Not drinking enough water','Missing your usual coffee'],help:'Drink water, take a break from screens, and try a warm or cool cloth on your forehead.'},
+  templeL:{name:'Left temple',sub:'Front left side',reasons:['Clenching your jaw or grinding your teeth','A migraine, which often stays on one side','Eye strain, or glasses that need updating','Stress'],help:'Unclench your jaw, rest your eyes, and gently rub your temples in small circles.'},
+  templeR:{name:'Right temple',sub:'Front right side',reasons:['Clenching your jaw or grinding your teeth','A migraine, which often stays on one side','Eye strain, or glasses that need updating','Stress'],help:'Unclench your jaw, rest your eyes, and gently rub your temples in small circles.'},
+  top:{name:'Top of the head',sub:'Crown',reasons:['Tension from stress or not enough sleep','Hunching over a laptop or phone','Skipping meals or not drinking enough','Too much screen time'],help:'Eat something, drink water, rest, and sit up straight with your screen at eye level.'},
+  sideL:{name:'Left side',sub:'Above the left ear',reasons:['A tight ponytail, clips or headband','Headphones or glasses pressing','Jaw clenching','A migraine on one side'],help:'Take out tight hair ties, give your ears a break from headphones, and relax your jaw.'},
+  sideR:{name:'Right side',sub:'Above the right ear',reasons:['A tight ponytail, clips or headband','Headphones or glasses pressing','Jaw clenching','A migraine on one side'],help:'Take out tight hair ties, give your ears a break from headphones, and relax your jaw.'},
+  back:{name:'Back of the head',sub:'Above the neck',reasons:['Neck strain from looking down at your phone or laptop','Sleeping in an awkward position','Tight neck and shoulder muscles','A tight hairstyle pulling on your scalp'],help:'Stretch your neck and shoulders, check your posture, and put something warm on the back of your neck.'}
+};
+function placeOf(x,y){
+  const u=(x-.5)/.39,v=(y-.5)/.38;
+  if(v<-.5)return'front';
+  if(v>.5)return'back';
+  if(Math.abs(u)>.55)return v<0?(u<0?'templeL':'templeR'):(u<0?'sideL':'sideR');
+  return'top';
 }
-const PLACE={top:['the top of my head','Top of the head'],forehead:['my forehead','Forehead'],templeL:['my left temple','Left temple'],templeR:['my right temple','Right temple'],eyeL:['behind my left eye','Behind the left eye'],eyeR:['behind my right eye','Behind the right eye'],brow:['between my eyes','Between the eyes'],cheeks:['my sinuses and cheeks','Sinuses and cheeks'],jaw:['my jaw','Jaw'],neck:['my neck','Neck']};
+
+/* ---------- saved: one mark per spot ---------- */
+const SAVE='brainmap2-day12';
+let D={spots:[],sel:null,log:[]};
+try{Object.assign(D,JSON.parse(localStorage.getItem(SAVE))||{})}catch(e){}
+const save=()=>{try{localStorage.setItem(SAVE,JSON.stringify(D))}catch(e){}};
 
 /* ---------- glyphs ---------- */
 function glyph(c,kind,x,y,s,col,col2){
@@ -199,93 +202,37 @@ function glyph(c,kind,x,y,s,col,col2){
   }
 }
 
-/* ---------- canvases ---------- */
-const fc=$('face'),fx=fc.getContext('2d'),mc=$('map'),mx=mc.getContext('2d');
-let W=0,H=0;
-function size(){
-  const dpr=Math.min(2,window.devicePixelRatio||1),r=fc.getBoundingClientRect();W=r.width;H=r.height;
-  for(const[c,x]of[[fc,fx],[mc,mx]]){c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);x.setTransform(dpr,0,0,dpr,0,0)}
-}
-new ResizeObserver(size).observe(fc);
-
-/* ---------- the face: a photo or a simple line drawing ---------- */
-function drawSketch(c,w,h){
-  c.fillStyle='#EFE9DC';c.fillRect(0,0,w,h);
-  c.strokeStyle='#1E1C1A';c.lineWidth=Math.max(1.5,w*.006);c.lineCap='round';c.lineJoin='round';
-  const cx=w*.5,cy=h*.46,rx=w*.29,ry=h*.34;
-  // shoulders and neck
-  c.beginPath();c.moveTo(w*.08,h);c.quadraticCurveTo(w*.12,h*.86,w*.38,h*.82);c.lineTo(w*.4,h*.74);c.moveTo(w*.92,h);c.quadraticCurveTo(w*.88,h*.86,w*.62,h*.82);c.lineTo(w*.6,h*.74);c.stroke();
-  // hair: loose scribbly strands framing the face, drawn first so the face sits on top
-  c.lineWidth=Math.max(1.2,w*.004);
-  for(let i=0;i<14;i++){const sd=i%2?1:-1,k=Math.floor(i/2)/7;c.beginPath();c.moveTo(cx+sd*rx*.1,cy-ry*1.08);
-    c.bezierCurveTo(cx+sd*rx*(1.1+k*.35),cy-ry*(1.05-k*.2),cx+sd*rx*(1.25+k*.2),cy+ry*(.2+k*.3),cx+sd*rx*(1.05+k*.25),cy+ry*(.75+k*.25));c.stroke()}
-  c.lineWidth=Math.max(1.5,w*.006);
-  // face
-  c.fillStyle='#F6F1E4';c.beginPath();c.ellipse(cx,cy,rx,ry,0,0,7);c.fill();c.stroke();
-  // ears
-  for(const s of[-1,1]){c.beginPath();c.ellipse(cx+s*rx*1.02,cy+ry*.05,rx*.11,ry*.17,0,0,7);c.fillStyle='#F6F1E4';c.fill();c.stroke()}
-  c.beginPath();c.ellipse(cx,cy,rx,ry,0,0,7);c.fill();c.stroke();
-  // brows, eyes, nose, lips
-  for(const s of[-1,1]){const ex=cx+s*rx*.38,ey=cy-ry*.02;
-    c.beginPath();c.moveTo(ex-s*rx*.2,ey-ry*.17);c.quadraticCurveTo(ex,ey-ry*.26,ex+s*rx*.24,ey-ry*.16);c.stroke();
-    c.beginPath();c.moveTo(ex-rx*.2,ey);c.quadraticCurveTo(ex,ey-ry*.1,ex+rx*.2,ey);c.quadraticCurveTo(ex,ey+ry*.08,ex-rx*.2,ey);c.stroke();
-    c.fillStyle='#1E1C1A';c.beginPath();c.arc(ex,ey-ry*.01,rx*.055,0,7);c.fill()}
-  c.beginPath();c.moveTo(cx-rx*.02,cy+ry*.05);c.quadraticCurveTo(cx-rx*.1,cy+ry*.3,cx-rx*.1,cy+ry*.33);c.quadraticCurveTo(cx,cy+ry*.38,cx+rx*.1,cy+ry*.32);c.stroke();
-  c.fillStyle='#E9A6A0';c.beginPath();c.moveTo(cx-rx*.28,cy+ry*.55);c.quadraticCurveTo(cx-rx*.1,cy+ry*.46,cx,cy+ry*.5);c.quadraticCurveTo(cx+rx*.1,cy+ry*.46,cx+rx*.28,cy+ry*.55);c.quadraticCurveTo(cx,cy+ry*.72,cx-rx*.28,cy+ry*.55);c.fill();c.stroke();
-}
-function drawBase(c,w,h){
-  if(photoImg){const s=Math.max(w/photoImg.width,h/photoImg.height),iw=photoImg.width*s,ih=photoImg.height*s;c.drawImage(photoImg,(w-iw)/2,(h-ih)/2,iw,ih)}
-  else drawSketch(c,w,h);
-}
-// marks that look drawn on, like stickers and marker doodles
-function rnd(seed){let s=seed*9301+49297;return()=>{s=(s*9301+49297)%233280;return s/233280}}
-function doodle(c,sp,w,h,t,sel){
-  const x=sp.x*w,y=sp.y*h,L=sp.level,R=w*(.05+L*.012),r=rnd(sp.seed);
-  c.save();
-  switch(sp.type){
-    case'stabbing':{ // bright marker zigzags that twitch
-      const cols=[P.lemon,P.purple,P.teal,P.pink,P.orange],n=2+Math.ceil(L/2),j=Math.floor(t*(4+L))%7;
-      c.lineCap='round';c.lineJoin='round';
-      for(let k=0;k<n;k++){const rr=rnd(sp.seed*13+k*7+j);c.strokeStyle=cols[k%cols.length];c.lineWidth=w*.008+rr()*w*.006;c.beginPath();
-        let px=x-R+rr()*R*.4,py=y-R*.8+rr()*R*.5;c.moveTo(px,py);
-        for(let i=0;i<5;i++){px+=R*.35+rr()*R*.15;py=y+(i%2?1:-1)*R*(.4+rr()*.5);c.lineTo(px,py)}c.stroke()}
-      break}
-    case'throbbing':{ // a cluster of dots that beats
-      const ph=t*(1.1+L*.12)%1,beat=ph<.12?ph/.12:ph<.24?1-(ph-.12)/.12*.6:ph<.36?.4+(ph-.24)/.12*.4:Math.max(0,.8-(ph-.36)*1.4),k=1+beat*.25;
-      const cols=[P.ink,P.lemon,P.ink,P.mint,P.olive],n=10+L*4;
-      for(let i=0;i<n;i++){const a=r()*7,d=Math.sqrt(r())*R*k,s=w*(.008+r()*.01);c.fillStyle=cols[i%cols.length];c.beginPath();c.arc(x+Math.cos(a)*d,y+Math.sin(a)*d*.8,s,0,7);c.fill()}
-      break}
-    case'pressure':{ // a soft pink circle that squeezes, with dots inside
-      const k=1-.08*(1+Math.sin(t*(2+L*.2)))/2;
-      c.fillStyle='rgba(242,123,168,.5)';c.beginPath();c.arc(x,y,R*1.05*k,0,7);c.fill();
-      c.strokeStyle='rgba(242,123,168,.85)';c.lineWidth=w*.004;for(let i=0;i<2;i++){const q=((t*.6+i*.5)%1);c.globalAlpha=1-q;c.beginPath();c.arc(x,y,R*(1.6-q*.6),0,7);c.stroke()}c.globalAlpha=1;
-      for(let i=0;i<4+L;i++){const a=r()*7,d=Math.sqrt(r())*R*.7*k;c.fillStyle=i%3?P.teal:P.sky;c.beginPath();c.arc(x+Math.cos(a)*d,y+Math.sin(a)*d,w*.009,0,7);c.fill()}
-      break}
-    case'dull':{ // a hazy cloud that slowly breathes
-      const k=.9+.1*Math.sin(t*.9);const g=c.createRadialGradient(x,y,0,x,y,R*1.5*k);g.addColorStop(0,'rgba(139,108,201,.5)');g.addColorStop(1,'rgba(139,108,201,0)');
-      c.fillStyle=g;c.beginPath();c.arc(x,y,R*1.5*k,0,7);c.fill();
-      c.strokeStyle='rgba(255,255,255,.75)';c.lineWidth=w*.004;for(let i=0;i<3;i++){c.beginPath();c.arc(x+(r()-.5)*R,y+(r()-.5)*R*.8,R*(.18+r()*.2),0,7);c.stroke()}
-      break}
-    case'burning':{ // little flames that flicker
-      const n=4+L;for(let i=0;i<n;i++){const bx=x+(r()-.5)*R*1.6,by=y+(r()-.5)*R,fl=.6+.4*Math.abs(Math.sin(t*9+i*1.7)),fh=R*(.35+r()*.35)*fl;
-        c.fillStyle=i%2?P.orange:P.red;c.beginPath();c.moveTo(bx-fh*.3,by);c.quadraticCurveTo(bx-fh*.35,by-fh*.6,bx,by-fh);c.quadraticCurveTo(bx+fh*.35,by-fh*.6,bx+fh*.3,by);c.closePath();c.fill();
-        c.fillStyle=P.lemon;c.beginPath();c.arc(bx,by-fh*.25,fh*.13,0,7);c.fill()}
-      break}
+/* ---------- the brain from above ---------- */
+function rnd(seed){let s=seed;return()=>{s=(s*9301+49297)%233280;return s/233280}}
+function hemi(side){ // outline of one half, slightly narrower at the front, with a soft wobble
+  const pts=[];
+  for(let a=0;a<Math.PI*2;a+=Math.PI/120){
+    const ux=Math.cos(a),uy=Math.sin(a),front=uy<0?1-.08*(-uy):1;
+    const wob=1+.005*Math.sin(a*26)+.003*Math.sin(a*41);
+    // the inner edge is flatter, where the two halves meet
+    const inner=ux*side<0?.82+.18*Math.abs(uy):1;
+    pts.push([.5+side*(.212+.205*ux*front*wob*inner),.5+.385*uy*wob]);
   }
-  if(sel){c.setLineDash([4,5]);c.strokeStyle='rgba(23,22,20,.75)';c.lineWidth=1.5;c.beginPath();c.arc(x,y,R*1.55,0,7);c.stroke();c.setLineDash([])}
-  c.restore();
+  return pts;
 }
+const HEMI=[hemi(-1),hemi(1)];
+// folds: wavy lines running front to back, plus the big groove across each half
+const FOLDS=(()=>{const r=rnd(7),out=[];
+  for(const side of[-1,1]){
+    for(let k=0;k<7;k++){const base=.5+side*(.04+k*.055),ph=r()*6,ph2=r()*6,a1=.008+r()*.006,line=[];
+      for(let y=.1;y<=.9;y+=.008)line.push([base+a1*Math.sin(y*38+ph)+.006*Math.sin(y*95+ph2),y]);out.push(line)}
+    const groove=[];for(let t=0;t<=1;t+=.02){const x=.5+side*(.015+t*.4);groove.push([x,.44+.05*t+.012*Math.sin(t*14)])}out.push(groove);
+    for(let k=0;k<10;k++){const x0=.5+side*(.06+r()*.33),y0=.15+r()*.7,len=.04+r()*.06,line=[];for(let t=0;t<=1;t+=.1)line.push([x0+side*t*len,y0+.015*Math.sin(t*6+k)]);out.push(line)}
+  }return out})();
+function brainPath(w,h){const p=new Path2D();for(const H of HEMI){H.forEach((q,i)=>i?p.lineTo(q[0]*w,q[1]*h):p.moveTo(q[0]*w,q[1]*h));p.closePath()}return p}
 
-/* ---------- the pattern map ---------- */
 function pattern(c,w,h,spots,t,cols){
   const rows=Math.round(cols*1.25),cs=w/cols;
-  c.fillStyle=P.cream;c.fillRect(0,0,w,h);
   for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
     let f=0,best=null,bf=0;
     for(const s of spots){
       const dx=Math.abs(i+.5-s.x*cols),dy=Math.abs(j+.5-s.y*rows),d=Math.max(dx,dy),L=s.level;
-      let v=(L/10)*Math.exp(-d/(1.6+L*.5));
-      // the motion: every kind of pain moves the pattern differently
+      let v=(L/10)*Math.exp(-d/(1.4+L*.42));
       if(s.type==='throbbing'){const ph=t*(1.1+L*.12)%1;v*=.82+.3*(ph<.15?Math.sin(ph/.15*Math.PI):ph>.25&&ph<.4?.6*Math.sin((ph-.25)/.15*Math.PI):0)}
       else if(s.type==='pressure')v*=.85+.2*Math.sin(d*1.1+t*(2+L*.25));
       else if(s.type==='dull')v*=.9+.12*Math.sin(t*.8-d*.25);
@@ -296,83 +243,89 @@ function pattern(c,w,h,spots,t,cols){
     f=clamp(f,0,1);
     const band=Math.min(BANDS.length-1,Math.floor(f*BANDS.length*1.05));
     const pair=BANDS[band],col=(i+j)%2?pair[0]:pair[1],col2=(i+j)%2?pair[1]:pair[0];
-    const type=best&&bf>.04?best.type:null;
-    const gl=type?TYPES[type].glyphs:['ring','dot','plus','half','target','x'];
-    const kind=gl[(i*7+j*13+band)%gl.length];
-    c.globalAlpha=band===0?.75:1;
-    glyph(c,kind,(i+.5)*cs,(j+.5)*(h/rows),cs*(band===0?.78:.9),col,col2===col?P.cream:col2);
+    const gl=best&&bf>.04?TYPES[best.type].glyphs:['ring','dot','ring','dot'];
+    c.globalAlpha=band===0?.6:1;
+    glyph(c,gl[(i*7+j*13+band)%gl.length],(i+.5)*cs,(j+.5)*(h/rows),cs*(band===0?.7:.9),col,col2===col?P.cream:col2);
   }
   c.globalAlpha=1;
 }
+function drawBrain(c,w,h,spots,t,cols,opts){
+  c.fillStyle=P.cream;c.fillRect(0,0,w,h);
+  const bp=brainPath(w,h);
+  c.save();c.clip(bp);c.fillStyle='#FBF7EE';c.fillRect(0,0,w,h);pattern(c,w,h,spots,t,cols);
+  // folds on top, light so the pattern shows through
+  c.strokeStyle='rgba(26,26,26,.22)';c.lineWidth=Math.max(1,w*.0035);c.lineCap='round';c.lineJoin='round';
+  for(const L of FOLDS){c.beginPath();L.forEach((q,i)=>{const x=q[0]*w,y=q[1]*h;if(!i)c.moveTo(x,y);else{const pq=L[i-1];c.quadraticCurveTo(pq[0]*w,pq[1]*h,(pq[0]*w+x)/2,(pq[1]*h+y)/2)}});c.stroke()}
+  c.restore();
+  c.strokeStyle='#1A1A1A';c.lineWidth=Math.max(1.5,w*.005);c.stroke(bp);
+  if(opts&&opts.labels){
+    c.fillStyle='#77726A';c.font='italic '+Math.round(w*.04)+'px "Instrument Serif", Georgia, serif';c.textAlign='center';
+    c.fillText('front',w*.5,h*.085);c.fillText('back',w*.5,h*.955);
+    c.save();c.translate(w*.055,h*.5);c.rotate(-Math.PI/2);c.fillText('left',0,0);c.restore();
+    c.save();c.translate(w*.945,h*.5);c.rotate(Math.PI/2);c.fillText('right',0,0);c.restore();
+  }
+  for(const s of spots){const x=s.x*w,y=s.y*h;c.fillStyle='#1A1A1A';c.beginPath();c.arc(x,y,Math.max(3,w*.008),0,7);c.fill();
+    if(opts&&opts.sel===s.id){c.setLineDash([4,5]);c.strokeStyle='#1A1A1A';c.lineWidth=1.5;c.beginPath();c.arc(x,y,w*.07,0,7);c.stroke();c.setLineDash([])}}
+}
 
-/* ---------- loop ---------- */
+/* ---------- canvas ---------- */
+const cv=$('cv'),ctx=cv.getContext('2d');let W=0,H=0;
+function size(){const dpr=Math.min(2,window.devicePixelRatio||1),r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
+new ResizeObserver(size).observe(cv);
 const reduced=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-let t0=performance.now();
-function frame(now){
-  requestAnimationFrame(frame);
-  if(!W)return;
-  const t=reduced?0:(now-t0)/1000;
-  fx.clearRect(0,0,W,H);drawBase(fx,W,H);
-  if(photoImg&&!D.spots.length){fx.setLineDash([6,6]);fx.strokeStyle='rgba(255,255,255,.8)';fx.lineWidth=2;fx.beginPath();fx.ellipse(W*.5,H*.46,W*.29,H*.34,0,0,7);fx.stroke();fx.setLineDash([])}
-  for(const s of D.spots)doodle(fx,s,W,H,t,s.id===D.sel);
-  pattern(mx,W,H,D.spots,t,W<420?22:28);
-}
-requestAnimationFrame(frame);
+const t0=performance.now();
+(function frame(now){requestAnimationFrame(frame);if(!W)return;drawBrain(ctx,W,H,D.spots,reduced?0:(now-t0)/1000,W<420?24:30,{labels:true,sel:D.sel})})(t0);
 
-/* ---------- tapping and dragging marks ---------- */
+/* ---------- tapping: one mark per part of the head ---------- */
 let drag=null;
-function pt(e){const r=fc.getBoundingClientRect();return[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]}
-fc.addEventListener('pointerdown',e=>{
-  e.preventDefault();fc.setPointerCapture(e.pointerId);
-  const[x,y]=pt(e);let hit=null,bd=.08;
-  for(const s of D.spots){const d=Math.hypot(s.x-x,(s.y-y)*1.25);if(d<bd){bd=d;hit=s}}
-  if(!hit){hit={id:uid(),x,y,type:'throbbing',level:5,seed:Math.floor(Math.random()*9999)};D.spots.push(hit)}
-  D.sel=hit.id;drag={s:hit,dx:hit.x-x,dy:hit.y-y};paint();
+function pt(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]}
+cv.addEventListener('pointerdown',e=>{
+  const[x,y]=pt(e);
+  let hit=D.spots.find(s=>Math.hypot(s.x-x,(s.y-y)*1.25)<.07);
+  if(!hit){
+    const u=(x-.5)/.39,v=(y-.5)/.38;if(u*u+v*v>1.15)return; // outside the head
+    const id=placeOf(x,y);hit=D.spots.find(s=>s.place===id);
+    if(hit){hit.x=x;hit.y=y}else{hit={id:Math.random().toString(36).slice(2,8),place:id,x,y,type:'throbbing',level:5};D.spots.push(hit)}
+  }
+  e.preventDefault();cv.setPointerCapture(e.pointerId);D.sel=hit.id;drag={s:hit,dx:hit.x-x,dy:hit.y-y};paint();
 });
-fc.addEventListener('pointermove',e=>{if(!drag)return;const[x,y]=pt(e);drag.s.x=clamp(x+drag.dx,0,1);drag.s.y=clamp(y+drag.dy,0,1)});
-const end=()=>{if(drag){drag=null;save();paint()}};fc.addEventListener('pointerup',end);fc.addEventListener('pointercancel',end);
-fc.tabIndex=0;
-fc.addEventListener('keydown',e=>{const s=D.spots.find(x=>x.id===D.sel);if(!s)return;const k={ArrowLeft:[-.02,0],ArrowRight:[.02,0],ArrowUp:[0,-.02],ArrowDown:[0,.02]}[e.key];if(k){e.preventDefault();s.x=clamp(s.x+k[0],0,1);s.y=clamp(s.y+k[1],0,1);save();paint()}});
+cv.addEventListener('pointermove',e=>{if(!drag)return;const[x,y]=pt(e);const s=drag.s,nx=clamp(x+drag.dx,.08,.92),ny=clamp(y+drag.dy,.1,.9),np=placeOf(nx,ny);
+  if(np!==s.place&&D.spots.some(o=>o!==s&&o.place===np))return; // don’t slide into a part that already has a mark
+  s.x=nx;s.y=ny;if(np!==s.place){s.place=np;paint()}});
+const end=()=>{if(drag){drag=null;save();paint()}};cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
 
-/* ---------- side panel ---------- */
-function typeIcons(){document.querySelectorAll('#types canvas').forEach(cv=>{const dpr=Math.min(2,window.devicePixelRatio||1);cv.width=28*dpr;cv.height=28*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);const g=TYPES[cv.dataset.k].glyphs;glyph(c,g[0],9,9,14,P.red,P.lemon);glyph(c,g[1],20,10,12,P.teal,P.cream);glyph(c,g[2],14,21,13,P.purple,P.pink)})}
+/* ---------- panels ---------- */
 const WORDS=['Calm','Mild','Mild','Mild','Moderate','Moderate','Moderate','Bad','Bad','Severe','Severe'];
-function sentence(spots){
-  if(!spots.length)return'';
-  const s=[...spots].sort((a,b)=>b.level-a.level).map(p=>TYPES[p.type].word+(/^(behind|between|the)/.test(PLACE[where(p.x,p.y)][0])?' ':' in ')+PLACE[where(p.x,p.y)][0]+' ('+p.level+'/10)');
-  return'I have '+(s.length===1?s[0]:s.slice(0,-1).join(', ')+' and '+s[s.length-1])+'.';
-}
+const dotCol=L=>BANDS[Math.min(6,Math.max(2,Math.ceil(L*.65)))][0];
+function typeIcons(){document.querySelectorAll('#types canvas').forEach(c0=>{const dpr=Math.min(2,window.devicePixelRatio||1);c0.width=28*dpr;c0.height=28*dpr;const c=c0.getContext('2d');c.scale(dpr,dpr);const g=TYPES[c0.dataset.k].glyphs;glyph(c,g[0],9,9,14,P.red,P.lemon);glyph(c,g[1],20,10,12,P.teal,P.cream);glyph(c,g[2],14,21,13,P.purple,P.pink)})}
+function summary(spots){return [...spots].sort((a,b)=>b.level-a.level).map(s=>PLACES[s.place].name+', '+TYPES[s.type].name.toLowerCase()+' '+s.level+'/10').join(' · ')}
 function paint(){
   const max=D.spots.reduce((m,s)=>Math.max(m,s.level),0);
-  $('ovNum').textContent=max;$('ovWord').textContent=max?WORDS[max]:'Calm';
-  $('faceTag').textContent=D.spots.length?'Drag a mark to move it':'Tap where it hurts';
-  const s=D.spots.find(x=>x.id===D.sel);
-  $('edBody').hidden=!s;
-  if(s){$('edName').textContent=PLACE[where(s.x,s.y)][1];$('edSub').textContent='How does it feel here?';
+  $('ovNum').textContent=max;$('ovWord').textContent=WORDS[max];
+  $('tag').textContent=D.spots.length?'Tap another spot, or drag to move':'Tap where it hurts';
+  const s=D.spots.find(x=>x.id===D.sel);$('edBody').hidden=!s;
+  if(s){const pl=PLACES[s.place];$('edName').textContent=pl.name;$('edSub').textContent=pl.sub+'. How does it feel?';
     $('types').innerHTML=Object.entries(TYPES).map(([k,v])=>'<button type="button" class="type" data-t="'+k+'" aria-pressed="'+(s.type===k)+'"><canvas data-k="'+k+'"></canvas><span><b>'+v.name+'</b><span>'+v.sub+'</span></span></button>').join('');typeIcons();
     $('lvl').value=s.level;$('lvlOut').textContent=s.level+'/10'}
-  else{$('edName').textContent='Nothing picked';$('edSub').textContent='Tap the face to add a mark.'}
-  $('say').textContent=sentence(D.spots)||'Nothing marked yet.';
-  $('spots').innerHTML=[...D.spots].sort((a,b)=>b.level-a.level).map(p=>{const band=BANDS[Math.min(6,Math.ceil(p.level*.65))];return '<li><i style="background:'+band[0]+'"></i><button class="name" type="button" data-sel="'+p.id+'">'+esc(PLACE[where(p.x,p.y)][1])+' <small>'+esc(TYPES[p.type].name.toLowerCase())+', '+p.level+'/10</small></button><button class="x" type="button" data-rm="'+p.id+'" aria-label="Remove">×</button></li>'}).join('');
+  else{$('edName').textContent='Nothing picked';$('edSub').textContent='Tap the brain to mark where it hurts.'}
+  const list=[...D.spots].sort((a,b)=>b.level-a.level);
+  $('noWhy').hidden=!!list.length;
+  $('why').innerHTML=list.map(p=>{const pl=PLACES[p.place],ty=TYPES[p.type];
+    return '<li><h3><i style="background:'+dotCol(p.level)+'"></i>'+esc(pl.name)+' <small>'+esc(ty.name.toLowerCase())+', '+p.level+'/10</small><button type="button" data-rm="'+p.id+'" aria-label="Remove '+esc(pl.name)+'">×</button></h3>'+
+      '<p class="kind">'+esc(ty.why)+'</p><ul>'+pl.reasons.map(r=>'<li>'+esc(r)+'</li>').join('')+'</ul><p class="help"><b>Might help:</b> '+esc(pl.help)+'</p></li>'}).join('');
 }
-$('types').addEventListener('click',e=>{const b=e.target.closest('[data-t]');const s=D.spots.find(x=>x.id===D.sel);if(!b||!s)return;s.type=b.dataset.t;save();paint()});
+$('types').addEventListener('click',e=>{const b=e.target.closest('[data-t]'),s=D.spots.find(x=>x.id===D.sel);if(!b||!s)return;s.type=b.dataset.t;save();paint()});
 $('lvl').addEventListener('input',()=>{const s=D.spots.find(x=>x.id===D.sel);if(!s)return;s.level=+$('lvl').value;$('lvlOut').textContent=s.level+'/10';save();paint()});
 $('rmSpot').onclick=()=>{D.spots=D.spots.filter(x=>x.id!==D.sel);D.sel=null;save();paint()};
-$('spots').addEventListener('click',e=>{const r=e.target.closest('[data-rm]');if(r){D.spots=D.spots.filter(x=>x.id!==r.dataset.rm);if(D.sel===r.dataset.rm)D.sel=null;save();paint();return}const s=e.target.closest('[data-sel]');if(s){D.sel=s.dataset.sel;paint();$('editor').scrollIntoView({behavior:'smooth',block:'nearest'})}});
+$('why').addEventListener('click',e=>{const r=e.target.closest('[data-rm]');if(!r)return;D.spots=D.spots.filter(x=>x.id!==r.dataset.rm);if(D.sel===r.dataset.rm)D.sel=null;save();paint()});
 $('clearAll').onclick=()=>{D.spots=[];D.sel=null;save();paint()};
-$('photo').onchange=()=>{const f=$('photo').files[0];if(!f)return;const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{const M=900,s=Math.min(1,M/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);D.photo=c.toDataURL('image/jpeg',.82);URL.revokeObjectURL(u);save();loadPhoto();$('photo').value=''};i.src=u};
-$('noPhoto').onclick=()=>{D.photo=null;save();loadPhoto()};
-$('copy').onclick=async()=>{try{await navigator.clipboard.writeText(sentence(D.spots));$('copy').textContent='Copied'}catch(e){$('copy').textContent='Select the words to copy'}setTimeout(()=>$('copy').textContent='Copy words',1500)};
 
-/* ---------- saving an image and the log ---------- */
+/* ---------- image and log ---------- */
 $('saveImg').onclick=()=>{
-  const w=900,h=1125,c=document.createElement('canvas');c.width=w*2+60;c.height=h+180;const x=c.getContext('2d');
-  x.fillStyle=P.cream;x.fillRect(0,0,c.width,c.height);
-  const a=document.createElement('canvas');a.width=w;a.height=h;const ax=a.getContext('2d');drawBase(ax,w,h);D.spots.forEach(s=>doodle(ax,s,w,h,1.3,false));
-  const b=document.createElement('canvas');b.width=w;b.height=h;pattern(b.getContext('2d'),w,h,D.spots,1.3,28);
-  x.drawImage(a,20,20);x.drawImage(b,w+40,20);
-  x.fillStyle='#171614';x.font='italic 48px "Instrument Serif", Georgia, serif';x.fillText('Brain map, '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}),20,h+80);
-  x.font='26px "Instrument Sans", sans-serif';x.fillStyle='#55504A';x.fillText((sentence(D.spots)||'Calm').slice(0,140),20,h+130);
+  const w=1000,h=1250,c=document.createElement('canvas');c.width=w;c.height=h+150;const x=c.getContext('2d');
+  drawBrain(x,w,h,D.spots,1.3,30,{labels:true});x.fillStyle=P.cream;x.fillRect(0,h,w,150);
+  x.fillStyle='#171614';x.font='italic 52px "Instrument Serif", Georgia, serif';x.fillText('Brain map, '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}),40,h+70);
+  x.font='24px "Instrument Sans", sans-serif';x.fillStyle='#55504A';x.fillText((summary(D.spots)||'Calm').slice(0,90),40,h+115);
   c.toBlob(bl=>{const u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download='brain-map.png';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)});
 };
 $('saveLog').onclick=()=>{
@@ -382,8 +335,8 @@ $('saveLog').onclick=()=>{
 };
 function paintLog(){
   $('logCard').hidden=!D.log.length;
-  $('log').innerHTML=D.log.map((e,i)=>'<li><canvas data-load="'+i+'" role="button" tabindex="0" aria-label="Bring back this map"></canvas><div><div class="d">'+esc(new Date(e.at).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))+'</div><div class="t">'+esc(sentence(e.spots))+'</div>'+(e.note?'<div class="d">'+esc(e.note)+'</div>':'')+'<button class="x" type="button" data-del="'+i+'">Delete</button></div></li>').join('');
-  document.querySelectorAll('#log canvas').forEach(cv=>{const dpr=Math.min(2,window.devicePixelRatio||1);cv.width=64*dpr;cv.height=80*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);pattern(c,64,80,D.log[+cv.dataset.load].spots,1.3,12)});
+  $('log').innerHTML=D.log.map((e,i)=>'<li><canvas data-load="'+i+'" role="button" tabindex="0" aria-label="Bring back this map"></canvas><div><div class="d">'+esc(new Date(e.at).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))+'</div><div class="t">'+esc(summary(e.spots))+'</div>'+(e.note?'<div class="d">'+esc(e.note)+'</div>':'')+'<button class="x" type="button" data-del="'+i+'">Delete</button></div></li>').join('');
+  document.querySelectorAll('#log canvas').forEach(c0=>{const dpr=Math.min(2,window.devicePixelRatio||1);c0.width=64*dpr;c0.height=80*dpr;const c=c0.getContext('2d');c.scale(dpr,dpr);drawBrain(c,64,80,D.log[+c0.dataset.load].spots,1.3,14,null)});
 }
 $('log').addEventListener('click',e=>{const l=e.target.closest('[data-load]');if(l){D.spots=JSON.parse(JSON.stringify(D.log[+l.dataset.load].spots));D.sel=null;save();paint();window.scrollTo({top:0,behavior:'smooth'});return}const d=e.target.closest('[data-del]');if(d){D.log.splice(+d.dataset.del,1);save();paintLog()}});
 $('log').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset.load!=null)e.target.click()});
