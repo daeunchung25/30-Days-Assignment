@@ -82,4 +82,10 @@ window.DAYS = {
        notes: "It reads my notes the way I write them, in Korean or English: “6:20까지” means be there by, “7:55에” means at. Addresses get map and directions links, and the whole day can go into my calendar with reminders.",
        link: "day-11/"
      },
+      12: {
+       title: "Brain map",
+       need: "I get headaches and can never explain them. I tap where it hurts on my face (a selfie or a drawing), pick how it feels, and it turns into doodles and a pattern map that move the way the pain feels.",
+       notes: "Inspired by doodle-on-your-face videos and glyph pattern art. Throbbing is a beating cluster of dots, pressure a squeezing pink circle, stabbing bright zigzags, dull a hazy cloud, burning little flames. It also writes it out for a doctor and keeps a log.",
+       link: "day-12/"
+     },
 };
