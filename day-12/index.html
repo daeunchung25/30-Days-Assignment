@@ -65,12 +65,13 @@ button{font:inherit;color:inherit}
       <canvas id="cv" role="img" aria-label="A brain seen from above, front at the top. Tap the part where your head hurts."></canvas>
       <span class="lbl f">front</span><span class="lbl b">back</span><span class="lbl l">left</span><span class="lbl r">right</span>
       <span class="hover" id="hover"></span>
+      <span class="lbl" id="growing" style="top:50%;left:50%;transform:translate(-50%,-50%);font-size:22px">growing a brain…</span>
     </div>
 
     <div aria-live="polite">
       <div class="intro" id="intro">
         <h2 class="serif">Where does it hurt?</h2>
-        <p>Your head from above, front at the top. Tap the part that hurts and it’ll tell you why it might.</p>
+        <p>Your head from above, front at the top. Tap the part that hurts, like front left or back right, and it’ll tell you why it might.</p>
       </div>
       <div class="info" id="info" hidden>
         <h2 class="serif" id="name"></h2>
@@ -97,11 +98,13 @@ const sstep=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
 
 /* ---------- what each part means ---------- */
 const PARTS={
-  front:{name:'Front',sub:'Your forehead. In the brain, this is the frontal lobe.',reasons:['Eye strain from screens or reading','Stuffy sinuses, from a cold or allergies','Frowning or squinting a lot','Not drinking enough water','Missing your usual coffee'],help:'Drink water, take a screen break, and put a cool or warm cloth on your forehead.'},
-  top:{name:'Top',sub:'The crown of your head. In the brain, this is the parietal lobe.',reasons:['Stress or not enough sleep','Hunching over a laptop or phone','Skipping meals','Too much screen time'],help:'Eat something, rest, and sit up straight with your screen at eye level.'},
-  back:{name:'Back',sub:'The back of your head, above your neck. In the brain, this is the occipital lobe.',reasons:['Neck strain from looking down at your phone','Sleeping in an awkward position','Tight neck and shoulder muscles','A tight ponytail pulling on your scalp'],help:'Stretch your neck and shoulders, and put something warm on the back of your neck.'},
-  left:{name:'Left side',sub:'Your left temple and above your left ear. In the brain, this is the left temporal lobe.',reasons:['Clenching your jaw or grinding your teeth','A migraine, which often stays on one side','Glasses or headphones pressing','Eye strain'],help:'Unclench your jaw, take headphones off for a while, and rub your temple in small circles.'},
-  right:{name:'Right side',sub:'Your right temple and above your right ear. In the brain, this is the right temporal lobe.',reasons:['Clenching your jaw or grinding your teeth','A migraine, which often stays on one side','Glasses or headphones pressing','Eye strain'],help:'Unclench your jaw, take headphones off for a while, and rub your temple in small circles.'}
+  frontL:{name:'Front left',sub:'The left side of your forehead. In the brain, the left frontal lobe.',reasons:['Eye strain from screens or reading','A stuffy sinus on that side','Frowning or squinting a lot','A migraine starting on one side','Not drinking enough water'],help:'Drink water, take a screen break, and put a cool or warm cloth on your forehead.'},
+  frontR:{name:'Front right',sub:'The right side of your forehead. In the brain, the right frontal lobe.',reasons:['Eye strain from screens or reading','A stuffy sinus on that side','Frowning or squinting a lot','A migraine starting on one side','Not drinking enough water'],help:'Drink water, take a screen break, and put a cool or warm cloth on your forehead.'},
+  top:{name:'Top',sub:'The crown of your head. In the brain, the parietal lobes.',reasons:['Stress or not enough sleep','Hunching over a laptop or phone','Skipping meals','Too much screen time'],help:'Eat something, rest, and sit up straight with your screen at eye level.'},
+  left:{name:'Left side',sub:'Your left temple and above your left ear. In the brain, the left temporal lobe.',reasons:['Clenching your jaw or grinding your teeth','A migraine, which often stays on one side','Glasses or headphones pressing','Eye strain'],help:'Unclench your jaw, take headphones off for a while, and rub your temple in small circles.'},
+  right:{name:'Right side',sub:'Your right temple and above your right ear. In the brain, the right temporal lobe.',reasons:['Clenching your jaw or grinding your teeth','A migraine, which often stays on one side','Glasses or headphones pressing','Eye strain'],help:'Unclench your jaw, take headphones off for a while, and rub your temple in small circles.'},
+  backL:{name:'Back left',sub:'The back of your head on the left, above your neck. In the brain, the left occipital lobe.',reasons:['A stiff neck on that side, from sleeping on it','Carrying a bag on your left shoulder','Looking down at your phone for a long time','A tight ponytail pulling on your scalp'],help:'Stretch your neck and shoulders, switch bag shoulders, and put something warm on the back of your neck.'},
+  backR:{name:'Back right',sub:'The back of your head on the right, above your neck. In the brain, the right occipital lobe.',reasons:['A stiff neck on that side, from sleeping on it','Carrying a bag on your right shoulder','Looking down at your phone for a long time','A tight ponytail pulling on your scalp'],help:'Stretch your neck and shoulders, switch bag shoulders, and put something warm on the back of your neck.'}
 };
 const FEELS={
   throbbing:{name:'Throbbing',col:[226,57,43],text:'Throbbing, pulsing pain is typical of a migraine, especially if light or sound bothers you or you feel sick.'},
@@ -111,11 +114,49 @@ const FEELS={
   burning:{name:'Burning',col:[240,120,30],text:'A burning or tingly scalp can come from an irritated nerve or a tight hairstyle.'}
 };
 let sel=null,feel=null;
+const PAL={cream:'#F6F1E4',sky:'#BFE3F0',lemon:'#F2D21B',orange:'#F08A24',red:'#E2392B',pink:'#F27BA8',purple:'#8B6CC9',teal:'#1C8C8C',ink:'#1A1A1A',mint:'#9ED8B8'};
+const BANDS=[[PAL.sky,PAL.mint],[PAL.lemon,PAL.teal],[PAL.orange,PAL.lemon],[PAL.pink,PAL.purple],[PAL.red,PAL.orange],[PAL.ink,PAL.red]];
+const GLYPHS={throbbing:['target','dot','ring','dot'],pressure:['plus','square','plus','ring'],stabbing:['x','tri','bowtie','x'],dull:['ring','dot','ring','half'],burning:['half','tri','target','half']};
+function glyph(c,kind,x,y,s,col,col2){
+  c.fillStyle=col;c.strokeStyle=col;c.lineWidth=Math.max(1,s*.15);
+  switch(kind){
+    case'dot':c.beginPath();c.arc(x,y,s*.26,0,7);c.fill();break;
+    case'ring':c.beginPath();c.arc(x,y,s*.3,0,7);c.stroke();break;
+    case'target':c.beginPath();c.arc(x,y,s*.36,0,7);c.stroke();c.fillStyle=col2;c.beginPath();c.arc(x,y,s*.15,0,7);c.fill();break;
+    case'plus':{const w=s*.2,l=s*.42;c.fillRect(x-l,y-w/2,l*2,w);c.fillRect(x-w/2,y-l,w,l*2);break}
+    case'x':{c.save();c.translate(x,y);c.rotate(Math.PI/4);const w=s*.2,l=s*.42;c.fillRect(-l,-w/2,l*2,w);c.fillRect(-w/2,-l,w,l*2);c.restore();break}
+    case'square':{const l=s*.3;c.strokeRect(x-l,y-l,l*2,l*2);c.fillStyle=col2;c.fillRect(x-l*.4,y-l*.4,l*.8,l*.8);break}
+    case'tri':c.beginPath();c.moveTo(x,y-s*.36);c.lineTo(x+s*.34,y+s*.26);c.lineTo(x-s*.34,y+s*.26);c.closePath();c.fill();break;
+    case'bowtie':c.beginPath();c.moveTo(x-s*.36,y-s*.3);c.lineTo(x+s*.36,y+s*.3);c.lineTo(x+s*.36,y-s*.3);c.lineTo(x-s*.36,y+s*.3);c.closePath();c.fill();break;
+    case'half':c.beginPath();c.arc(x,y,s*.34,Math.PI,0);c.closePath();c.fill();c.fillStyle=col2;c.beginPath();c.arc(x,y,s*.34,0,Math.PI);c.closePath();c.fill();break;
+  }
+}
+// the grid of glyphs that covers a part, worked out once per part
+const CELLS={},COLS=24,ROWS=30;
+function cellsFor(id){if(CELLS[id])return CELLS[id];const out=[],c=centerOf(id);
+  for(let j=0;j<ROWS;j++)for(let i=0;i<COLS;i++){const x=(i+.5)/COLS,y=(j+.5)/ROWS;if(shape(x,y)[0]<=.02)continue;const m=membership(x,y)[id];if(m<.25)continue;
+    out.push({i,j,x,y,m,d:Math.max(Math.abs(x-c[0])*COLS,Math.abs(y-c[1])*ROWS)})}
+  return CELLS[id]=out}
+function drawGlyphs(t){
+  const type=feel||'throbbing',gl=GLYPHS[type],cs=W/COLS,rs=Hc/ROWS;
+  for(const q of cellsFor(sel)){
+    let v=Math.exp(-q.d/4.5);
+    if(type==='throbbing'){const ph=t*1.2%1;v*=.7+.45*(ph<.15?Math.sin(ph/.15*Math.PI):ph>.25&&ph<.4?.6*Math.sin((ph-.25)/.15*Math.PI):0)}
+    else if(type==='pressure')v*=.75+.35*Math.sin(q.d*1.2+t*3);
+    else if(type==='dull')v*=.8+.2*Math.sin(t*.9-q.d*.3);
+    else if(type==='burning')v*=.7+.45*Math.abs(Math.sin(t*7+q.i*1.3+q.j*.7));
+    else if(type==='stabbing'){const k=Math.floor(t*4);v*=.6;if(((q.i*73+q.j*151+k*29)%9)===0)v=1}
+    v=clamp(v,0,1);const band=Math.min(BANDS.length-1,Math.floor(v*BANDS.length));
+    const pair=BANDS[band],col=(q.i+q.j)%2?pair[0]:pair[1],col2=(q.i+q.j)%2?pair[1]:pair[0];
+    ctx.globalAlpha=clamp(q.m*1.3,0,1)*(.55+.45*v);
+    glyph(ctx,gl[(q.i*7+q.j*13+band)%gl.length],q.x*W,q.y*Hc,Math.min(cs,rs)*(.7+.4*v),col,col2===col?PAL.cream:col2);
+  }
+  ctx.globalAlpha=1;
+}
 
 /* ---------- building the brain once ---------- */
-// the folds were grown ahead of time with a reaction-diffusion simulation (the same kind of math behind
-// coral and fingerprint patterns), saved as a tiny grayscale picture, and shaded here in 3D
-const FOLDS_PNG='folds.png'; // the fold pattern, a small picture in this same folder
+// the folds are grown right here with a reaction-diffusion simulation (the same kind of math behind
+// coral and fingerprint patterns), then shaded in 3D
 // the outline: an egg-shaped brain, a little narrower at the front, split down the middle
 function shape(x,y){
   const dy=(y-.53)/.4,rx=.37*(.84+.18*Math.exp(-((dy-.3)**2)/.7)),dx=(x-.5)/rx;
@@ -130,17 +171,38 @@ const GW=360,GH=450;
 const base=document.createElement('canvas');base.width=GW;base.height=GH;
 const INSIDE=new Float32Array(GW*GH);
 let ready=false;
-const foldImg=new Image();foldImg.onload=build;foldImg.src=FOLDS_PNG;
-function build(){
-  const fw=foldImg.width,fh=foldImg.height,fc=document.createElement('canvas');fc.width=fw;fc.height=fh;const fx=fc.getContext('2d');fx.drawImage(foldImg,0,0);
-  const F=fx.getImageData(0,0,fw,fh).data;
-  const fold=(x,y)=>{const X=clamp(x*fw-.5,0,fw-1.001),Y=clamp(y*fh-.5,0,fh-1.001),i=X|0,j=Y|0,a=X-i,b=Y-j,k=(j*fw+i)*4;
-    return((F[k]*(1-a)+F[k+4]*a)*(1-b)+(F[k+fw*4]*(1-a)+F[k+fw*4+4]*a)*b)/255};
+const RW=168,RH=210,RN=RW*RH;
+function growFolds(done){
+  let seed=9;const rnd=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646};
+  let U=new Float32Array(RN),V=new Float32Array(RN),U2=new Float32Array(RN),V2=new Float32Array(RN);const M=new Uint8Array(RN);
+  for(let j=0;j<RH;j++)for(let i=0;i<RW;i++){const k=j*RW+i,x=(i+.5)/RW,y=(j+.5)/RH;M[k]=(shape(x,y)[0]>-.18&&Math.abs(x-.5)>=.006)?1:0;U[k]=1}
+  // start from lots of little spots, so folds form everywhere at once
+  for(let s=0;s<RN/40;s++){const cx=Math.floor(rnd()*RW),cy=Math.floor(rnd()*RH);for(let j=cy-1;j<=cy+1;j++)for(let i=cx-1;i<=cx+1;i++){if(i<0||j<0||i>=RW||j>=RH)continue;const k=j*RW+i;if(M[k]){V[k]=.5;U[k]=.5}}}
+  const f=.039,kk=.06,Du=.09,Dv=.045,TOTAL=1500,STEP=150;let it=0;
+  (function chunk(){
+    for(let n=0;n<STEP;n++,it++){
+      for(let j=1;j<RH-1;j++){const jw=j*RW;
+        for(let i=1;i<RW-1;i++){const k=jw+i;if(!M[k]){U2[k]=1;V2[k]=0;continue}
+          const u=U[k],v=V[k],uvv=u*v*v;
+          U2[k]=u+Du*(U[k-1]+U[k+1]+U[k-RW]+U[k+RW]-4*u)-uvv+f*(1-u);
+          V2[k]=v+Dv*(V[k-1]+V[k+1]+V[k-RW]+V[k+RW]-4*v)+uvv-(f+kk)*v}}
+      let t=U;U=U2;U2=t;t=V;V=V2;V2=t;
+    }
+    if(it<TOTAL){setTimeout(chunk,0);return}
+    const vals=[];for(let k=0;k<RN;k++)if(M[k])vals.push(V[k]);vals.sort((a,b)=>a-b);
+    const top=vals[Math.floor(vals.length*.98)]||1,F=new Float32Array(RN);for(let k=0;k<RN;k++)F[k]=Math.min(1,V[k]/top);
+    done(F);
+  })();
+}
+growFolds(build);
+function build(F){
+  const fold=(x,y)=>{const X=clamp(x*RW-.5,0,RW-1.001),Y=clamp(y*RH-.5,0,RH-1.001),i=X|0,j=Y|0,a=X-i,b=Y-j,k=j*RW+i;
+    return(F[k]*(1-a)+F[k+1]*a)*(1-b)+(F[k+RW]*(1-a)+F[k+RW+1]*a)*b};
   const H=new Float32Array(GW*GH),T=new Float32Array(GW*GH),A=new Float32Array(GW*GH);
   for(let j=0;j<GH;j++)for(let i=0;i<GW;i++){
     const x=(i+.5)/GW,y=(j+.5)/GH,[m]=shape(x,y),k=j*GW+i;
     if(m<=0){A[k]=0;H[k]=0;continue}
-    const t=Math.abs(fold(x,y)-.5)*2;                    // 1 on top of a fold, 0 down in a groove
+    const t=sstep(0,.3,Math.abs(fold(x,y)-.3));                  // 1 on top of a fold, 0 down in a groove
     H[k]=Math.sqrt(Math.max(m,0))*30+Math.sqrt(sstep(0,.6,t))*8;T[k]=t;A[k]=clamp(m*GW*.09,0,1);INSIDE[k]=m;
   }
   const img=base.getContext('2d').createImageData(GW,GH),d=img.data;
@@ -168,15 +230,14 @@ function build(){
     d[p+3]=A[k]*255;
   }
   base.getContext('2d').putImageData(img,0,0);
-  buildMasks();ready=true;
+  buildMasks();ready=true;const gm=document.getElementById('growing');if(gm)gm.remove();
 }
 /* ---------- the parts, as soft areas ---------- */
 function membership(x,y){
-  const side=sstep(.2,.27,Math.abs(x-.5))*sstep(.3,.38,y)*(1-sstep(.7,.78,y));
-  const front=(1-sstep(.34,.42,y))*(1-side);
-  const back=sstep(.68,.76,y)*(1-side*.6);
-  const top=sstep(.34,.42,y)*(1-sstep(.68,.76,y))*(1-side);
-  return{front,top,back,left:x<.5?side:0,right:x>=.5?side:0};
+  const side=sstep(.2,.27,Math.abs(x-.5))*sstep(.3,.38,y)*(1-sstep(.7,.78,y)),L=x<.5;
+  const front=(1-sstep(.34,.42,y))*(1-side),back=sstep(.66,.74,y)*(1-side*.6);
+  const top=sstep(.34,.42,y)*(1-sstep(.66,.74,y))*(1-side);
+  return{frontL:L?front:0,frontR:L?0:front,top,left:L?side:0,right:L?0:side,backL:L?back:0,backR:L?0:back};
 }
 const MASKS={};
 function buildMasks(){for(const id in PARTS){const c=document.createElement('canvas');c.width=GW;c.height=GH;const x=c.getContext('2d'),im=x.createImageData(GW,GH);
@@ -208,26 +269,23 @@ function frame(now){
     else if(feel==='dull')a=.35+.12*Math.sin(t*.9);
     else if(feel==='burning')a=.45+.2*Math.abs(Math.sin(t*9))*Math.abs(Math.sin(t*3.7));
     else if(feel==='stabbing')a=(Math.floor(t*5)%4===0)?.85:.3;
-    ctx.globalCompositeOperation='multiply';ctx.drawImage(tint(sel,f.col,a),0,0,W,Hc);
-    ctx.globalCompositeOperation='screen';ctx.drawImage(tint(sel,f.col,a*.35),0,0,W,Hc);
+    ctx.globalCompositeOperation='multiply';ctx.drawImage(tint(sel,f.col,a*.6),0,0,W,Hc);
     ctx.globalCompositeOperation='source-over';
-    if(feel==='pressure'){ // rings squeezing in
-      const c=centerOf(sel);for(let k=0;k<3;k++){const q=((t*.5+k/3)%1);ctx.strokeStyle='rgba(139,92,201,'+(.6*(q))+')';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(c[0]*W,c[1]*Hc,W*(.2-q*.15),Hc*(.12-q*.09),0,0,7);ctx.stroke()}
-    }
+    drawGlyphs(t);
   }
 }
 requestAnimationFrame(frame);
-function centerOf(id){return{front:[.5,.24],top:[.5,.54],back:[.5,.8],left:[.2,.54],right:[.8,.54]}[id]}
+function centerOf(id){return{frontL:[.36,.25],frontR:[.64,.25],top:[.5,.53],left:[.19,.54],right:[.81,.54],backL:[.37,.8],backR:[.63,.8]}[id]}
 
 /* ---------- tapping ---------- */
 function rel(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height,e.clientX-r.left,e.clientY-r.top]}
-cv.addEventListener('click',e=>{const[x,y]=rel(e),id=partAt(x,y);if(!id)return;pick(id)});
-cv.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const[x,y,px,py]=rel(e),id=partAt(x,y);hoverId=id;const h=$('hover');if(id){h.textContent=PARTS[id].name;h.style.left=px+'px';h.style.top=py+'px';h.style.opacity=1}else h.style.opacity=0});
+cv.addEventListener('click',e=>{if(!ready)return;const[x,y]=rel(e),id=partAt(x,y);if(!id)return;pick(id)});
+cv.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'||!ready)return;const[x,y,px,py]=rel(e),id=partAt(x,y);hoverId=id;const h=$('hover');if(id){h.textContent=PARTS[id].name;h.style.left=px+'px';h.style.top=py+'px';h.style.opacity=1}else h.style.opacity=0});
 cv.addEventListener('pointerleave',()=>{hoverId=null;$('hover').style.opacity=0});
 cv.tabIndex=0;
-cv.addEventListener('keydown',e=>{const order=['front','top','back','left','right'];if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();pick(order[(order.indexOf(sel)+1)%5])}if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();pick(order[(order.indexOf(sel)+4)%5])}});
+cv.addEventListener('keydown',e=>{const order=['frontL','frontR','top','left','right','backL','backR'];if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();pick(order[(order.indexOf(sel)+1)%7])}if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();pick(order[(order.indexOf(sel)+6)%7])}});
 function pick(id){
-  sel=id;feel=null;const p=PARTS[id];
+  sel=id;const p=PARTS[id];
   $('intro').hidden=true;const info=$('info');info.hidden=false;info.classList.remove('in');void info.offsetWidth;info.classList.add('in');
   $('name').textContent=p.name;$('sub').textContent=p.sub;
   $('reasons').innerHTML=p.reasons.map(r=>'<li>'+esc(r)+'</li>').join('');
