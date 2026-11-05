@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Timeline | Day 11 of 30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F3F1;--paper:#FFFFFF;--ink:#191A1C;--muted:#6C6F75;--line:#E0E0DC;--accent:#FF5A36;--by:#2F6FEB;--done:#A8ABB0;--field:#FAFAF8;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121315;--paper:#1B1C1F;--ink:#ECEDEF;--muted:#9EA2A8;--line:#2D2F33;--accent:#FF7452;--by:#6E9BFF;--done:#5D6066;--field:#16171A;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121315;--paper:#1B1C1F;--ink:#ECEDEF;--muted:#9EA2A8;--line:#2D2F33;--accent:#FF7452;--by:#6E9BFF;--done:#5D6066;--field:#16171A;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-weight:600;font-variant-numeric:tabular-nums}
+.wrap{max-width:1060px;margin:0 auto;padding:18px 18px 70px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.top a{color:var(--muted);font-size:14px;text-decoration:none}
+.top a:hover{text-decoration:underline}
+.top h1{font-size:18px;margin:0;font-weight:700}
+
+.main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:32px;padding-top:22px;align-items:start}
+
+.hero{padding:6px 0 22px}
+.hero .when{font-size:14px;color:var(--muted);margin:0 0 4px}
+.hero .big{font-size:clamp(40px,8vw,76px);line-height:1;margin:0 0 8px;letter-spacing:-.02em}
+.hero .what{font-size:20px;margin:0;font-weight:500}
+.hero .what b{color:var(--accent)}
+
+.tl{list-style:none;margin:0;padding:0;position:relative}
+.item{display:grid;grid-template-columns:78px 18px 1fr;gap:0 12px;align-items:start}
+.item .t{font-size:17px;padding-top:2px;text-align:right}
+.item .rail{position:relative;align-self:stretch;display:flex;justify-content:center}
+.item .rail::before{content:"";position:absolute;top:0;bottom:0;width:2px;background:var(--line)}
+.item .dot{position:relative;z-index:1;width:16px;height:16px;border-radius:50%;border:2px solid var(--ink);background:var(--paper);margin-top:5px;padding:0;cursor:pointer}
+.item.by .dot{border-color:var(--by)}
+.item.done .dot{background:var(--done);border-color:var(--done)}
+.item.next .dot{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 25%,transparent)}
+.item .body{padding:0 0 4px}
+.item .label{font-size:17px;font-weight:500}
+.item.done .label{color:var(--done);text-decoration:line-through}
+.item .meta{display:flex;gap:6px 10px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted);margin-top:2px}
+.badge{font-size:12px;font-weight:700;border-radius:999px;padding:1px 8px;background:var(--ink);color:var(--bg)}
+.badge.by{background:var(--by);color:#fff}
+.meta a{color:var(--muted)}
+.gap{display:grid;grid-template-columns:78px 18px 1fr;gap:0 12px}
+.gap .rail{position:relative;display:flex;justify-content:center}
+.gap .rail::before{content:"";position:absolute;top:0;bottom:0;width:2px;background:repeating-linear-gradient(var(--line) 0 4px,transparent 4px 8px)}
+.gap .len{font-size:12px;color:var(--muted);align-self:center}
+.nowline{display:grid;grid-template-columns:78px 18px 1fr;gap:0 12px;align-items:center;margin:2px 0}
+.nowline .t{font-size:12px;color:var(--accent);text-align:right;font-weight:700}
+.nowline .bar{grid-column:2/4;height:2px;background:var(--accent);position:relative}
+.nowline .bar::before{content:"";position:absolute;left:3px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+
+.notes{margin-top:26px;border-top:1px solid var(--line);padding-top:14px}
+.notes h3{font-size:15px;margin:0 0 6px;font-weight:700}
+.notes ul{list-style:none;margin:0 0 14px;padding:0}
+.notes li{display:flex;gap:10px;align-items:center;padding:4px 0}
+.notes input{width:18px;height:18px;accent-color:var(--accent)}
+
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.card h2{font-size:16px;margin:0 0 4px;font-weight:700}
+.card p.sub{margin:0 0 10px;color:var(--muted);font-size:14px}
+textarea{width:100%;min-height:250px;border:1px solid var(--line);background:var(--field);border-radius:12px;padding:12px;font-size:16px;line-height:1.6;resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.row input[type=date]{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:8px 10px}
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:700;font-size:14px;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center}
+.btn:hover{border-color:var(--ink)}
+.btn.hot{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.saved{display:flex;flex-direction:column;gap:6px}
+.saved button{text-align:left;border:1px solid var(--line);background:var(--field);border-radius:10px;padding:8px 10px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+.saved button[aria-pressed="true"]{border-color:var(--ink)}
+.saved small{color:var(--muted)}
+.fine{font-size:13px;color:var(--muted);margin:8px 0 0}
+@media (max-width:860px){.main{grid-template-columns:1fr}.item,.gap,.nowline{grid-template-columns:62px 18px 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a id="back" href="../">Day 11 of 30</a><h1>Timeline</h1></div>
+
+  <div class="main">
+    <section aria-label="Your schedule">
+      <div class="hero" aria-live="polite">
+        <p class="when" id="heroWhen"></p>
+        <p class="big mono" id="heroBig"></p>
+        <p class="what" id="heroWhat"></p>
+      </div>
+      <ol class="tl" id="tl"></ol>
+      <div class="notes" id="notes" hidden></div>
+    </section>
+
+    <aside>
+      <div class="card">
+        <h2>Your plan</h2>
+        <p class="sub">Paste it straight from Notes. One thing per line, with a time. Write “by” for places you have to make it to, and “at” for things that happen at a set time.</p>
+        <textarea id="src" spellcheck="false" aria-label="Your plan"></textarea>
+        <div class="row">
+          <label>Day <input type="date" id="date"></label>
+          <a class="btn hot" id="ics" download="schedule.ics">Add to calendar</a>
+          <button class="btn" id="newBtn" type="button">New plan</button>
+        </div>
+        <p class="fine">“Add to calendar” saves every timed line as an event with a reminder 10 minutes before, so your phone alerts you.</p>
+      </div>
+      <div class="card" id="savedCard" hidden>
+        <h2>Saved plans</h2>
+        <div class="saved" id="saved"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const keyOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+
+const EXAMPLE=`Friday schedule:
+Wake up at 4 and get ready
+Leave home at 6:00
+By 6:20 check out Moynihan Train Hall (12 min to the hotel)
+By 6:50 140 W 28th St, New York, NY 10001
+Train leaves at 7:55
+Arrive in Baltimore at 10:43 (1500 N Charles St)
+
+Things to buy:
+`;
+const OLD_EXAMPLE=`금요일 스케줄:
+4시에 일어나서 준비
+집에서 6:00에 출발
+6:20까지 Moynihan Train Hall 가서 답사 (호텔까지 12분)
+6:50까지 140 W 28th St, New York, NY 10001
+7:55에 기차 출발
+10:43에 발티모어 도착 (1500 N Charles St)
+
+사고싶은거:
+`;
+
+/* ---------- saving ---------- */
+const SAVE='timeline-day11';
+let D={plans:[],cur:null};
+try{Object.assign(D,JSON.parse(localStorage.getItem(SAVE))||{})}catch(e){}
+const save=()=>{try{localStorage.setItem(SAVE,JSON.stringify(D))}catch(e){}};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+function curPlan(){return D.plans.find(p=>p.id===D.cur)}
+D.plans.forEach(p=>{if(p.text===OLD_EXAMPLE)p.text=EXAMPLE});
+if(!curPlan()){const p={id:uid(),text:EXAMPLE,date:'',done:{}};D.plans.unshift(p);D.cur=p.id;save()}
+
+/* ---------- reading the plan ---------- */
+const WEEK=[['일요일','sunday','sun'],['월요일','monday','mon'],['화요일','tuesday','tue'],['수요일','wednesday','wed'],['목요일','thursday','thu'],['금요일','friday','fri'],['토요일','saturday','sat']];
+function guessDate(title){
+  const t=title.toLowerCase(),today=new Date();today.setHours(0,0,0,0);
+  if(/오늘|today/.test(t))return keyOf(today);
+  if(/내일|tomorrow/.test(t)){today.setDate(today.getDate()+1);return keyOf(today)}
+  const m=t.match(/(\d{1,2})\s*[\/월.]\s*(\d{1,2})/);if(m){const d=new Date(today.getFullYear(),+m[1]-1,+m[2]);if(d<today)d.setFullYear(d.getFullYear()+1);return keyOf(d)}
+  for(let i=0;i<7;i++)if(WEEK[i].some(w=>new RegExp('(^|[^a-z])'+w+'([^a-z]|$)').test(t))){const d=new Date(today);d.setDate(d.getDate()+((i-d.getDay()+7)%7));return keyOf(d)}
+  return keyOf(today);
+}
+// finds a time like at 4, by 6:20, 6pm (and Korean like 4시에, 6:20까지)
+const TIME=/\b(?:at|by|until|before)\s+(\d{1,2})(?![\d:])(?!\s*(?:min|minutes|h|hr|hours|분|시간|th|st|nd|rd))|(오전|오후)?\s*(\d{1,2})(?::(\d{2})|\s*시\s*(?:(반)|(\d{1,2})\s*분)?)\s*(am|pm|a\.m\.|p\.m\.)?\s*(까지|에|부터|by|at|until|before)?|(\d{1,2})\s*(am|pm)\s*(까지|에|by|at)?/i;
+function parse(text){
+  const lines=text.split(/\r?\n/),items=[],notes=[];let title='',section=null,last=-1;
+  for(let raw of lines){
+    const line=raw.replace(/^\s*(?:[-*•◦○●☐☑✓✔]|\[[ xX]?\]|\d+[.)])\s*/,'').trim();
+    if(!line)continue;
+    const m=line.match(TIME);
+    if(!m){
+      if(/[:：]$/.test(line)){const h=line.replace(/[:：]$/,'').trim();if(!title&&!items.length)title=h;else{section={name:h,list:[]};notes.push(section)}}
+      else{if(!section){section={name:'',list:[]};notes.push(section)}section.list.push(line)}
+      continue;
+    }
+    let h,mi,ap,kw;
+    if(m[1]){h=+m[1];mi=0;ap='';kw=''}
+    else if(m[9]){h=+m[9];mi=0;ap=m[10];kw=m[11]}else{h=+m[3];mi=m[4]?+m[4]:m[5]?30:m[6]?+m[6]:0;ap=m[7]||(m[2]==='오후'?'pm':m[2]==='오전'?'am':'');kw=m[8]}
+    const before=line.slice(0,m.index);
+    if(/\b(by|until|before)\s*$/i.test(before)||/^\s*(by|until|before)\b/i.test(m[0]))kw='by';
+    if(h>23||mi>59)continue;
+    let min;
+    if(ap){ap=ap.toLowerCase().replace(/\./g,'');if(ap==='pm'&&h<12)h+=12;if(ap==='am'&&h===12)h=0;min=h*60+mi}
+    else{ // no am/pm: pick the one that comes next after the line before
+      const a=h*60+mi,b=(h<12?h+12:h)*60+mi;
+      if(last<0)min=a;
+      else min=a>=last?a:(b>=last?b:a+24*60);
+    }
+    last=min;
+    const by=/까지|by|until|before/i.test(kw||'');
+    let label=(before.replace(/\b(by|until|before|at)\s*$/i,'')+' '+line.slice(m.index+m[0].length)).replace(/\s+/g,' ').replace(/^[,\s]+|[,\s]+$/g,'').replace(/\s+(at|by)$/i,'').trim();
+    label=label.replace(/\s+and\s*$/i,'');
+    label=label.charAt(0).toUpperCase()+label.slice(1);
+    if(!label)label=line;
+    // a place you can open in maps: an address or a named place
+    let place=null;
+    const addr=line.match(/\d+\s+(?:[NSEW]\.?\s+)?[A-Za-z0-9.' ]+?\s(?:St|Street|Ave|Avenue|Rd|Road|Blvd|Pl|Place|Way|Dr|Drive|Ln|Lane|Broadway)\b\.?(?:,\s*[A-Za-z .]+)*(?:,?\s*[A-Z]{2}\s*\d{5})?/);
+    const named=line.match(/[A-Z][\w'&.-]*(?:\s+[A-Z][\w'&.-]*)*\s(?:Hall|Station|Hotel|Airport|Terminal|Park|Center|Centre|Museum|Square|Market|Library|Building|Mall)\b/);
+    if(addr)place=addr[0].replace(/[,\s]+$/,'');else if(named)place=named[0];
+    const travel=line.match(/\(([^)]*?(\d+)\s*(분|min|mins|minutes|시간|h|hr))[^)]*\)/i);
+    items.push({min,label,by,place,raw:line,travel:travel?travel[1]:null});
+  }
+  return{title,items,notes:notes.filter(s=>s.list.length||s.name)};
+}
+
+/* ---------- formatting ---------- */
+function fmt(min){let h=Math.floor(min/60)%24,m=min%60;const ap=h<12?'AM':'PM';h=h%12||12;return h+':'+pad(m)+' '+ap}
+function fmtShort(min){let h=Math.floor(min/60)%24,m=min%60;h=h%12||12;return h+':'+pad(m)}
+function dur(m){m=Math.round(m);if(m<60)return m+' min';const h=Math.floor(m/60),r=m%60;return r?h+'h '+r+'m':h+'h'}
+
+/* ---------- drawing ---------- */
+function render(){
+  const P=curPlan(),{title,items,notes}=parse(P.text);
+  if(!P.date)P.date=guessDate(title);
+  $('date').value=P.date;
+  const day=new Date(P.date+'T00:00'),now=new Date(),isToday=keyOf(now)===P.date;
+  const nowMin=(now-day)/60000;
+  // hero
+  const nextIdx=isToday?items.findIndex((x,i)=>!P.done[i]&&x.min>=nowMin-1):-1;
+  const dayName=day.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+  if(!items.length){$('heroWhen').textContent=title||dayName;$('heroBig').textContent='—';$('heroWhat').textContent='Add lines with times on the right.'}
+  else if(isToday&&nextIdx>=0){
+    const x=items[nextIdx],inMin=x.min-nowMin;
+    $('heroWhen').textContent=(title?title+', ':'')+'next up';
+    $('heroBig').textContent=inMin<1?'Now':'in '+dur(inMin);
+    $('heroWhat').innerHTML=(x.by?'Be there by <b>'+fmt(x.min)+'</b>: ':'<b>'+fmt(x.min)+'</b> ')+esc(x.label);
+  }else if(isToday){
+    $('heroWhen').textContent=title||dayName;$('heroBig').textContent='All done';$('heroWhat').textContent='Nothing left on today’s plan.';
+  }else{
+    const first=items[0],days=Math.round((day-new Date(keyOf(now)+'T00:00'))/864e5);
+    $('heroWhen').textContent=(title?title+', ':'')+dayName+(days>0?' (in '+days+(days===1?' day':' days')+')':days<0?' (past)':'');
+    $('heroBig').textContent=fmt(first.min);
+    $('heroWhat').innerHTML='Day starts: '+esc(first.label)+'. '+items.length+' things, until '+fmt(items[items.length-1].min)+'.';
+  }
+  // timeline
+  let h='',nowShown=!isToday;
+  items.forEach((x,i)=>{
+    if(i>0){const g=x.min-items[i-1].min,px=Math.max(14,Math.min(80,g*.45));
+      if(!nowShown&&nowMin<x.min&&nowMin>=items[i-1].min){nowShown=true;const a=(nowMin-items[i-1].min)/g;h+=gapRow(px*a,'')+nowRow(nowMin)+gapRow(px*(1-a),dur(g)+(x.by?' to get there':''))}
+      else h+=gapRow(px,dur(g)+(x.by?' to get there':''));
+    }else if(!nowShown&&nowMin<x.min){nowShown=true;h+=nowRow(nowMin)}
+    const done=!!P.done[i];
+    const cls=['item',x.by?'by':'',done?'done':'',i===nextIdx?'next':''].join(' ');
+    const meta=[];
+    meta.push('<span class="badge'+(x.by?' by':'')+'">'+(x.by?'by':'at')+'</span>');
+    if(x.travel)meta.push('<span>'+esc(x.travel)+'</span>');
+    if(x.place){const prev=items.slice(0,i).reverse().find(y=>y.place);
+      meta.push('<a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(x.place)+'" target="_blank" rel="noopener">Map</a>');
+      meta.push('<a href="https://www.google.com/maps/dir/?api=1'+(prev?'&origin='+encodeURIComponent(prev.place):'')+'&destination='+encodeURIComponent(x.place)+'&travelmode=transit" target="_blank" rel="noopener">Directions</a>')}
+    h+='<li class="'+cls+'"><span class="t mono">'+fmtShort(x.min)+'<br><small style="color:var(--muted);font-size:11px">'+(Math.floor(x.min/60)%24<12?'AM':'PM')+'</small></span><span class="rail"><button class="dot" type="button" data-i="'+i+'" aria-pressed="'+done+'" aria-label="Mark done: '+esc(x.label)+'"></button></span><div class="body"><div class="label">'+esc(x.label)+'</div><div class="meta">'+meta.join('')+'</div></div></li>';
+  });
+  if(!nowShown&&items.length)h+=gapRow(18,'')+nowRow(nowMin);
+  $('tl').innerHTML=h;
+  // notes like a shopping list
+  const nl=notes.filter(s=>s.list.length||s.name);
+  $('notes').hidden=!nl.length;
+  $('notes').innerHTML=nl.map((s,si)=>'<h3>'+esc(s.name||'Notes')+'</h3>'+(s.list.length?'<ul>'+s.list.map((t,ti)=>{const k='n'+si+'_'+ti;return '<li><input type="checkbox" id="'+k+'" data-n="'+k+'"'+(P.done[k]?' checked':'')+'><label for="'+k+'">'+esc(t)+'</label></li>'}).join('')+'</ul>':'<p class="fine" style="margin:0 0 12px">Nothing yet.</p>')).join('');
+  // calendar file
+  $('ics').href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics(P,title,items));
+  $('ics').download=(title||'schedule').replace(/[\\/:*?"<>|]/g,'')+'.ics';
+  // saved list
+  $('savedCard').hidden=D.plans.length<2;
+  $('saved').innerHTML=D.plans.map(p=>{const pp=parse(p.text);return '<button type="button" data-plan="'+p.id+'" aria-pressed="'+(p.id===D.cur)+'"><span>'+esc(pp.title||'Untitled plan')+'</span><small>'+esc(p.date||'')+'</small></button>'}).join('');
+}
+const gapRow=(px,txt)=>'<li class="gap" aria-hidden="'+(txt?'false':'true')+'" style="height:'+px.toFixed(0)+'px"><span></span><span class="rail"></span><span class="len">'+esc(txt)+'</span></li>';
+const nowRow=m=>'<li class="nowline"><span class="t mono">'+fmtShort(Math.max(0,Math.floor(m)))+'</span><span class="bar" aria-label="Now"></span></li>';
+
+function ics(P,title,items){
+  const [y,mo,d]=P.date.split('-').map(Number);
+  const stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+  const dt=min=>{const t=new Date(y,mo-1,d,0,min);return t.getFullYear()+pad(t.getMonth()+1)+pad(t.getDate())+'T'+pad(t.getHours())+pad(t.getMinutes())+'00'};
+  const escI=s=>String(s).replace(/\\/g,'\\\\').replace(/[,;]/g,m=>'\\'+m).replace(/\n/g,'\\n');
+  const out=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//30days//timeline//EN','CALSCALE:GREGORIAN'];
+  items.forEach((x,i)=>{
+    const end=items[i+1]?Math.min(items[i+1].min,x.min+60):x.min+15;
+    out.push('BEGIN:VEVENT','UID:'+P.id+'-'+i+'@30days','DTSTAMP:'+stamp,'DTSTART:'+dt(x.min),'DTEND:'+dt(Math.max(end,x.min+5)),
+      'SUMMARY:'+escI((x.by?'By '+fmt(x.min)+': ':'')+x.label));
+    if(x.place)out.push('LOCATION:'+escI(x.place));
+    out.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+escI(x.label),'TRIGGER:-PT10M','END:VALARM','END:VEVENT');
+  });
+  out.push('END:VCALENDAR');return out.join('\r\n');
+}
+
+/* ---------- events ---------- */
+$('src').value=curPlan().text;
+$('src').addEventListener('input',()=>{const P=curPlan();P.text=$('src').value;const t=parse(P.text).title;if(!P.dateTouched)P.date=guessDate(t);save();render()});
+$('date').addEventListener('change',()=>{const P=curPlan();P.date=$('date').value;P.dateTouched=true;save();render()});
+$('tl').addEventListener('click',e=>{const b=e.target.closest('[data-i]');if(!b)return;const P=curPlan();P.done[b.dataset.i]=!P.done[b.dataset.i];save();render()});
+$('notes').addEventListener('change',e=>{const k=e.target.dataset.n;if(!k)return;curPlan().done[k]=e.target.checked;save()});
+$('newBtn').onclick=()=>{const p={id:uid(),text:'',date:'',done:{}};D.plans.unshift(p);D.cur=p.id;save();$('src').value='';render();$('src').focus()};
+$('saved').addEventListener('click',e=>{const b=e.target.closest('[data-plan]');if(!b)return;D.cur=b.dataset.plan;save();$('src').value=curPlan().text;render()});
+
+render();setInterval(render,30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
+function connect(){if(!(window.claude&&typeof window.claude.use==='function'))return false;$('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';return true}
+if(!connect())window.addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>

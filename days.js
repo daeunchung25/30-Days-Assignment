@@ -61,18 +61,25 @@ window.DAYS = {
        notes: "Rebuilt after the first version looked flat. Now it’s lit in 3D so dents really sink in, the outsides are matched to squishy videos I like, and the sounds are layered: tape crinkles, sugar crackles, dough squelches.",
        link: "day-08/"
      },
-          9: {
+      9: {
        title: "Pop",
        rating: 3,
        need: "A game I can play without thinking. Endless bubble wrap: press or swipe to pop, and when a sheet is done the next one rolls in.",
        notes: "Every sheet is a little different (big bubbles, tiny ones, pink, mint, sky). A few bubbles pop quietly on purpose, like real bubble wrap.",
        link: "day-09/"
      },
-          10: {
+      10: {
        title: "What to eat",
        rating: 4,
        need: "I can never decide what to eat. A roulette with breakfast, lunch and dinner menus. I write what I don’t eat, and it takes those off the wheel for me before I spin.",
        notes: "Each dish knows what’s in it, so writing “mushrooms” or “seafood” takes out every dish with them. It works with Korean words too, and it can skip what I picked recently.",
        link: "day-10/"
+     },
+      11: {
+       title: "Timeline",
+       rating: 4,
+       need: "Before big days I write my whole schedule in Notes, like what time to wake up, leave, and be where. This turns that note into a timeline that counts down to the next thing.",
+       notes: "It reads my notes the way I write them, in Korean or English: “6:20까지” means be there by, “7:55에” means at. Addresses get map and directions links, and the whole day can go into my calendar with reminders.",
+       link: "day-11/"
      },
 };
