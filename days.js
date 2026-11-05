@@ -54,4 +54,11 @@ window.DAYS = {
        notes: "Kept it simple on purpose so I actually keep doing it. Everything saves as I type, and it shows my weight trend and how my days have been going.",
        link: "day-07/"
      },
+  8: {
+       title: "Malang",
+       rating: 5,
+       need: "Something just for fun. I keep watching squishy videos, so I made one I can build myself: pick what’s inside (crunchy, soft, watery, sherbet, hard dough) and what it’s wrapped in, then squish it.",
+       notes: "Each filling moves and sounds different. Soft rises back slowly, watery wobbles, crunchy crackles, sherbet is sandy, and hard dough barely gives. The sounds are made in the browser, no audio files.",
+       link: "day-08/"
+     },
 };
