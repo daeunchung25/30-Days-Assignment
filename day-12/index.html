@@ -19,124 +19,71 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none !important}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
-button,input,textarea{font:inherit;color:inherit}
+button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .serif{font-family:"Instrument Serif",Georgia,serif;font-weight:400}
-.wrap{max-width:1120px;margin:0 auto;padding:18px 18px 70px}
+.wrap{max-width:1080px;margin:0 auto;padding:18px 18px 60px}
 .top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 .top a{color:var(--muted);font-size:14px;text-decoration:none}
 .top a:hover{text-decoration:underline}
 .top h1{font-size:30px;margin:0;font-style:italic}
-.lede{color:var(--muted);margin:4px 0 20px;max-width:60ch}
 
-.main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px;align-items:start}
-.stagewrap{position:sticky;top:14px}
-.board{position:relative;border-radius:28px;overflow:hidden;background:#F6F1E4;box-shadow:0 1px 0 rgba(0,0,0,.04),0 12px 30px -18px rgba(0,0,0,.35)}
-.board canvas{display:block;width:100%;aspect-ratio:4/5;touch-action:none;cursor:crosshair}
-.tag{position:absolute;left:14px;top:12px;font-size:13px;font-weight:600;color:#171614;background:rgba(255,253,248,.85);border-radius:999px;padding:3px 10px;pointer-events:none}
-.big{position:absolute;right:16px;bottom:10px;pointer-events:none;text-align:right;color:#171614}
-.big b{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:56px;line-height:1;display:block}
-.big span{font-size:13px;font-weight:600;background:rgba(255,253,248,.85);border-radius:999px;padding:2px 8px}
-.tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
-.btn{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:14px}
-.btn:hover{border-color:var(--ink)}
-.btn.hot{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.main{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:36px;align-items:center;padding-top:14px;min-height:80vh}
+.board{position:relative;max-width:520px;margin:0 auto;width:100%}
+.board canvas{display:block;width:100%;aspect-ratio:4/5;touch-action:manipulation;cursor:pointer}
+.lbl{position:absolute;font-family:"Instrument Serif",Georgia,serif;font-style:italic;color:var(--muted);font-size:18px;pointer-events:none}
+.lbl.f{top:0;left:50%;transform:translateX(-50%)}
+.lbl.b{bottom:0;left:50%;transform:translateX(-50%)}
+.lbl.l{left:-4px;top:50%;transform:translateY(-50%) rotate(-90deg)}
+.lbl.r{right:-4px;top:50%;transform:translateY(-50%) rotate(90deg)}
+.hover{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;border-radius:999px;padding:3px 10px;transform:translate(-50%,-140%);white-space:nowrap;opacity:0;transition:opacity .15s}
 
-.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:16px}
-.card h2{font-size:28px;margin:0 0 2px;line-height:1.1}
-.card p.sub{margin:0 0 12px;color:var(--muted);font-size:14px}
-.types{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}
-.type{border:1px solid var(--line);background:var(--field);border-radius:14px;padding:8px 10px;cursor:pointer;text-align:left;display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:center}
-.type canvas{width:28px;height:28px}
-.type b{display:block;font-size:14px}
-.type span{font-size:11px;color:var(--muted);line-height:1.2;display:block}
-.type[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
-.level{margin-top:14px}
-.level label{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--muted)}
-.level label b{color:var(--ink);font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:30px;line-height:1}
-input[type=range]{width:100%;height:30px;-webkit-appearance:none;appearance:none;background:transparent}
-input[type=range]::-webkit-slider-runnable-track{height:12px;border-radius:6px;background:linear-gradient(90deg,#BFE3F0,#F2D21B,#F08A24,#E2392B,#8B3FA8)}
-input[type=range]::-moz-range-track{height:12px;border-radius:6px;background:linear-gradient(90deg,#BFE3F0,#F2D21B,#F08A24,#E2392B,#8B3FA8)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;margin-top:-7px;border-radius:50%;background:var(--paper);border:3px solid var(--ink)}
-input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--paper);border:3px solid var(--ink)}
-
-.why{list-style:none;margin:0;padding:0}
-.why>li{padding:14px 0;border-top:1px solid var(--line)}
-.why>li:first-child{border-top:0;padding-top:4px}
-.why h3{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:24px;margin:0;display:flex;align-items:center;gap:10px}
-.why h3 i{width:12px;height:12px;border-radius:50%;flex:none}
-.why h3 small{font-family:"Instrument Sans",sans-serif;font-size:14px;color:var(--muted)}
-.why h3 button{margin-left:auto;border:0;background:none;color:var(--muted);cursor:pointer;font-size:18px}
-.why .kind{margin:6px 0 6px;font-size:15px}
-.why ul{margin:0 0 8px;padding-left:18px}
-.why ul li{margin:2px 0}
-.why .help{font-size:14px;color:var(--muted);margin:0}
-.why .help b{color:var(--ink)}
-textarea{width:100%;border:1px solid var(--line);background:var(--field);border-radius:14px;padding:10px 12px;min-height:60px;resize:vertical}
-.log{list-style:none;margin:0;padding:0}
-.log li{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--line);align-items:center}
-.log li:first-child{border-top:0}
-.log canvas{width:64px;height:80px;border-radius:12px;cursor:pointer}
-.log .d{font-size:12px;color:var(--muted)}
-.log .t{font-size:14px}
-.log .x{border:0;background:none;color:var(--muted);cursor:pointer;font-size:13px;text-decoration:underline;padding:0}
-.care{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+.intro h2{font-size:clamp(40px,6vw,64px);line-height:1;margin:0 0 12px}
+.intro p{color:var(--muted);margin:0;max-width:36ch;font-size:17px}
+.info h2{font-size:clamp(38px,5vw,56px);line-height:1;margin:0}
+.info .sub{color:var(--muted);margin:4px 0 18px}
+.info h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:18px 0 6px;font-weight:600}
+.info ul{margin:0;padding-left:20px;font-size:17px}
+.info li{margin:4px 0}
+.info .help{font-size:17px;margin:0}
+.feel{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.kind{font-size:16px;margin:10px 0 0;min-height:1em}
+.care{font-size:13px;color:var(--muted);margin-top:26px;line-height:1.5;border-top:1px solid var(--line);padding-top:12px}
 .care b{color:var(--ink)}
-@media (max-width:860px){.main{grid-template-columns:1fr}.stagewrap{position:static}.big b{font-size:44px}}
+@media (prefers-reduced-motion:no-preference){.info.in{animation:in .35s ease}@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}}
+@media (max-width:860px){.main{grid-template-columns:1fr;gap:18px;min-height:0}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top"><a id="back" href="../">Day 12 of 30</a><h1 class="serif">Brain map</h1></div>
-  <p class="lede">Your head from above, front at the top. Tap where it hurts and pick how it feels. The pattern spreads out from the pain and moves the way it feels.</p>
 
   <div class="main">
-    <div class="stagewrap">
-      <div class="board">
-        <canvas id="cv" role="img" aria-label="Top view of a brain. Tap where your head hurts. Front is at the top."></canvas>
-        <span class="tag" id="tag">Tap where it hurts</span>
-        <div class="big" aria-live="polite"><b id="ovNum">0</b><span id="ovWord">Calm</span></div>
-      </div>
-      <div class="tools">
-        <button class="btn hot" id="saveImg" type="button">Save image</button>
-        <button class="btn" id="clearAll" type="button">Clear</button>
-      </div>
+    <div class="board" id="board">
+      <canvas id="cv" role="img" aria-label="A brain seen from above, front at the top. Tap the part where your head hurts."></canvas>
+      <span class="lbl f">front</span><span class="lbl b">back</span><span class="lbl l">left</span><span class="lbl r">right</span>
+      <span class="hover" id="hover"></span>
     </div>
 
-    <div>
-      <div class="card" id="editor">
-        <h2 class="serif" id="edName">Nothing picked</h2>
-        <p class="sub" id="edSub">Tap the brain to mark where it hurts.</p>
-        <div id="edBody" hidden>
-          <div class="types" id="types" role="group" aria-label="Kind of pain"></div>
-          <div class="level">
-            <label for="lvl"><span>How bad</span><b id="lvlOut"></b></label>
-            <input type="range" id="lvl" min="1" max="10" step="1">
-          </div>
-          <div class="tools"><button class="btn" id="rmSpot" type="button">Remove this spot</button></div>
-        </div>
+    <div aria-live="polite">
+      <div class="intro" id="intro">
+        <h2 class="serif">Where does it hurt?</h2>
+        <p>Your head from above, front at the top. Tap the part that hurts and it’ll tell you why it might.</p>
       </div>
-
-      <div class="card">
-        <h2 class="serif">Why it might hurt</h2>
-        <p class="sub">Common reasons for pain in each spot. These aren’t a diagnosis.</p>
-        <ul class="why" id="why"></ul>
-        <p class="sub" id="noWhy" style="margin:0">Mark a spot to see what might be causing it.</p>
+      <div class="info" id="info" hidden>
+        <h2 class="serif" id="name"></h2>
+        <p class="sub" id="sub"></p>
+        <h3>Why it might hurt here</h3>
+        <ul id="reasons"></ul>
+        <h3>Might help</h3>
+        <p class="help" id="help"></p>
+        <h3>How does it feel? <span style="text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></h3>
+        <div class="feel" id="feel" role="group" aria-label="How it feels"></div>
+        <p class="kind" id="kind"></p>
+        <p class="care"><b>Get help right away</b> if this is the worst headache of your life, it came on suddenly like a thunderclap, or it comes with a fever and stiff neck, confusion, weakness or numbness, or trouble speaking or seeing, or after hitting your head. These are common reasons, not a diagnosis.</p>
       </div>
-
-      <div class="card">
-        <h2 class="serif">Save it</h2>
-        <textarea id="note" placeholder="What might be related: sleep, screens, caffeine, stress, your period" aria-label="Notes"></textarea>
-        <div class="tools"><button class="btn hot" id="saveLog" type="button">Save to my log</button></div>
-      </div>
-
-      <div class="card" id="logCard" hidden>
-        <h2 class="serif">My log</h2>
-        <p class="sub">Tap a map to bring it back.</p>
-        <ul class="log" id="log"></ul>
-      </div>
-
-      <p class="care"><b>Get help right away</b> if this is the worst headache of your life, it came on suddenly like a thunderclap, or it comes with a fever and stiff neck, confusion, weakness or numbness, trouble speaking or seeing, or after hitting your head. If headaches keep coming back, show your log to a doctor.</p>
     </div>
   </div>
 </div>
@@ -146,205 +93,26 @@ textarea{width:100%;border:1px solid var(--line);background:var(--field);border-
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clamp=(x,a,b)=>x<a?a:x>b?b:x;
+const sstep=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
 
-/* ---------- palette ---------- */
-const P={cream:'#F6F1E4',sky:'#BFE3F0',lemon:'#F2D21B',orange:'#F08A24',red:'#E2392B',pink:'#F27BA8',purple:'#8B6CC9',teal:'#1C8C8C',ink:'#1A1A1A',mint:'#9ED8B8'};
-const BANDS=[[P.sky,P.mint],[P.sky,P.mint],[P.lemon,P.teal],[P.orange,P.lemon],[P.pink,P.purple],[P.red,P.orange],[P.ink,P.red]];
-const TYPES={
-  throbbing:{name:'Throbbing',sub:'Like a heartbeat',glyphs:['target','dot','ring','dot'],
-    why:'Throbbing, pulsing pain is typical of a migraine, especially if light or sound bothers you or you feel sick. Caffeine withdrawal and hangovers can throb too.'},
-  pressure:{name:'Pressure',sub:'Tight, squeezing',glyphs:['plus','square','plus','ring'],
-    why:'A tight, band-like squeeze is the classic tension headache, usually from stress, tired muscles or not enough sleep.'},
-  stabbing:{name:'Stabbing',sub:'Sharp jabs',glyphs:['x','tri','bowtie','x'],
-    why:'Quick jabs that last a few seconds are often harmless “ice pick” headaches, and they’re more common if you get migraines. Tell a doctor if they’re new or keep coming.'},
-  dull:{name:'Dull ache',sub:'Heavy and foggy',glyphs:['ring','dot','ring','half'],
-    why:'A steady, dull ache often comes from being tired, dehydrated, hungry or stressed, or from screens.'},
-  burning:{name:'Burning',sub:'Hot, tingly',glyphs:['half','tri','target','half'],
-    why:'A burning or tingly scalp can come from an irritated nerve, tight hairstyles, or a sensitive scalp during a migraine.'}
+/* ---------- what each part means ---------- */
+const PARTS={
+  front:{name:'Front',sub:'Your forehead. In the brain, this is the frontal lobe.',reasons:['Eye strain from screens or reading','Stuffy sinuses, from a cold or allergies','Frowning or squinting a lot','Not drinking enough water','Missing your usual coffee'],help:'Drink water, take a screen break, and put a cool or warm cloth on your forehead.'},
+  top:{name:'Top',sub:'The crown of your head. In the brain, this is the parietal lobe.',reasons:['Stress or not enough sleep','Hunching over a laptop or phone','Skipping meals','Too much screen time'],help:'Eat something, rest, and sit up straight with your screen at eye level.'},
+  back:{name:'Back',sub:'The back of your head, above your neck. In the brain, this is the occipital lobe.',reasons:['Neck strain from looking down at your phone','Sleeping in an awkward position','Tight neck and shoulder muscles','A tight ponytail pulling on your scalp'],help:'Stretch your neck and shoulders, and put something warm on the back of your neck.'},
+  left:{name:'Left side',sub:'Your left temple and above your left ear. In the brain, this is the left temporal lobe.',reasons:['Clenching your jaw or grinding your teeth','A migraine, which often stays on one side','Glasses or headphones pressing','Eye strain'],help:'Unclench your jaw, take headphones off for a while, and rub your temple in small circles.'},
+  right:{name:'Right side',sub:'Your right temple and above your right ear. In the brain, this is the right temporal lobe.',reasons:['Clenching your jaw or grinding your teeth','A migraine, which often stays on one side','Glasses or headphones pressing','Eye strain'],help:'Unclench your jaw, take headphones off for a while, and rub your temple in small circles.'}
 };
-// parts of the head seen from above (front at the top, your left on the left)
-const PLACES={
-  front:{name:'Front of the head',sub:'Forehead',reasons:['Eye strain from screens or reading','Stuffy sinuses, from a cold or allergies','Frowning or squinting a lot','Not drinking enough water','Missing your usual coffee'],help:'Drink water, take a break from screens, and try a warm or cool cloth on your forehead.'},
-  templeL:{name:'Left temple',sub:'Front left side',reasons:['Clenching your jaw or grinding your teeth','A migraine, which often stays on one side','Eye strain, or glasses that need updating','Stress'],help:'Unclench your jaw, rest your eyes, and gently rub your temples in small circles.'},
-  templeR:{name:'Right temple',sub:'Front right side',reasons:['Clenching your jaw or grinding your teeth','A migraine, which often stays on one side','Eye strain, or glasses that need updating','Stress'],help:'Unclench your jaw, rest your eyes, and gently rub your temples in small circles.'},
-  top:{name:'Top of the head',sub:'Crown',reasons:['Tension from stress or not enough sleep','Hunching over a laptop or phone','Skipping meals or not drinking enough','Too much screen time'],help:'Eat something, drink water, rest, and sit up straight with your screen at eye level.'},
-  sideL:{name:'Left side',sub:'Above the left ear',reasons:['A tight ponytail, clips or headband','Headphones or glasses pressing','Jaw clenching','A migraine on one side'],help:'Take out tight hair ties, give your ears a break from headphones, and relax your jaw.'},
-  sideR:{name:'Right side',sub:'Above the right ear',reasons:['A tight ponytail, clips or headband','Headphones or glasses pressing','Jaw clenching','A migraine on one side'],help:'Take out tight hair ties, give your ears a break from headphones, and relax your jaw.'},
-  back:{name:'Back of the head',sub:'Above the neck',reasons:['Neck strain from looking down at your phone or laptop','Sleeping in an awkward position','Tight neck and shoulder muscles','A tight hairstyle pulling on your scalp'],help:'Stretch your neck and shoulders, check your posture, and put something warm on the back of your neck.'}
+const FEELS={
+  throbbing:{name:'Throbbing',col:[226,57,43],text:'Throbbing, pulsing pain is typical of a migraine, especially if light or sound bothers you or you feel sick.'},
+  pressure:{name:'Tight, squeezing',col:[139,92,201],text:'A tight, band-like squeeze is the classic tension headache, usually from stress, tired muscles or not enough sleep.'},
+  stabbing:{name:'Stabbing',col:[242,190,20],text:'Quick jabs that last a few seconds are often harmless “ice pick” headaches. Tell a doctor if they’re new or keep coming.'},
+  dull:{name:'Dull ache',col:[90,120,190],text:'A steady, dull ache often comes from being tired, dehydrated, hungry or stressed.'},
+  burning:{name:'Burning',col:[240,120,30],text:'A burning or tingly scalp can come from an irritated nerve or a tight hairstyle.'}
 };
-function placeOf(x,y){
-  const u=(x-.5)/.39,v=(y-.5)/.38;
-  if(v<-.5)return'front';
-  if(v>.5)return'back';
-  if(Math.abs(u)>.55)return v<0?(u<0?'templeL':'templeR'):(u<0?'sideL':'sideR');
-  return'top';
-}
+let sel=null,feel=null;
 
-/* ---------- saved: one mark per spot ---------- */
-const SAVE='brainmap2-day12';
-let D={spots:[],sel:null,log:[]};
-try{Object.assign(D,JSON.parse(localStorage.getItem(SAVE))||{})}catch(e){}
-const save=()=>{try{localStorage.setItem(SAVE,JSON.stringify(D))}catch(e){}};
-
-/* ---------- glyphs ---------- */
-function glyph(c,kind,x,y,s,col,col2){
-  c.fillStyle=col;c.strokeStyle=col;c.lineWidth=Math.max(1,s*.14);
-  switch(kind){
-    case'dot':c.beginPath();c.arc(x,y,s*.26,0,7);c.fill();break;
-    case'ring':c.beginPath();c.arc(x,y,s*.3,0,7);c.stroke();break;
-    case'target':c.beginPath();c.arc(x,y,s*.36,0,7);c.stroke();c.fillStyle=col2;c.beginPath();c.arc(x,y,s*.15,0,7);c.fill();break;
-    case'plus':{const w=s*.2,l=s*.42;c.fillRect(x-l,y-w/2,l*2,w);c.fillRect(x-w/2,y-l,w,l*2);break}
-    case'x':{c.save();c.translate(x,y);c.rotate(Math.PI/4);const w=s*.2,l=s*.42;c.fillRect(-l,-w/2,l*2,w);c.fillRect(-w/2,-l,w,l*2);c.restore();break}
-    case'square':{const l=s*.3;c.strokeRect(x-l,y-l,l*2,l*2);c.fillStyle=col2;c.fillRect(x-l*.4,y-l*.4,l*.8,l*.8);break}
-    case'tri':c.beginPath();c.moveTo(x,y-s*.36);c.lineTo(x+s*.34,y+s*.26);c.lineTo(x-s*.34,y+s*.26);c.closePath();c.fill();break;
-    case'bowtie':c.beginPath();c.moveTo(x-s*.36,y-s*.3);c.lineTo(x+s*.36,y+s*.3);c.lineTo(x+s*.36,y-s*.3);c.lineTo(x-s*.36,y+s*.3);c.closePath();c.fill();break;
-    case'half':c.beginPath();c.arc(x,y,s*.34,Math.PI,0);c.closePath();c.fill();c.fillStyle=col2;c.beginPath();c.arc(x,y,s*.34,0,Math.PI);c.closePath();c.fill();break;
-  }
-}
-
-/* ---------- the brain from above ---------- */
-function rnd(seed){let s=seed;return()=>{s=(s*9301+49297)%233280;return s/233280}}
-function hemi(side){ // outline of one half, slightly narrower at the front, with a soft wobble
-  const pts=[];
-  for(let a=0;a<Math.PI*2;a+=Math.PI/120){
-    const ux=Math.cos(a),uy=Math.sin(a),front=uy<0?1-.08*(-uy):1;
-    const wob=1+.005*Math.sin(a*26)+.003*Math.sin(a*41);
-    // the inner edge is flatter, where the two halves meet
-    const inner=ux*side<0?.82+.18*Math.abs(uy):1;
-    pts.push([.5+side*(.212+.205*ux*front*wob*inner),.5+.385*uy*wob]);
-  }
-  return pts;
-}
-const HEMI=[hemi(-1),hemi(1)];
-// folds: wavy lines running front to back, plus the big groove across each half
-const FOLDS=(()=>{const r=rnd(7),out=[];
-  for(const side of[-1,1]){
-    for(let k=0;k<7;k++){const base=.5+side*(.04+k*.055),ph=r()*6,ph2=r()*6,a1=.008+r()*.006,line=[];
-      for(let y=.1;y<=.9;y+=.008)line.push([base+a1*Math.sin(y*38+ph)+.006*Math.sin(y*95+ph2),y]);out.push(line)}
-    const groove=[];for(let t=0;t<=1;t+=.02){const x=.5+side*(.015+t*.4);groove.push([x,.44+.05*t+.012*Math.sin(t*14)])}out.push(groove);
-    for(let k=0;k<10;k++){const x0=.5+side*(.06+r()*.33),y0=.15+r()*.7,len=.04+r()*.06,line=[];for(let t=0;t<=1;t+=.1)line.push([x0+side*t*len,y0+.015*Math.sin(t*6+k)]);out.push(line)}
-  }return out})();
-function brainPath(w,h){const p=new Path2D();for(const H of HEMI){H.forEach((q,i)=>i?p.lineTo(q[0]*w,q[1]*h):p.moveTo(q[0]*w,q[1]*h));p.closePath()}return p}
-
-function pattern(c,w,h,spots,t,cols){
-  const rows=Math.round(cols*1.25),cs=w/cols;
-  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
-    let f=0,best=null,bf=0;
-    for(const s of spots){
-      const dx=Math.abs(i+.5-s.x*cols),dy=Math.abs(j+.5-s.y*rows),d=Math.max(dx,dy),L=s.level;
-      let v=(L/10)*Math.exp(-d/(1.4+L*.42));
-      if(s.type==='throbbing'){const ph=t*(1.1+L*.12)%1;v*=.82+.3*(ph<.15?Math.sin(ph/.15*Math.PI):ph>.25&&ph<.4?.6*Math.sin((ph-.25)/.15*Math.PI):0)}
-      else if(s.type==='pressure')v*=.85+.2*Math.sin(d*1.1+t*(2+L*.25));
-      else if(s.type==='dull')v*=.9+.12*Math.sin(t*.8-d*.25);
-      else if(s.type==='burning')v*=.85+.25*Math.abs(Math.sin(t*7+i*1.3+j*.7));
-      else if(s.type==='stabbing'){const k=Math.floor(t*(3+L*.4));if(((i*73+j*151+k*29)%17)===0&&d<4+L*.6)v=Math.max(v,L/10)}
-      f+=v;if(v>bf){bf=v;best=s}
-    }
-    f=clamp(f,0,1);
-    const band=Math.min(BANDS.length-1,Math.floor(f*BANDS.length*1.05));
-    const pair=BANDS[band],col=(i+j)%2?pair[0]:pair[1],col2=(i+j)%2?pair[1]:pair[0];
-    const gl=best&&bf>.04?TYPES[best.type].glyphs:['ring','dot','ring','dot'];
-    c.globalAlpha=band===0?.6:1;
-    glyph(c,gl[(i*7+j*13+band)%gl.length],(i+.5)*cs,(j+.5)*(h/rows),cs*(band===0?.7:.9),col,col2===col?P.cream:col2);
-  }
-  c.globalAlpha=1;
-}
-function drawBrain(c,w,h,spots,t,cols,opts){
-  c.fillStyle=P.cream;c.fillRect(0,0,w,h);
-  const bp=brainPath(w,h);
-  c.save();c.clip(bp);c.fillStyle='#FBF7EE';c.fillRect(0,0,w,h);pattern(c,w,h,spots,t,cols);
-  // folds on top, light so the pattern shows through
-  c.strokeStyle='rgba(26,26,26,.22)';c.lineWidth=Math.max(1,w*.0035);c.lineCap='round';c.lineJoin='round';
-  for(const L of FOLDS){c.beginPath();L.forEach((q,i)=>{const x=q[0]*w,y=q[1]*h;if(!i)c.moveTo(x,y);else{const pq=L[i-1];c.quadraticCurveTo(pq[0]*w,pq[1]*h,(pq[0]*w+x)/2,(pq[1]*h+y)/2)}});c.stroke()}
-  c.restore();
-  c.strokeStyle='#1A1A1A';c.lineWidth=Math.max(1.5,w*.005);c.stroke(bp);
-  if(opts&&opts.labels){
-    c.fillStyle='#77726A';c.font='italic '+Math.round(w*.04)+'px "Instrument Serif", Georgia, serif';c.textAlign='center';
-    c.fillText('front',w*.5,h*.085);c.fillText('back',w*.5,h*.955);
-    c.save();c.translate(w*.055,h*.5);c.rotate(-Math.PI/2);c.fillText('left',0,0);c.restore();
-    c.save();c.translate(w*.945,h*.5);c.rotate(Math.PI/2);c.fillText('right',0,0);c.restore();
-  }
-  for(const s of spots){const x=s.x*w,y=s.y*h;c.fillStyle='#1A1A1A';c.beginPath();c.arc(x,y,Math.max(3,w*.008),0,7);c.fill();
-    if(opts&&opts.sel===s.id){c.setLineDash([4,5]);c.strokeStyle='#1A1A1A';c.lineWidth=1.5;c.beginPath();c.arc(x,y,w*.07,0,7);c.stroke();c.setLineDash([])}}
-}
-
-/* ---------- canvas ---------- */
-const cv=$('cv'),ctx=cv.getContext('2d');let W=0,H=0;
-function size(){const dpr=Math.min(2,window.devicePixelRatio||1),r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
-new ResizeObserver(size).observe(cv);
-const reduced=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-const t0=performance.now();
-(function frame(now){requestAnimationFrame(frame);if(!W)return;drawBrain(ctx,W,H,D.spots,reduced?0:(now-t0)/1000,W<420?24:30,{labels:true,sel:D.sel})})(t0);
-
-/* ---------- tapping: one mark per part of the head ---------- */
-let drag=null;
-function pt(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]}
-cv.addEventListener('pointerdown',e=>{
-  const[x,y]=pt(e);
-  let hit=D.spots.find(s=>Math.hypot(s.x-x,(s.y-y)*1.25)<.07);
-  if(!hit){
-    const u=(x-.5)/.39,v=(y-.5)/.38;if(u*u+v*v>1.15)return; // outside the head
-    const id=placeOf(x,y);hit=D.spots.find(s=>s.place===id);
-    if(hit){hit.x=x;hit.y=y}else{hit={id:Math.random().toString(36).slice(2,8),place:id,x,y,type:'throbbing',level:5};D.spots.push(hit)}
-  }
-  e.preventDefault();cv.setPointerCapture(e.pointerId);D.sel=hit.id;drag={s:hit,dx:hit.x-x,dy:hit.y-y};paint();
-});
-cv.addEventListener('pointermove',e=>{if(!drag)return;const[x,y]=pt(e);const s=drag.s,nx=clamp(x+drag.dx,.08,.92),ny=clamp(y+drag.dy,.1,.9),np=placeOf(nx,ny);
-  if(np!==s.place&&D.spots.some(o=>o!==s&&o.place===np))return; // don’t slide into a part that already has a mark
-  s.x=nx;s.y=ny;if(np!==s.place){s.place=np;paint()}});
-const end=()=>{if(drag){drag=null;save();paint()}};cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
-
-/* ---------- panels ---------- */
-const WORDS=['Calm','Mild','Mild','Mild','Moderate','Moderate','Moderate','Bad','Bad','Severe','Severe'];
-const dotCol=L=>BANDS[Math.min(6,Math.max(2,Math.ceil(L*.65)))][0];
-function typeIcons(){document.querySelectorAll('#types canvas').forEach(c0=>{const dpr=Math.min(2,window.devicePixelRatio||1);c0.width=28*dpr;c0.height=28*dpr;const c=c0.getContext('2d');c.scale(dpr,dpr);const g=TYPES[c0.dataset.k].glyphs;glyph(c,g[0],9,9,14,P.red,P.lemon);glyph(c,g[1],20,10,12,P.teal,P.cream);glyph(c,g[2],14,21,13,P.purple,P.pink)})}
-function summary(spots){return [...spots].sort((a,b)=>b.level-a.level).map(s=>PLACES[s.place].name+', '+TYPES[s.type].name.toLowerCase()+' '+s.level+'/10').join(' · ')}
-function paint(){
-  const max=D.spots.reduce((m,s)=>Math.max(m,s.level),0);
-  $('ovNum').textContent=max;$('ovWord').textContent=WORDS[max];
-  $('tag').textContent=D.spots.length?'Tap another spot, or drag to move':'Tap where it hurts';
-  const s=D.spots.find(x=>x.id===D.sel);$('edBody').hidden=!s;
-  if(s){const pl=PLACES[s.place];$('edName').textContent=pl.name;$('edSub').textContent=pl.sub+'. How does it feel?';
-    $('types').innerHTML=Object.entries(TYPES).map(([k,v])=>'<button type="button" class="type" data-t="'+k+'" aria-pressed="'+(s.type===k)+'"><canvas data-k="'+k+'"></canvas><span><b>'+v.name+'</b><span>'+v.sub+'</span></span></button>').join('');typeIcons();
-    $('lvl').value=s.level;$('lvlOut').textContent=s.level+'/10'}
-  else{$('edName').textContent='Nothing picked';$('edSub').textContent='Tap the brain to mark where it hurts.'}
-  const list=[...D.spots].sort((a,b)=>b.level-a.level);
-  $('noWhy').hidden=!!list.length;
-  $('why').innerHTML=list.map(p=>{const pl=PLACES[p.place],ty=TYPES[p.type];
-    return '<li><h3><i style="background:'+dotCol(p.level)+'"></i>'+esc(pl.name)+' <small>'+esc(ty.name.toLowerCase())+', '+p.level+'/10</small><button type="button" data-rm="'+p.id+'" aria-label="Remove '+esc(pl.name)+'">×</button></h3>'+
-      '<p class="kind">'+esc(ty.why)+'</p><ul>'+pl.reasons.map(r=>'<li>'+esc(r)+'</li>').join('')+'</ul><p class="help"><b>Might help:</b> '+esc(pl.help)+'</p></li>'}).join('');
-}
-$('types').addEventListener('click',e=>{const b=e.target.closest('[data-t]'),s=D.spots.find(x=>x.id===D.sel);if(!b||!s)return;s.type=b.dataset.t;save();paint()});
-$('lvl').addEventListener('input',()=>{const s=D.spots.find(x=>x.id===D.sel);if(!s)return;s.level=+$('lvl').value;$('lvlOut').textContent=s.level+'/10';save();paint()});
-$('rmSpot').onclick=()=>{D.spots=D.spots.filter(x=>x.id!==D.sel);D.sel=null;save();paint()};
-$('why').addEventListener('click',e=>{const r=e.target.closest('[data-rm]');if(!r)return;D.spots=D.spots.filter(x=>x.id!==r.dataset.rm);if(D.sel===r.dataset.rm)D.sel=null;save();paint()});
-$('clearAll').onclick=()=>{D.spots=[];D.sel=null;save();paint()};
-
-/* ---------- image and log ---------- */
-$('saveImg').onclick=()=>{
-  const w=1000,h=1250,c=document.createElement('canvas');c.width=w;c.height=h+150;const x=c.getContext('2d');
-  drawBrain(x,w,h,D.spots,1.3,30,{labels:true});x.fillStyle=P.cream;x.fillRect(0,h,w,150);
-  x.fillStyle='#171614';x.font='italic 52px "Instrument Serif", Georgia, serif';x.fillText('Brain map, '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}),40,h+70);
-  x.font='24px "Instrument Sans", sans-serif';x.fillStyle='#55504A';x.fillText((summary(D.spots)||'Calm').slice(0,90),40,h+115);
-  c.toBlob(bl=>{const u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download='brain-map.png';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)});
-};
-$('saveLog').onclick=()=>{
-  if(!D.spots.length){$('saveLog').textContent='Mark a spot first';setTimeout(()=>$('saveLog').textContent='Save to my log',1500);return}
-  D.log.unshift({at:Date.now(),spots:JSON.parse(JSON.stringify(D.spots)),note:$('note').value.trim()});D.log=D.log.slice(0,60);$('note').value='';save();paintLog();
-  $('saveLog').textContent='Saved';setTimeout(()=>$('saveLog').textContent='Save to my log',1500);
-};
-function paintLog(){
-  $('logCard').hidden=!D.log.length;
-  $('log').innerHTML=D.log.map((e,i)=>'<li><canvas data-load="'+i+'" role="button" tabindex="0" aria-label="Bring back this map"></canvas><div><div class="d">'+esc(new Date(e.at).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))+'</div><div class="t">'+esc(summary(e.spots))+'</div>'+(e.note?'<div class="d">'+esc(e.note)+'</div>':'')+'<button class="x" type="button" data-del="'+i+'">Delete</button></div></li>').join('');
-  document.querySelectorAll('#log canvas').forEach(c0=>{const dpr=Math.min(2,window.devicePixelRatio||1);c0.width=64*dpr;c0.height=80*dpr;const c=c0.getContext('2d');c.scale(dpr,dpr);drawBrain(c,64,80,D.log[+c0.dataset.load].spots,1.3,14,null)});
-}
-$('log').addEventListener('click',e=>{const l=e.target.closest('[data-load]');if(l){D.spots=JSON.parse(JSON.stringify(D.log[+l.dataset.load].spots));D.sel=null;save();paint();window.scrollTo({top:0,behavior:'smooth'});return}const d=e.target.closest('[data-del]');if(d){D.log.splice(+d.dataset.del,1);save();paintLog()}});
-$('log').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset.load!=null)e.target.click()});
-
-paint();paintLog();
-function connect(){if(!(window.claude&&typeof window.claude.use==='function'))return false;$('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';return true}
-if(!connect())window.addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
-})();
-</script>
-</body>
-</html>
+/* ---------- building the brain once ---------- */
+// the folds were grown ahead of time with a reaction-diffusion simulation (the same kind of math behind
+// coral and fingerprint patterns), saved as a tiny grayscale picture, and shaded here in 3D
+const FOLDS_PNG='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKgAAADSCAAAAAD7mdTPAAA1HUlEQVR42u29Z5NdR3YtuHea48/1tixQoOvXaj1J3Yp4o4j5/zMRo/ee1JJIgoQpe707/pw0ez4USBTYIFgg2RpNBPMTPuGuWjvPdrl2JsBv67f12/pt/bZ+W7+t39Zv67f12/pt/bb+f7/w1/zPCMBwAHz7j/96QAmg2cLdQfufTBBo/m0p2kfQc361XxC/DsrtfF6o8rDJoIMTAHjxH3uI+m1fBpNN71fBKn4NlIu79T5tdLnfqRAKA2CK/V0uux1fOHFncPRrYBW/GOb6ep0c0iTJs+TQ+KcTRABEe7gunXYrClut+GW7f0q/FKr4hTCXL+b7PNmt1/u8qBreGwmBAChEs9oaxwuidn/Qi6PLycUvhCp+GcyXs81uu16sD6XWujEyAMkRAJmEKlfcSdfSaw9Gg956Nv1lUH8BUCr/7Xa9Xd3drZPKcC8yeUkg+L0z4QII3VjUebK+jfvT49F6fvwHwv98oARXX9+ulzc3y0OlwW2fT+3ry5qLN1CY4CI4+0TOX62LItnMr49Pdvv95z+f1J8LlOp/vZ7PLy/nh0pbdLuf/f0Jm1RLyb8DwqXb/8c/4K1jNk2jq2Q9PzvP08Xf/lxSfyZQ2v+v68XNi6tNYVAKGR9f9BzeCQRnRABABIyJoOua9nnGUm1spfLdNimy7O9/JlLx88x+/eXV7atv7w4NunE79KNBS2W0KgzdBykAADDlqsdU/CTMm6ZIi6LOk6xS6oufZ37xs8z+5+vZ1TcvF7nh8fTiyCeDUFbJ821j8TsQaNXuW79jodfh0qR
