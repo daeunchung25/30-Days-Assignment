@@ -89,4 +89,19 @@ window.DAYS = {
        notes: "Inspired by doodle-on-your-face videos and glyph pattern art. Throbbing is a beating cluster of dots, pressure a squeezing pink circle, stabbing bright zigzags, dull a hazy cloud, burning little flames. It also writes it out for a doctor and keeps a log.",
        link: "day-12/"
      },
+       13: {
+    title: "Salt bread & scones",
+    rating: 5,
+    need: "No code today. I wanted to make something with my hands, so I baked salt bread and scones.",
+    notes: "Salt bread first, then scones. The photos go from the tray going into the oven, to coming out, to the plate.",
+    images: [
+      "day-13/salt-bread-1.jpg",
+      "day-13/salt-bread-2.jpg",
+      "day-13/salt-bread-3.jpg",
+      "day-13/scones-1.jpg",
+      "day-13/scones-2.jpg",
+      "day-13/scones-3.jpg"
+    ],
+    link: ""
+  },
 };
