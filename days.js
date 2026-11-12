@@ -104,4 +104,20 @@ window.DAYS = {
     ],
     link: ""
   },
+       14: {
+       title: "Scans",
+       need: "Hardware day. I used a flatbed scanner as a camera and moved my keys and keychain while it was scanning.",
+       notes: "The scanner reads one line at a time, so anything that moves while the light passes over it gets stretched, bent and doubled. The red tag turned into zigzags.",
+       images: [
+         "day-14/scan-1.jpg",
+         "day-14/scan-2.jpg",
+         "day-14/scan-3.jpg",
+         "day-14/scan-4.jpg",
+         "day-14/scan-5.jpg",
+         "day-14/scan-6.jpg",
+         "day-14/scan-7.jpg",
+         "day-14/scan-8.jpg"
+       ],
+       link: ""
+     },
 };
