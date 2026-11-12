@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lists | Day 15 of 30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F3EC;--paper:#FFFEFA;--ink:#1F1D1A;--muted:#7A756C;--line:#E7E1D6;--accent:#F2B92B;--accent-ink:#2A2006;--soft:#FFF4D6;--flag:#E5533D;--field:#FBF9F4;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151412;--paper:#1E1C19;--ink:#F1EDE5;--muted:#A69F94;--line:#302C27;--accent:#F2B92B;--accent-ink:#2A2006;--soft:#3A2F12;--flag:#FF7A62;--field:#191815;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#151412;--paper:#1E1C19;--ink:#F1EDE5;--muted:#A69F94;--line:#302C27;--accent:#F2B92B;--accent-ink:#2A2006;--soft:#3A2F12;--flag:#FF7A62;--field:#191815;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Figtree",system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;font-size:17px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.serif{font-family:"Fraunces",Georgia,serif;font-weight:600}
+.wrap{max-width:1000px;margin:0 auto;padding:18px 18px 80px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.top a{color:var(--muted);font-size:14px;text-decoration:none}
+.top a:hover{text-decoration:underline}
+.top h1{font-size:22px;margin:0}
+
+.main{display:grid;grid-template-columns:230px minmax(0,1fr);gap:28px;padding-top:22px;align-items:start}
+.lists{display:flex;flex-direction:column;gap:4px;position:sticky;top:14px}
+.lists button.l{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;border:0;background:transparent;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:600;font-size:16px}
+.lists button.l:hover{background:var(--paper)}
+.lists button.l[aria-current="true"]{background:var(--accent);color:var(--accent-ink)}
+.lists button.l small{font-weight:500;opacity:.7;font-size:13px}
+.newlist{display:flex;gap:6px;margin-top:6px}
+.newlist input{flex:1;min-width:0;border:1px dashed var(--line);background:transparent;border-radius:12px;padding:9px 12px;font-size:15px}
+
+.sheet{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:22px 22px 18px;box-shadow:0 10px 30px -22px rgba(0,0,0,.35)}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.title{font-size:clamp(30px,5vw,42px);line-height:1.05;margin:0;border:0;background:transparent;width:100%;padding:0}
+.title:focus{outline:none;border-bottom:2px solid var(--accent)}
+.count{color:var(--muted);font-size:15px;margin:4px 0 0}
+.bar{height:6px;border-radius:3px;background:var(--line);margin:12px 0 16px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .3s}
+
+.add textarea{width:100%;border:1.5px solid var(--line);background:var(--field);border-radius:14px;padding:11px 14px;font-size:17px;resize:none;min-height:48px;line-height:1.4}
+.add textarea:focus{border-color:var(--accent);outline:none}
+.add p{margin:6px 2px 0;font-size:13px;color:var(--muted)}
+
+.group{margin-top:18px}
+.group h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 4px;font-weight:700;display:flex;align-items:center;gap:8px}
+.group.dont h3{color:var(--flag)}
+.group.dont{background:color-mix(in srgb,var(--flag) 8%,transparent);border-radius:14px;padding:10px 12px 4px;margin-left:-12px;margin-right:-12px}
+ul.items{list-style:none;margin:0;padding:0}
+.item{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.check{width:24px;height:24px;border-radius:50%;border:2px solid #C9C2B5;background:transparent;cursor:pointer;padding:0;display:grid;place-items:center;transition:transform .15s}
+.check:active{transform:scale(.85)}
+.item.done .check{background:var(--accent);border-color:var(--accent)}
+.item.done .check::after{content:"";width:6px;height:11px;border:solid var(--accent-ink);border-width:0 2.5px 2.5px 0;transform:translateY(-1px) rotate(45deg)}
+.txt{border:0;background:transparent;padding:4px 0;width:100%;font-size:17px;min-width:0}
+.txt:focus{outline:none;background:var(--field);border-radius:6px;padding:4px 6px}
+.item.done .txt{color:var(--muted);text-decoration:line-through}
+.acts{display:flex;gap:2px;opacity:.55}
+.item:hover .acts,.item:focus-within .acts{opacity:1}
+.acts button{border:0;background:transparent;cursor:pointer;border-radius:8px;padding:4px 6px;font-size:13px;color:var(--muted);font-weight:600}
+.acts button:hover{background:var(--field);color:var(--ink)}
+.acts button.on{color:var(--flag)}
+.donehead{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.donehead button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:0}
+.empty{color:var(--muted);margin:18px 2px 4px}
+
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)}
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--ink)}
+.btn.hot{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.warn{color:var(--flag)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+@media (max-width:760px){
+  .main{grid-template-columns:1fr;gap:14px}
+  .lists{position:static;flex-direction:row;overflow-x:auto;padding-bottom:4px}
+  .lists button.l{white-space:nowrap;flex:none;background:var(--paper)}
+  .newlist{margin-top:0;flex:none}
+  .newlist input{width:130px}
+  .sheet{padding:18px 16px 14px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a id="back" href="../">Day 15 of 30</a><h1 class="serif">Lists</h1></div>
+
+  <div class="main">
+    <nav class="lists" id="lists" aria-label="Your lists"></nav>
+
+    <section class="sheet" aria-labelledby="title">
+      <div class="head">
+        <div style="flex:1;min-width:0">
+          <input class="title serif" id="title" aria-label="List name">
+          <p class="count" id="count"></p>
+        </div>
+      </div>
+      <div class="bar" aria-hidden="true"><i id="barFill"></i></div>
+
+      <div class="add">
+        <textarea id="addIn" rows="1" placeholder="Add something, or paste a whole list from Notes" aria-label="Add items"></textarea>
+        <p>Each line becomes its own item. A line ending in “:” starts a section, like “Toiletries:”.</p>
+      </div>
+
+      <div id="body"></div>
+
+      <div class="tools">
+        <button class="btn hot" id="reuse" type="button">Use again</button>
+        <button class="btn" id="clearDone" type="button">Remove checked</button>
+        <button class="btn" id="copy" type="button">Copy as text</button>
+        <button class="btn warn" id="delList" type="button">Delete list</button>
+      </div>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const it=(text,section,flag)=>({id:uid(),text,section:section||'',done:false,flag:!!flag});
+
+/* ---------- starting lists ---------- */
+function starter(){
+  const pack=[];
+  [['Documents',['Passport','Boarding pass','Wallet and cards','Student ID']],
+   ['Tech',['Phone charger','Laptop and charger','Power adapter','Earbuds']],
+   ['Toiletries',['Toothbrush','Skincare','Makeup','Contacts or glasses','Medicine']],
+   ['Clothes',['Underwear and socks','Pajamas','Outfits','Jacket']]]
+  .forEach(([s,list])=>list.forEach(t=>pack.push(it(t,s))));
+  return[
+    {id:uid(),name:'To buy in Korea',items:[]},
+    {id:uid(),name:'Groceries',items:[]},
+    {id:uid(),name:'Packing',items:pack}
+  ];
+}
+
+/* ---------- saving ---------- */
+const SAVE='lists-day15';
+let D=null,docRef=null,saveT=null;
+try{D=JSON.parse(localStorage.getItem(SAVE))}catch(e){}
+if(!D||!Array.isArray(D.lists)||!D.lists.length){D={lists:starter(),cur:null,showDone:true}}
+if(!D.lists.some(l=>l.id===D.cur))D.cur=D.lists[0].id;
+function save(){
+  try{localStorage.setItem(SAVE,JSON.stringify(D))}catch(e){}
+  if(docRef){clearTimeout(saveT);saveT=setTimeout(()=>docRef.set(D).catch(()=>{}),500)}
+}
+const cur=()=>D.lists.find(l=>l.id===D.cur);
+
+/* ---------- reading pasted lines ---------- */
+function addText(text){
+  const L=cur();let section='';
+  // new lines go into the last section you were adding to, unless they name a new one
+  const lines=text.split(/\r?\n/);let added=0;
+  for(let raw of lines){
+    let line=raw.replace(/^\s*(?:[-*•◦○●☐]|\[\s?\]|\d+[.)])\s*/,'').trim();
+    if(!line)continue;
+    let done=false;const m=line.match(/^(?:\[[xX✓]\]|[✓✔☑])\s*/);if(m){done=true;line=line.slice(m[0].length)}
+    if(/[:：]$/.test(line)&&line.length<40){section=line.replace(/[:：]$/,'').trim();continue}
+    const x=it(line,section);x.done=done;L.items.push(x);added++;
+  }
+  return added;
+}
+
+/* ---------- drawing ---------- */
+function sections(items){const order=[];items.forEach(i=>{if(!order.includes(i.section))order.push(i.section)});return order}
+function row(x){
+  return '<li class="item'+(x.done?' done':'')+'" data-id="'+x.id+'">'
+    +'<button class="check" type="button" data-act="check" aria-pressed="'+x.done+'" aria-label="'+(x.done?'Uncheck ':'Check ')+esc(x.text)+'"></button>'
+    +'<input class="txt" value="'+esc(x.text)+'" aria-label="Item" data-act="edit">'
+    +'<span class="acts"><button type="button" data-act="flag" class="'+(x.flag?'on':'')+'" aria-pressed="'+x.flag+'" title="Don’t forget this">'+(x.flag?'★ Don’t forget':'☆')+'</button><button type="button" data-act="del" aria-label="Delete '+esc(x.text)+'">✕</button></span></li>';
+}
+function render(){
+  const L=cur();
+  $('lists').innerHTML=D.lists.map(l=>{const left=l.items.filter(i=>!i.done).length;return '<button type="button" class="l" data-list="'+l.id+'" aria-current="'+(l.id===D.cur)+'"><span>'+esc(l.name)+'</span><small>'+(l.items.length?left:'')+'</small></button>'}).join('')
+    +'<form class="newlist" id="newList"><input id="newName" placeholder="+ New list" aria-label="New list name"></form>';
+  if(document.activeElement!==$('title'))$('title').value=L.name;
+  const total=L.items.length,done=L.items.filter(i=>i.done).length;
+  $('count').textContent=total?(done===total?'All done!':(total-done)+' to go · '+done+' checked'):'Nothing here yet';
+  $('barFill').style.width=(total?done/total*100:0)+'%';
+  const open=L.items.filter(i=>!i.done),closed=L.items.filter(i=>i.done),flagged=open.filter(i=>i.flag);
+  let h='';
+  if(flagged.length)h+='<div class="group dont"><h3>★ Don’t forget</h3><ul class="items">'+flagged.map(row).join('')+'</ul></div>';
+  const rest=open.filter(i=>!i.flag);
+  for(const s of sections(rest)){const xs=rest.filter(i=>i.section===s);h+='<div class="group">'+(s?'<h3>'+esc(s)+'</h3>':'')+'<ul class="items">'+xs.map(row).join('')+'</ul></div>'}
+  if(!total)h+='<p class="empty">Type something above, or paste your list straight from Notes.</p>';
+  else if(!open.length)h+='<p class="empty">Everything’s checked. Tap “Use again” to uncheck it all for next time.</p>';
+  if(closed.length){h+='<div class="donehead"><button type="button" id="toggleDone">'+(D.showDone?'▾':'▸')+' Checked ('+closed.length+')</button></div>';if(D.showDone)h+='<ul class="items">'+closed.map(row).join('')+'</ul>'}
+  $('body').innerHTML=h;
+  $('reuse').hidden=!closed.length;$('clearDone').hidden=!closed.length;
+}
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),1600)}
+
+/* ---------- events ---------- */
+const area=$('addIn');
+function grow(){area.style.height='auto';area.style.height=Math.min(area.scrollHeight,240)+'px'}
+area.addEventListener('input',grow);
+area.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();const n=addText(area.value);if(n){area.value='';grow();save();render();if(n>1)toast('Added '+n+' items')}}});
+area.addEventListener('paste',e=>{const t=(e.clipboardData||window.clipboardData).getData('text');if(t&&/\n/.test(t.trim())){e.preventDefault();const n=addText(t);save();render();toast('Added '+n+' items')}});
+
+$('body').addEventListener('click',e=>{
+  if(e.target.id==='toggleDone'){D.showDone=!D.showDone;save();render();return}
+  const b=e.target.closest('[data-act]');if(!b||b.dataset.act==='edit')return;
+  const id=b.closest('.item').dataset.id,L=cur(),x=L.items.find(i=>i.id===id);if(!x)return;
+  if(b.dataset.act==='check'){x.done=!x.done;if(x.done&&navigator.vibrate)navigator.vibrate(8)}
+  if(b.dataset.act==='flag')x.flag=!x.flag;
+  if(b.dataset.act==='del'){L.items=L.items.filter(i=>i.id!==id);toast('Deleted')}
+  save();render();
+});
+$('body').addEventListener('change',e=>{if(e.target.dataset.act!=='edit')return;const id=e.target.closest('.item').dataset.id,x=cur().items.find(i=>i.id===id);const v=e.target.value.trim();if(!x)return;if(!v){cur().items=cur().items.filter(i=>i.id!==id)}else x.text=v;save();render()});
+$('body').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset.act==='edit')e.target.blur()});
+
+$('title').addEventListener('input',()=>{cur().name=$('title').value||'Untitled';save();
+  const b=document.querySelector('[data-list="'+D.cur+'"] span');if(b)b.textContent=cur().name});
+$('lists').addEventListener('click',e=>{const b=e.target.closest('[data-list]');if(!b)return;D.cur=b.dataset.list;save();render()});
+$('lists').addEventListener('submit',e=>{e.preventDefault();const v=$('newName').value.trim();if(!v)return;const l={id:uid(),name:v,items:[]};D.lists.push(l);D.cur=l.id;save();render();area.focus()});
+
+// packing lists come back every trip: uncheck everything, keep the items
+$('reuse').onclick=()=>{cur().items.forEach(i=>i.done=false);save();render();toast('Unchecked everything for next time')};
+// shopping lists get cleared: bought things go away
+$('clearDone').onclick=()=>{const n=cur().items.filter(i=>i.done).length;cur().items=cur().items.filter(i=>!i.done);save();render();toast('Removed '+n+(n===1?' item':' items'))};
+$('copy').onclick=async()=>{
+  const L=cur();let out=L.name+':\n',last=null;
+  for(const s of sections(L.items)){if(s)out+='\n'+s+':\n';for(const x of L.items.filter(i=>i.section===s))out+=(x.done?'✓ ':'- ')+x.text+(x.flag?' ★':'')+'\n'}
+  try{await navigator.clipboard.writeText(out.trim());toast('Copied, paste it into Notes')}catch(e){toast('Couldn’t copy here')}
+};
+$('delList').onclick=()=>{
+  if(D.lists.length<2){toast('You need at least one list');return}
+  if(!confirm('Delete “'+cur().name+'”?'))return;
+  D.lists=D.lists.filter(l=>l.id!==D.cur);D.cur=D.lists[0].id;save();render();
+};
+
+render();
+
+// On claude.ai, save to your account and link back to Day 1
+function connect(){
+  if(docRef||!(window.claude&&typeof window.claude.use==='function'))return false;
+  $('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';
+  (async()=>{try{
+    const[db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);if(!db||!user)return;
+    const id=await user.id();if(!id)return;docRef=db.doc('data/users/'+id+'/lists');
+    const snap=await docRef.get();
+    if(snap.exists){const d=snap.data();if(d&&Array.isArray(d.lists)&&d.lists.length){D=d;if(!D.lists.some(l=>l.id===D.cur))D.cur=D.lists[0].id;try{localStorage.setItem(SAVE,JSON.stringify(D))}catch(e){}render()}}
+    else docRef.set(D).catch(()=>{});
+  }catch(e){docRef=null}})();
+  return true;
+}
+if(!connect())window.addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>

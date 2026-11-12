@@ -90,11 +90,11 @@ window.DAYS = {
        link: "day-12/"
      },
        13: {
-    title: "Salt bread & scones",
-    rating: 5,
-    need: "No code today. I wanted to make something with my hands, so I baked salt bread and scones.",
-    notes: "Salt bread first, then scones. The photos go from the tray going into the oven, to coming out, to the plate.",
-    images: [
+      title: "Salt bread & scones",
+      rating: 5,
+      need: "No code today. I wanted to make something with my hands, so I baked salt bread and scones.",
+      notes: "Salt bread first, then scones. The photos go from the tray going into the oven, to coming out, to the plate.",
+      images: [
       "day-13/salt-bread-1.jpg",
       "day-13/salt-bread-2.jpg",
       "day-13/salt-bread-3.jpg",
@@ -120,5 +120,12 @@ window.DAYS = {
          "day-14/scan-8.jpg"
        ],
        link: ""
+     },
+       15: {
+       title: "Lists",
+       rating: 4,
+       need: "My Notes app is full of checklists: things to buy when I get back to Korea, groceries, what to pack. This keeps them all in one place, and packing lists remember everything for next trip.",
+       notes: "I can paste a whole list straight from Notes. Lines ending in “:” become sections, “Don’t forget” keeps the things I always forget at the top, and “Use again” unchecks everything for the next trip.",
+       link: "day-15/"
      },
 };
