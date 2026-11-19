@@ -130,18 +130,21 @@ window.DAYS = {
      },
        16: {
        title: "Scoops",
+       rating: 3,
        need: "A game I can play without thinking. Ice cream scoops fall and I catch them on a cone, stacking them as high as I can.",
       notes: "Move too fast and the tower sways and scoops slide off. Each one wobbles a little more the higher it is. Cherries are worth 5, and three drops ends the game.",
       link: "day-16/"
      },
        17: {
       title: "Countdown",
+      rating: 4,
       need: "I always want to know how long until class ends, how many days until things are due, and how long until the showcase. This shows all of it on one screen.",
       notes: "The big card counts down the class I’m in, or the next one. Due dates turn yellow within a week and red within two days.",
       link: "day-17/"
      },
       18: {
       title: "Chores",
+      rating: 4,
       need: "I never remember when I last did laundry or changed my sheets. Each chore shows how long it’s been, and turns red when it’s overdue.",
       notes: "Each chore has its own schedule, like every 7 days or every 2 weeks. A ring fills up as it gets closer to due, and “Did it” resets it, with undo.",
       link: "day-18/"
@@ -157,5 +160,11 @@ window.DAYS = {
       "day-19/film-3.jpg"
     ],
     link: ""
+       },
+       20: {
+      title: "Soft serve",
+      need: "Everyone was playing a Japanese soft serve stacking game, but it’s made for phones. I made an English version I can play on my Mac with a trackpad.",
+      notes: "The nozzle stays still. I hold the cone and slowly pull it down, and the soft serve builds into a tall twisted column. Pull too fast and the stream breaks. Up to 5 stars depending on how tall it gets. Inspired by softserve.nog.cc.",
+      link: "day-20/"
   },
 };

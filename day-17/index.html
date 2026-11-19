@@ -41,6 +41,12 @@ button,input,select{font:inherit;color:inherit}
 .event .t{font-size:clamp(56px,10vw,96px);line-height:.9;margin:6px 0 0}
 .event .t small{font-size:20px;font-family:"Space Grotesk",sans-serif;font-weight:600;margin-left:4px}
 .event h3{margin:6px 0 0;font-size:20px}
+.event .clock{font-size:clamp(20px,3vw,26px);margin:6px 0 0;color:var(--muted)}
+.event .evtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.event .evtop span{display:flex;gap:10px}
+.event .evtop button{border:0;background:none;color:var(--accent);cursor:pointer;font-size:14px;font-weight:600;padding:0}
+.event .also{margin:10px 0 0;padding:8px 0 0;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+.event .also button{border:0;background:none;color:var(--ink);cursor:pointer;padding:0;font-size:14px;text-decoration:underline}
 
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:18px}
@@ -111,6 +117,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   <div class="row"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn hot" id="cSave" value="ok">Save</button></div>
 </form></dialog>
 
+<dialog id="evDlg"><form class="dlg" method="dialog">
+  <h2 id="evDlgTitle">Countdown</h2>
+  <label>Counting down to<input id="eName" required placeholder="Lightning showcase"></label>
+  <div class="two"><label>Date<input type="date" id="eDate" required></label><label>Time<input type="time" id="eTime" value="09:00"></label></div>
+  <div class="row"><button class="btn" type="button" id="eDel" style="margin-right:auto;color:var(--warn)">Delete</button><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn hot" value="ok">Save</button></div>
+</form></dialog>
+
 <dialog id="dueDlg"><form class="dlg" method="dialog" id="dueForm">
   <h2>Add a due date</h2>
   <label>What’s due<input id="dName" required placeholder="Process book"></label>
@@ -158,9 +171,7 @@ function render(){
     let found=null;for(let k=1;k<=7&&!found;k++){const d=(dow+k)%7,cs=D.classes.filter(c=>c.days.includes(d)).sort((a,b)=>mins(a.start)-mins(b.start));if(cs.length)found={c:cs[0],k}}
     h=found?'<p class="lbl">No more classes today</p><h2>'+esc(found.c.name)+'</h2><p class="t mono">'+(found.k===1?'Tomorrow':DAYS[(dow+found.k)%7])+'</p><p class="sub">at '+fmtT(found.c.start)+'</p>':'<p class="lbl">No classes yet</p><h2>Add your schedule</h2><p class="sub">Tap “+ Class” and it’ll count down to the end of each class.</p>'}
   $('nowCard').innerHTML=h;
-  // the big event
-  const ev=D.events.map(e=>({...e,d:daysTo(e.at)})).filter(e=>e.d>=0).sort((a,b)=>a.d-b.d)[0];
-  $('eventCard').innerHTML=ev?'<p class="lbl">Countdown</p><div><p class="t mono">'+ev.d+'<small>'+(ev.d===1?'day':'days')+'</small></p><h3>until '+esc(ev.name)+'</h3><p class="lbl">'+new Date(ev.at).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</p></div>':'<p class="lbl">Countdown</p><h3>Nothing coming up</h3>';
+  renderEvent();
   // the day’s classes
   $('weekPick').innerHTML=[1,2,3,4,5,6,0].map(d=>'<button type="button" data-d="'+d+'" aria-pressed="'+(d===showDay)+'">'+DAYS[d].slice(0,2)+'</button>').join('');
   $('dayTitle').textContent=showDay===dow?'Today':DAYS[showDay];
@@ -174,6 +185,29 @@ function render(){
     const pill=ms<0?'<span class="pill done">passed</span>':d===0?'<span class="pill warn">today, '+left(ms)+'</span>':d<=2?'<span class="pill warn">'+left(ms)+'</span>':d<=6?'<span class="pill soon">'+d+' days</span>':'<span class="pill">'+d+' days</span>';
     return '<li class="'+(ms<0?'past':'')+'"><span class="time mono">'+new Date(x.at).toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</span><span class="name">'+esc(x.name)+(x.cls?'<small>'+esc(x.cls)+'</small>':'')+'</span><span>'+pill+'<button class="x" type="button" data-rm="'+x.id+'" aria-label="Remove '+esc(x.name)+'">×</button></span></li>'}).join(''):'<li><span></span><span class="empty">Nothing due. Nice.</span><span></span></li>';
 }
+
+function renderEvent(){
+  const now=new Date(),evs=D.events.map(e=>({...e,ms:new Date(e.at)-now})).filter(e=>e.ms>0).sort((a,b)=>a.ms-b.ms),ev=evs[0];
+  if(!ev){$('eventCard').innerHTML='<div class="evtop"><p class="lbl">Countdown</p><span><button type="button" data-ev="new">+ Add</button></span></div><h3>Nothing coming up</h3>';return}
+  const sec=Math.floor(ev.ms/1000),d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60),ss=sec%60,p=n=>String(n).padStart(2,'0');
+  $('eventCard').innerHTML='<div class="evtop"><p class="lbl">Countdown</p><span><button type="button" data-ev="'+ev.id+'">Edit</button><button type="button" data-ev="new">+ Add</button></span></div>'
+    +'<div><p class="t mono">'+d+'<small>'+(d===1?'day':'days')+'</small></p><p class="clock mono">'+p(h)+'h '+p(m)+'m '+p(ss)+'s</p>'
+    +'<h3>until '+esc(ev.name)+'</h3><p class="lbl">'+new Date(ev.at).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+', '+new Date(ev.at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</p>'
+    +(evs.length>1?'<p class="also">Also: '+evs.slice(1).map(e=>'<button type="button" data-ev="'+e.id+'">'+esc(e.name)+'</button> in '+Math.ceil(e.ms/864e5)+' days').join(', ')+'</p>':'')+'</div>';
+}
+let evEditing=null;
+$('eventCard').addEventListener('click',e=>{const b=e.target.closest('[data-ev]');if(!b)return;
+  evEditing=b.dataset.ev==='new'?null:D.events.find(x=>x.id===b.dataset.ev);
+  const at=evEditing?new Date(evEditing.at):new Date(Date.now()+7*864e5);
+  $('evDlgTitle').textContent=evEditing?'Edit countdown':'New countdown';$('eName').value=evEditing?evEditing.name:'';
+  $('eDate').value=at.getFullYear()+'-'+String(at.getMonth()+1).padStart(2,'0')+'-'+String(at.getDate()).padStart(2,'0');
+  $('eTime').value=evEditing?String(at.getHours()).padStart(2,'0')+':'+String(at.getMinutes()).padStart(2,'0'):'09:00';
+  $('eDel').hidden=!evEditing;$('evDlg').showModal()});
+$('eDel').onclick=()=>{if(evEditing)D.events=D.events.filter(x=>x.id!==evEditing.id);save();$('evDlg').close('cancel');renderEvent()};
+$('evDlg').addEventListener('close',()=>{if($('evDlg').returnValue!=='ok')return;
+  const v={name:$('eName').value.trim()||'Countdown',at:$('eDate').value+'T'+($('eTime').value||'00:00')};
+  if(evEditing)Object.assign(evEditing,v);else D.events.push({id:uid(),...v});save();renderEvent()});
+setInterval(renderEvent,1000); // the clock ticks every second
 
 /* ---------- adding things ---------- */
 let editing=null,pickDays=[];
