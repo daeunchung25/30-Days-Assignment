@@ -3,123 +3,176 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Film burn | Day 25 of 30</title>
+<title>Paper | Day 25 of 30</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@500;600&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
 *,*::before,*::after{box-sizing:inherit}
-[hidden]{display:none !important}
-body{margin:0;min-height:100%;background:#0B0A09;color:#E9DCC8;font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;display:flex;flex-direction:column}
+body{margin:0;min-height:100%;background:var(--wall,#EFE8DD);font-family:"Inter",system-ui,-apple-system,sans-serif;color:#2B2520;display:flex;flex-direction:column;transition:background .8s}
 .top{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;gap:10px;flex-wrap:wrap}
-.top a{color:#B9A890;font-size:13px;text-decoration:none}
-.top a:hover{color:#fff}
-.tools{display:flex;gap:6px;flex-wrap:wrap}
-.btn{border:1px solid #3A332C;background:#16130F;color:#E9DCC8;border-radius:999px;padding:7px 13px;font:600 12px "IBM Plex Mono",monospace;cursor:pointer;letter-spacing:.04em}
-.btn:hover{border-color:#E9DCC8}
-.btn[aria-pressed="true"]{background:#E9DCC8;color:#16130F}
-.stage{flex:1;display:flex;align-items:center;justify-content:center;padding:6px 14px 16px}
-canvas{display:block;max-width:100%;cursor:crosshair;touch-action:none}
-.hint{text-align:center;font-size:12px;color:#857865;margin:0 0 16px}
+.top a{color:inherit;opacity:.55;font-size:13px;text-decoration:none}
+.top a:hover{opacity:1}
+.title{font-family:"Instrument Serif",Georgia,serif;font-style:italic;font-size:28px}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:0;background:#2B2520;color:#FBF7F0;border-radius:999px;padding:9px 16px;font:600 13px "Inter",sans-serif;cursor:pointer}
+.btn.ghost{background:rgba(255,255,255,.55);color:#2B2520}
+.btn[aria-pressed="true"]{background:#E4572E;color:#fff}
+.btn:active{transform:scale(.97)}
+.wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:6px 16px 20px;perspective:1400px}
+.stage{position:relative;width:min(560px,86vw,calc((100vh - 170px)*.8));aspect-ratio:4/5;border-radius:6px;overflow:hidden;transform-style:preserve-3d;box-shadow:0 30px 60px -30px rgba(40,25,10,.55),0 2px 0 rgba(0,0,0,.04);will-change:transform;touch-action:none;user-select:none;-webkit-user-select:none}
+.stage.cutting{cursor:crosshair}
+.layer{position:absolute;inset:-7%;width:114%;height:114%;will-change:transform;pointer-events:none}
+.layer svg{width:100%;height:100%;display:block;overflow:visible;pointer-events:none}
+.layer .hit{pointer-events:visiblePainted;cursor:pointer}
+.layer .sun{cursor:grab}
+.stage.cutting .layer .hit{pointer-events:none}
+.grain{position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.35;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .5  0 0 0 0 .45  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.fibers{position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;opacity:.45;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='.02 .3' numOctaves='2'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .5 0'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>")}
+.draw{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hint{text-align:center;font-size:13px;opacity:.6;margin:0 16px 18px;line-height:1.5}
 </style>
 </head>
 <body>
 <div class="top">
-  <a id="back" href="../">Day 25 of 30 · Film burn</a>
+  <a id="back" href="../">Day 25 of 30</a>
+  <span class="title">Paper</span>
   <div class="tools">
-    <button class="btn" id="prev" type="button" aria-label="Previous photo">←</button>
-    <button class="btn" id="next" type="button" aria-label="Next photo">→</button>
-    <button class="btn" id="auto" type="button" aria-pressed="true">Auto burn</button>
-    <label class="btn" style="display:inline-flex;align-items:center">Your photo<input type="file" id="file" accept="image/*" hidden></label>
+    <button class="btn ghost" id="cut" type="button" aria-pressed="false">✂️ Cut a layer</button>
+    <button class="btn" id="again" type="button">New scene</button>
   </div>
 </div>
-<div class="stage"><canvas id="cv" role="img" aria-label="A film photo in a film strip frame, with warm light leaks and burns blooming across it. Click to burn a spot."></canvas></div>
-<p class="hint">Click anywhere on the photo to burn it. Light leaks drift in on their own.</p>
+<div class="wrap"><div class="stage" id="stage" role="application" aria-label="A cut-paper scene. Drag the sun, tap a layer to change its color, or cut your own layer."></div></div>
+<p class="hint" id="hint">Drag the sun down to make it dusk. Tap a hill to change its paper. Tap ✂️ and draw across the scene to cut your own layer.</p>
 <script>
 (function(){
 const $=id=>document.getElementById(id);
-// the film photos from Day 19
-const PHOTOS=['../day-19/film-1.jpg','../day-19/film-2.jpg','../day-19/film-3.jpg'];
-let imgs=[],idx=0,auto=true;
-const cv=$('cv'),ctx=cv.getContext('2d');let W=0,H=0,dpr=1,frame={x:0,y:0,w:0,h:0};
+const PALETTES=[
+  {name:'Peach',wall:'#EFE4DA',sky:['#FBD9C4','#F7B8A1'],sun:'#FFF3D6',layers:['#F4A58C','#E98270','#D36363','#A94F5C','#6E3A4E'],frame:'#F8F1E8'},
+  {name:'Sage',wall:'#E8ECE2',sky:['#EEF2E4','#D9E4CF'],sun:'#FFF8E3',layers:['#BCD1B0','#9DBC92','#7FA176','#5E8259','#3E5E3E'],frame:'#F7F4EC'},
+  {name:'Ocean',wall:'#E3EEF2',sky:['#E6F3F7','#BFE1EC'],sun:'#FFFBEA',layers:['#9FD0E0','#6CB4CE','#3F93B6','#2A6F96','#1C4C6E'],frame:'#F7F4EC'},
+  {name:'Lilac',wall:'#ECE7F3',sky:['#F3EEFA','#DCD0F0'],sun:'#FFF6E8',layers:['#C9B4EA','#AE93DE','#8F73C9','#6E55A8','#4A3A7A'],frame:'#FAF7F2'},
+  {name:'Citrus',wall:'#F6EEDB',sky:['#FFF4D4','#FFE09A'],sun:'#FFFDF3',layers:['#FFC857','#F7A541','#EA7E32','#C9572B','#8C3A22'],frame:'#FBF6EA'}
+];
+const NIGHT={sky:['#151A36','#3A3266'],land:'#141631',glow:'#FF8E6B'};
+const VB={w:400,h:500},rnd=Math.random,clamp=(x,a,b)=>x<a?a:x>b?b:x;
+const hex=h=>{const n=parseInt(h.slice(1),16);return[n>>16,n>>8&255,n&255]};
+const toHex=c=>c[0]==='#'?c:'#'+c.match(/\d+/g).map(v=>(+v).toString(16).padStart(2,'0')).join('');
+const mix=(a,b,t)=>{a=toHex(a);b=toHex(b);const A=hex(a),B=hex(b);return'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')+')'};
+let S=null,lastPal=-1,cutting=false;
 
-/* ---------- grain: a few frames of noise, cycled so it flickers like film ---------- */
-const GRAIN=[];
-for(let k=0;k<6;k++){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d'),im=x.createImageData(256,256);
-  for(let i=0;i<256*256;i++){const v=128+(Math.random()-.5)*190;im.data[i*4]=im.data[i*4+1]=im.data[i*4+2]=v;im.data[i*4+3]=255}
-  x.putImageData(im,0,0);GRAIN.push(c)}
+/* ---------- edges ---------- */
+function edgeFromPoints(pts){
+  let d='M-40,'+(VB.h+40)+' L-40,'+pts[0][1]+' L'+pts[0][0]+','+pts[0][1];
+  for(let k=1;k<pts.length;k++){const p=pts[k-1],q=pts[k];d+=' Q'+p[0].toFixed(1)+','+p[1].toFixed(1)+' '+((p[0]+q[0])/2).toFixed(1)+','+((p[1]+q[1])/2).toFixed(1)}
+  const last=pts[pts.length-1];d+=' L'+last[0].toFixed(1)+','+last[1].toFixed(1)+' L'+(VB.w+40)+','+last[1].toFixed(1)+' L'+(VB.w+40)+','+(VB.h+40)+' Z';return d}
+function edge(style,base,amp){
+  const pts=[],ph=rnd()*10,ph2=rnd()*10,f=.012+rnd()*.01;
+  if(style==='mountains'){let x=-20;while(x<VB.w+40){const peak=rnd()<.5;pts.push([x,base-(peak?amp*(.6+rnd()*.7):amp*rnd()*.25)]);x+=30+rnd()*50}}
+  else for(let x=-20;x<=VB.w+20;x+=10){let y=base+Math.sin(x*f+ph)*amp+Math.sin(x*f*2.3+ph2)*amp*.35;if(style==='waves')y+=Math.sin(x*.06+ph)*amp*.25;pts.push([x,y])}
+  return edgeFromPoints(pts)}
+const SHADOW='<filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="-3" stdDeviation="5" flood-color="#2a1a10" flood-opacity=".28"/></filter><filter id="sd" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#1a0f08" flood-opacity=".32"/></filter>';
+function layerDiv(depth,inner,extra){const d=document.createElement('div');d.className='layer';d.dataset.depth=depth;if(extra)d.style.cssText=extra;
+  d.innerHTML='<svg viewBox="0 0 '+VB.w+' '+VB.h+'" preserveAspectRatio="none" aria-hidden="true"><defs>'+SHADOW+'</defs>'+inner+'</svg>';return d}
 
-function size(){
-  dpr=Math.min(2,devicePixelRatio||1);const maxW=Math.min(innerWidth-28,1100),maxH=innerHeight-140;
-  W=Math.min(maxW,maxH/.84);H=W*.84;   // a 3:2 photo plus the strip with sprocket holes above and below
-  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);
-  const band=H*.12;frame={x:W*.035,y:band,w:W*.93,h:H-band*2};
+/* ---------- a scene ---------- */
+function build(){
+  let pi;do{pi=Math.floor(rnd()*PALETTES.length)}while(pi===lastPal);lastPal=pi;
+  const P=PALETTES[pi],style=['hills','mountains','waves'][Math.floor(rnd()*3)],stage=$('stage');
+  stage.innerHTML='';S={P,land:[],added:0};
+  document.body.style.setProperty('--wall',P.wall);
+  const sky=layerDiv(0,'<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop id="s0" offset="0"/><stop id="s1" offset="1"/></linearGradient></defs><rect width="400" height="500" fill="url(#sky)"/>');stage.appendChild(sky);
+  let st='';for(let i=0;i<50;i++)st+='<circle cx="'+(rnd()*400).toFixed(0)+'" cy="'+(rnd()*300).toFixed(0)+'" r="'+(rnd()*1.4+.4).toFixed(1)+'" fill="#FFF6D8" opacity="'+(.4+rnd()*.6).toFixed(2)+'"/>';
+  const stars=layerDiv(.05,'<g id="stars" opacity="0">'+st+'</g>');stage.appendChild(stars);
+  S.sun={x:100+rnd()*200,y:110+rnd()*60,r:34+rnd()*18};
+  const sun=layerDiv(.12,'<circle id="halo" r="1" opacity=".35"/><circle id="sun" class="hit sun" r="1" filter="url(#sd)"/>');stage.appendChild(sun);
+  let cl='';for(let i=0;i<2+Math.floor(rnd()*2);i++)cl+='<rect class="cloud" x="'+(rnd()*360).toFixed(0)+'" y="'+(70+rnd()*140).toFixed(0)+'" width="'+(50+rnd()*60).toFixed(0)+'" height="'+(14+rnd()*8).toFixed(0)+'" rx="10" fill="#FFFFFF" opacity=".85" filter="url(#sd)"/>';
+  stage.appendChild(layerDiv(.2,cl));
+  P.layers.forEach((c,i)=>addLand(edge(style,230+i*48+rnd()*12,(style==='mountains'?38:20)+rnd()*16-i*2),i,.3+i*.17,false));
+  const hole=rnd()<.5?'M70,470 L70,170 A130,130 0 0 1 330,170 L330,470 Z':'M200,85 a150,150 0 1,0 0.1,0 Z';
+  S.frame=layerDiv(1.25,'<filter id="fr" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#1a0f08" flood-opacity=".35"/></filter><path fill-rule="evenodd" d="M-20,-20 H420 V520 H-20 Z '+hole+'" fill="'+P.frame+'" filter="url(#fr)"/>','inset:-3%;width:106%;height:106%');
+  stage.appendChild(S.frame);
+  stage.insertAdjacentHTML('beforeend','<div class="grain"></div><div class="fibers"></div><svg class="draw" viewBox="0 0 400 500" preserveAspectRatio="none" aria-hidden="true"><path id="drawPath" fill="none" stroke="#2B2520" stroke-width="2" stroke-dasharray="6 6" stroke-linecap="round"/></svg>');
+  S.layers=[...stage.querySelectorAll('.layer')].map(el=>({el,depth:+el.dataset.depth}));
+  S.layers.forEach((l,i)=>l.el.querySelector('svg').animate([{transform:'translateY(40px)',opacity:0},{transform:'none',opacity:1}],{duration:500+i*70,easing:'cubic-bezier(.2,.8,.2,1)'}));
+  paintTime();
 }
-addEventListener('resize',size);size();
+function addLand(d,ci,depth,fresh){
+  const div=layerDiv(depth,'<path class="hit land" d="'+d+'" filter="url(#sh)"/>');
+  const item={div,path:div.querySelector('path'),ci};S.land.push(item);
+  if(S.frame)S.frame.before(div);else $('stage').appendChild(div);
+  if(fresh){S.layers=[...$('stage').querySelectorAll('.layer')].map(el=>({el,depth:+el.dataset.depth}));
+    div.querySelector('svg').animate([{transform:'translateY(70px) rotate(-1deg)',opacity:0},{transform:'translateY(-6px)',opacity:1,offset:.7},{transform:'none',opacity:1}],{duration:650,easing:'cubic-bezier(.2,.8,.2,1)'})}
+  paintTime();return item}
 
-/* ---------- light leaks drift, burns bloom ---------- */
-let leaks=[],burns=[],t0=performance.now();
-function newLeak(){const side=Math.random()<.5?0:1;return{x:side?1.05:-.05,y:Math.random(),r:.35+Math.random()*.45,vx:(side?-1:1)*(.0004+Math.random()*.0006),vy:(Math.random()-.5)*.0004,life:0,max:900+Math.random()*900,hue:Math.random()}}
-for(let i=0;i<3;i++){const l=newLeak();l.life=Math.random()*400;leaks.push(l)}
-function burn(x,y,big){burns.push({x,y,t:0,max:big?260:180,size:big?1:.6+Math.random()*.5,seed:Math.random()*99})}
-
-function warm(h,a){ // from deep red through orange to soft yellow
-  const c=h<.33?[255,60,30]:h<.66?[255,130,40]:[255,200,90];return'rgba('+c.join(',')+','+a+')'}
-function drawPhoto(){
-  const f=frame,img=imgs[idx];
-  ctx.save();ctx.beginPath();ctx.rect(f.x,f.y,f.w,f.h);ctx.clip();
-  if(img&&img.complete&&img.naturalWidth){const s=Math.max(f.w/img.naturalWidth,f.h/img.naturalHeight),iw=img.naturalWidth*s,ih=img.naturalHeight*s;
-    ctx.filter='contrast(1.08) saturate(1.1) sepia(.12)';ctx.drawImage(img,f.x+(f.w-iw)/2,f.y+(f.h-ih)/2,iw,ih);ctx.filter='none'}
-  else{const g=ctx.createLinearGradient(f.x,f.y,f.x+f.w,f.y+f.h);g.addColorStop(0,'#3A2A20');g.addColorStop(1,'#120D0A');ctx.fillStyle=g;ctx.fillRect(f.x,f.y,f.w,f.h);
-    ctx.fillStyle='#857865';ctx.font='14px "IBM Plex Mono", monospace';ctx.textAlign='center';ctx.fillText('Add the Day 19 photos, or tap “Your photo”',f.x+f.w/2,f.y+f.h/2)}
-  // light leaks, added like light
-  ctx.globalCompositeOperation='screen';
-  for(const l of leaks){const a=Math.sin(Math.min(1,l.life/l.max)*Math.PI)*.85,cx=f.x+l.x*f.w,cy=f.y+l.y*f.h,r=l.r*f.w;
-    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,warm(l.hue,a));g.addColorStop(.45,warm(Math.max(0,l.hue-.35),a*.55));g.addColorStop(1,'rgba(255,40,20,0)');ctx.fillStyle=g;ctx.fillRect(f.x,f.y,f.w,f.h)}
-  // burns: white hot middle, orange and red rings, wobbling edges
-  for(const b of burns){const p=b.t/b.max,grow=Math.pow(Math.min(1,p*1.6),.7),fade=p>.6?1-(p-.6)/.4:1,cx=f.x+b.x*f.w,cy=f.y+b.y*f.h,r=f.w*.32*b.size*grow;
-    for(let k=0;k<3;k++){const ox=Math.sin(b.seed+k*2.1+b.t*.03)*r*.18,oy=Math.cos(b.seed+k*1.7+b.t*.025)*r*.15,rr=r*(1-k*.22);
-      const g=ctx.createRadialGradient(cx+ox,cy+oy,0,cx+ox,cy+oy,rr);
-      g.addColorStop(0,'rgba(255,250,225,'+(.95*fade)+')');g.addColorStop(.25,'rgba(255,214,120,'+(.85*fade)+')');g.addColorStop(.55,'rgba(255,110,30,'+(.6*fade)+')');g.addColorStop(.85,'rgba(200,30,15,'+(.35*fade)+')');g.addColorStop(1,'rgba(120,10,5,0)');
-      ctx.fillStyle=g;ctx.fillRect(f.x,f.y,f.w,f.h)}}
-  ctx.globalCompositeOperation='source-over';
-  // grain and a soft vignette
-  ctx.globalAlpha=.16;ctx.globalCompositeOperation='overlay';const gr=GRAIN[Math.floor(performance.now()/60)%GRAIN.length];
-  for(let x=f.x;x<f.x+f.w;x+=256)for(let y=f.y;y<f.y+f.h;y+=256)ctx.drawImage(gr,x,y);
-  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
-  const v=ctx.createRadialGradient(f.x+f.w/2,f.y+f.h/2,f.h*.35,f.x+f.w/2,f.y+f.h/2,f.w*.7);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.45)');ctx.fillStyle=v;ctx.fillRect(f.x,f.y,f.w,f.h);
-  ctx.restore();
+/* ---------- time of day follows the sun ---------- */
+function paintTime(){
+  if(!S)return;const P=S.P,s=S.sun,k=clamp((s.y-150)/240,0,1);  // 0 = day, 1 = night
+  // day → sunset → night: the sky passes through a lavender and peach sunset on the way down
+  const DUSK=['#8E7CC3','#FFA27F'];let top,bottom;
+  if(k<.5){const t=k/.5;top=mix(P.sky[0],DUSK[0],t);bottom=mix(P.sky[1],DUSK[1],t)}
+  else{const t=(k-.5)/.5;top=mix(DUSK[0],NIGHT.sky[0],t);bottom=mix(DUSK[1],NIGHT.sky[1],t)}
+  $('s0').setAttribute('stop-color',top);$('s1').setAttribute('stop-color',bottom);
+  $('stars').setAttribute('opacity',clamp((k-.35)/.5,0,1).toFixed(2));
+  const sunC=mix(P.sun,'#FFB36B',Math.min(1,k*1.6));
+  for(const id of['sun','halo']){const el=$(id);el.setAttribute('cx',s.x);el.setAttribute('cy',s.y);el.setAttribute('r',id==='sun'?s.r:s.r*1.6);el.setAttribute('fill',sunC)}
+  S.land.forEach((l,i)=>l.path.setAttribute('fill',mix(P.layers[l.ci%P.layers.length],NIGHT.land,k*(.35+i*.06))));
+  document.querySelectorAll('.cloud').forEach(c=>c.setAttribute('fill',mix('#FFFFFF','#6C6A9C',k)));
+  document.body.style.setProperty('--wall',mix(P.wall,'#2B2742',k*.8));document.body.style.color=k>.55?'#E8E2D4':'#2B2520';
 }
-function drawStrip(){
-  // the film strip: dark base, sprocket holes, and the little edge numbers
-  ctx.fillStyle='#1A1410';ctx.fillRect(0,0,W,H);
-  const band=frame.y,hw=W*.022,hh=band*.34,gap=W*.05;
-  for(let x=gap*.4;x<W;x+=gap){for(const y of[band*.33,H-band*.33-hh]){ctx.fillStyle='#0B0A09';ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,hw,hh,3):ctx.rect(x,y,hw,hh);ctx.fill()}}
-  ctx.fillStyle='#E0802A';ctx.font='600 '+Math.max(10,W*.013)+'px "IBM Plex Mono", monospace';ctx.textBaseline='middle';
-  ctx.fillText('FILM 400',W*.06,band*.78);ctx.fillText('◀ '+(idx*2+12)+'A',W*.45,band*.78);ctx.fillText(String(idx*2+13),W*.85,band*.78);
-  ctx.fillText('▲ '+(idx*2+12),W*.12,H-band*.78);ctx.fillText('FILM 400',W*.7,H-band*.78);
-  // a thin rounded edge around the frame
-  ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.strokeRect(frame.x,frame.y,frame.w,frame.h);
-}
-function step(){
-  for(let i=leaks.length-1;i>=0;i--){const l=leaks[i];l.life++;l.x+=l.vx;l.y+=l.vy;if(l.life>l.max){leaks.splice(i,1);leaks.push(newLeak())}}
-  for(let i=burns.length-1;i>=0;i--){burns[i].t++;if(burns[i].t>burns[i].max)burns.splice(i,1)}
-  if(auto&&Math.random()<.004&&burns.length<2){const edge=Math.random();burn(edge<.5?(Math.random()<.5?.05:.95):Math.random(),edge<.5?Math.random():(Math.random()<.5?.05:.95),false)}
-}
-(function loop(){requestAnimationFrame(loop);step();drawStrip();drawPhoto()})();
 
-/* ---------- photos and controls ---------- */
-function load(i){const im=new Image();im.onload=()=>{};im.src=PHOTOS[i];return im}
-imgs=PHOTOS.map((_,i)=>load(i));
-function show(i){idx=(i+imgs.length)%imgs.length;burn(Math.random()<.5?.08:.92,.5,true)}
-$('prev').onclick=()=>show(idx-1);$('next').onclick=()=>show(idx+1);
-$('auto').onclick=()=>{auto=!auto;$('auto').setAttribute('aria-pressed',auto)};
-addEventListener('keydown',e=>{if(e.key==='ArrowRight')show(idx+1);if(e.key==='ArrowLeft')show(idx-1)});
-cv.addEventListener('pointerdown',e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left-frame.x)/frame.w,y=(e.clientY-r.top-frame.y)/frame.h;if(x>=0&&x<=1&&y>=0&&y<=1)burn(x,y,true)});
-$('file').onchange=()=>{const f=$('file').files[0];if(!f)return;const im=new Image();im.src=URL.createObjectURL(f);imgs.push(im);idx=imgs.length-1;burn(.5,.5,true);$('file').value=''};
+/* ---------- pointer: drag the sun, tap a layer, or cut a new one ---------- */
+function toVB(e,depth){const r=$('stage').getBoundingClientRect(),off=depth==null?0:1;
+  const lx=(e.clientX-r.left)/r.width,ly=(e.clientY-r.top)/r.height;
+  return off?[((lx+.07)/1.14)*VB.w,((ly+.07)/1.14)*VB.h]:[lx*VB.w,ly*VB.h]}
+let drag=null,cutPts=null,down=null;
+$('stage').addEventListener('pointerdown',e=>{
+  if(cutting){e.preventDefault();$('stage').setPointerCapture(e.pointerId);cutPts=[toVB(e,1)];return}
+  const t=e.target;
+  if(t.id==='sun'){e.preventDefault();$('stage').setPointerCapture(e.pointerId);const[x,y]=toVB(e,1);drag={dx:S.sun.x-x,dy:S.sun.y-y};t.style.cursor='grabbing';return}
+  if(t.classList&&t.classList.contains('land'))down={t,x:e.clientX,y:e.clientY};
+});
+$('stage').addEventListener('pointermove',e=>{
+  if(cutPts){const p=toVB(e,1),l=cutPts[cutPts.length-1];if(Math.hypot(p[0]-l[0],p[1]-l[1])>6)cutPts.push(p);
+    $('drawPath').setAttribute('d','M'+cutPts.map(q=>((q[0]/VB.w*1.14-.07)*VB.w).toFixed(1)+','+((q[1]/VB.h*1.14-.07)*VB.h).toFixed(1)).join(' L'));return}
+  if(drag){const[x,y]=toVB(e,1);S.sun.x=clamp(x+drag.dx,40,360);S.sun.y=clamp(y+drag.dy,60,470);paintTime()}
+});
+$('stage').addEventListener('pointerup',e=>{
+  if(cutPts){const pts=cutPts;cutPts=null;$('drawPath').setAttribute('d','');
+    if(pts.length>3&&Math.abs(pts[pts.length-1][0]-pts[0][0])>60){if(pts[0][0]>pts[pts.length-1][0])pts.reverse();
+      const n=S.land.length,ci=Math.floor(rnd()*S.P.layers.length);addLand(edgeFromPoints(pts),ci,(.3+n*.17).toFixed(2),true);
+      // after a cut, go back to looking around
+      setCut(false)}
+    return}
+  if(drag){drag=null;$('sun').style.cursor='';return}
+  if(down&&Math.hypot(e.clientX-down.x,e.clientY-down.y)<6){const item=S.land.find(l=>l.path===down.t);
+    if(item){item.ci=(item.ci+1)%S.P.layers.length;paintTime();
+      // the paper lifts a little when you tap it
+      item.div.querySelector('svg').animate([{transform:'none'},{transform:'translateY(-10px) scale(1.01)'},{transform:'none'}],{duration:420,easing:'cubic-bezier(.2,.8,.2,1)'})}}
+  down=null;
+});
+function setCut(on){cutting=on;$('cut').setAttribute('aria-pressed',on);$('stage').classList.toggle('cutting',on);
+  $('hint').textContent=on?'Draw a line across the window, from one side to the other. That’s the edge of your new layer.':'Drag the sun down to make it dusk. Tap a hill to change its paper. Tap ✂️ and draw across the scene to cut your own layer.'}
+$('cut').onclick=()=>setCut(!cutting);
 
+/* ---------- parallax ---------- */
+const target={x:0,y:0},cur={x:0,y:0};let lastMove=0;
+addEventListener('pointermove',e=>{if(drag||cutPts)return;target.x=e.clientX/innerWidth*2-1;target.y=e.clientY/innerHeight*2-1;lastMove=performance.now()});
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+(function loop(t){requestAnimationFrame(loop);if(!S)return;
+  if(performance.now()-lastMove>2500&&!reduced&&!drag&&!cutPts&&!cutting){target.x=Math.sin(t/2600)*.45;target.y=Math.cos(t/3300)*.3}
+  // hold still while you’re cutting, so your line lands where you drew it
+  const still=cutting||drag;cur.x+=((still?0:target.x)-cur.x)*.07;cur.y+=((still?0:target.y)-cur.y)*.07;
+  const k=reduced?.3:1;
+  for(const l of S.layers)l.el.style.transform='translate3d('+(-cur.x*l.depth*18*k)+'px,'+(-cur.y*l.depth*12*k)+'px,0)';
+  $('stage').style.transform='rotateY('+(cur.x*6*k)+'deg) rotateX('+(-cur.y*5*k)+'deg)';
+})(0);
+
+$('again').onclick=()=>{setCut(false);build()};
+addEventListener('keydown',e=>{if(e.code==='Space'&&e.target===document.body){e.preventDefault();build()}if(e.key==='Escape')setCut(false)});
+build();
 function connect(){if(!(window.claude&&typeof window.claude.use==='function'))return false;$('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';return true}
 if(!connect())addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
 })();
