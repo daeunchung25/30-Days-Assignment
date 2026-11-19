@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Countdown | Day 17 of 30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F1EC;--paper:#FFFFFF;--ink:#141414;--muted:#6B6A64;--line:#DEDCD4;--accent:#3D5AFE;--warn:#E8451E;--soon:#F2A20C;--field:#F8F7F3;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111111;--paper:#1A1A1A;--ink:#F1F0EB;--muted:#A3A19A;--line:#2D2C29;--accent:#7C93FF;--warn:#FF7452;--soon:#FFC04D;--field:#151515;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111111;--paper:#1A1A1A;--ink:#F1F0EB;--muted:#A3A19A;--line:#2D2C29;--accent:#7C93FF;--warn:#FF7452;--soon:#FFC04D;--field:#151515;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Space Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-weight:700;font-variant-numeric:tabular-nums}
+.wrap{max-width:1000px;margin:0 auto;padding:18px 18px 70px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.top a{color:var(--muted);font-size:14px;text-decoration:none}
+.top a:hover{text-decoration:underline}
+.top h1{font-size:20px;margin:0;font-weight:700}
+
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin:20px 0}
+.big{background:var(--ink);color:var(--bg);border-radius:22px;padding:22px}
+.big .lbl{font-size:14px;opacity:.7;margin:0}
+.big h2{font-size:clamp(26px,4vw,36px);margin:2px 0 10px;line-height:1.1}
+.big .t{font-size:clamp(44px,8vw,76px);line-height:1;margin:0}
+.big .sub{opacity:.7;margin:8px 0 0}
+.prog{height:8px;background:rgba(255,255,255,.18);border-radius:4px;overflow:hidden;margin-top:14px}
+.prog i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.event{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;flex-direction:column;justify-content:space-between}
+.event .lbl{font-size:14px;color:var(--muted);margin:0}
+.event .t{font-size:clamp(56px,10vw,96px);line-height:.9;margin:6px 0 0}
+.event .t small{font-size:20px;font-family:"Space Grotesk",sans-serif;font-weight:600;margin-left:4px}
+.event h3{margin:6px 0 0;font-size:20px}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:18px}
+.card h3{font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.card h3 button{border:0;background:none;color:var(--accent);cursor:pointer;font-size:14px;text-transform:none;letter-spacing:0;font-weight:600;padding:0}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.list li:first-child{border-top:0}
+.time{font-size:14px;color:var(--muted);min-width:96px}
+.name{font-weight:600}
+.name small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.pill{font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--field);white-space:nowrap}
+.pill.now{background:var(--accent);color:#fff}
+.pill.done{color:var(--muted)}
+.pill.warn{background:var(--warn);color:#fff}
+.pill.soon{background:var(--soon);color:#1A1200}
+.list li.past .name{color:var(--muted);text-decoration:line-through}
+.x{border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 4px}
+.empty{color:var(--muted);margin:4px 0;font-size:15px}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:4px}
+.week button{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:6px 0;cursor:pointer;font-size:13px;font-weight:600}
+.week button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+dialog{border:1px solid var(--line);border-radius:20px;background:var(--paper);color:var(--ink);padding:0;width:min(440px,calc(100vw - 24px))}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dlg{padding:20px;display:grid;gap:12px}
+.dlg h2{margin:0;font-size:22px}
+.dlg label{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.dlg input,.dlg select{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:9px 11px;font-size:16px;color:var(--ink)}
+.dlg .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.days{display:flex;gap:4px;flex-wrap:wrap}
+.days button{border:1px solid var(--line);background:var(--field);border-radius:999px;width:40px;height:36px;cursor:pointer;font-weight:600;font-size:13px}
+.days button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.row{display:flex;gap:8px;justify-content:flex-end}
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:9px 16px;cursor:pointer;font-weight:600}
+.btn.hot{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+@media (max-width:760px){.hero,.cols{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a id="back" href="../">Day 17 of 30</a><h1>Countdown</h1></div>
+
+  <section class="hero" aria-live="polite">
+    <div class="big" id="nowCard"></div>
+    <div class="event" id="eventCard"></div>
+  </section>
+
+  <div class="cols">
+    <div class="card">
+      <h3><span id="dayTitle">Today</span><button type="button" id="addClass">+ Class</button></h3>
+      <div class="week" id="weekPick" role="group" aria-label="Day of the week"></div>
+      <ul class="list" id="today" style="margin-top:8px"></ul>
+    </div>
+    <div class="card">
+      <h3><span>Due</span><button type="button" id="addDue">+ Due date</button></h3>
+      <ul class="list" id="dues"></ul>
+    </div>
+  </div>
+</div>
+
+<dialog id="classDlg"><form class="dlg" method="dialog" id="classForm">
+  <h2 id="classDlgTitle">Add a class</h2>
+  <label>Class<input id="cName" required placeholder="Interactive Design Concepts"></label>
+  <label>Room (optional)<input id="cRoom" placeholder="Foundation 501"></label>
+  <div><span style="font-size:13px;color:var(--muted)">Days</span><div class="days" id="cDays"></div></div>
+  <div class="two"><label>Starts<input type="time" id="cStart" required value="09:00"></label><label>Ends<input type="time" id="cEnd" required value="11:50"></label></div>
+  <div class="row"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn hot" id="cSave" value="ok">Save</button></div>
+</form></dialog>
+
+<dialog id="dueDlg"><form class="dlg" method="dialog" id="dueForm">
+  <h2>Add a due date</h2>
+  <label>What’s due<input id="dName" required placeholder="Process book"></label>
+  <label>For which class (optional)<input id="dClass" placeholder="Interactive Design Concepts"></label>
+  <div class="two"><label>Date<input type="date" id="dDate" required></label><label>Time<input type="time" id="dTime" value="23:59"></label></div>
+  <div class="row"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn hot" value="ok">Save</button></div>
+</form></dialog>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+/* ---------- saved ---------- */
+const SAVE='countdown-day17';
+let D={classes:[],dues:[
+  {id:'last',name:'Last day of 30 Days',cls:'Interactive Design Concepts',at:'2026-11-21T23:59'}
+],events:[{id:'show',name:'Lightning showcase',at:'2026-12-03T00:00'}]};
+try{const s=JSON.parse(localStorage.getItem(SAVE));if(s)D=s}catch(e){}
+let docRef=null,saveT=null;
+function save(){try{localStorage.setItem(SAVE,JSON.stringify(D))}catch(e){}if(docRef){clearTimeout(saveT);saveT=setTimeout(()=>docRef.set(D).catch(()=>{}),500)}}
+
+/* ---------- time helpers ---------- */
+const mins=t=>{const[h,m]=t.split(':').map(Number);return h*60+m};
+function fmtT(t){let[h,m]=t.split(':').map(Number);const ap=h<12?'AM':'PM';h=h%12||12;return h+':'+String(m).padStart(2,'0')+' '+ap}
+function left(ms){ // “2h 14m”, “3 days”
+  const m=Math.max(0,Math.round(ms/60000));if(m<60)return m+' min';const h=Math.floor(m/60);if(h<24)return h+'h '+(m%60)+'m';const d=Math.floor(h/24);return d+(d===1?' day':' days')+(d<3?' '+(h%24)+'h':'');
+}
+function daysTo(date){const a=new Date();a.setHours(0,0,0,0);const b=new Date(date);b.setHours(0,0,0,0);return Math.round((b-a)/864e5)}
+let showDay=new Date().getDay();
+
+/* ---------- drawing ---------- */
+function render(){
+  const now=new Date(),nm=now.getHours()*60+now.getMinutes()+now.getSeconds()/60,dow=now.getDay();
+  // what’s happening right now
+  const todays=D.classes.filter(c=>c.days.includes(dow)).sort((a,b)=>mins(a.start)-mins(b.start));
+  const cur=todays.find(c=>nm>=mins(c.start)&&nm<mins(c.end)),next=todays.find(c=>mins(c.start)>nm);
+  let h='';
+  if(cur){const tot=mins(cur.end)-mins(cur.start),done=nm-mins(cur.start);
+    h='<p class="lbl">In class now</p><h2>'+esc(cur.name)+'</h2><p class="t mono">'+left((mins(cur.end)-nm)*60000)+'</p><p class="sub">left, ends at '+fmtT(cur.end)+(cur.room?' · '+esc(cur.room):'')+'</p><div class="prog"><i style="width:'+(done/tot*100).toFixed(1)+'%"></i></div>'}
+  else if(next){h='<p class="lbl">Next class</p><h2>'+esc(next.name)+'</h2><p class="t mono">'+left((mins(next.start)-nm)*60000)+'</p><p class="sub">until it starts at '+fmtT(next.start)+(next.room?' · '+esc(next.room):'')+'</p>'}
+  else{ // look ahead to the next day with a class
+    let found=null;for(let k=1;k<=7&&!found;k++){const d=(dow+k)%7,cs=D.classes.filter(c=>c.days.includes(d)).sort((a,b)=>mins(a.start)-mins(b.start));if(cs.length)found={c:cs[0],k}}
+    h=found?'<p class="lbl">No more classes today</p><h2>'+esc(found.c.name)+'</h2><p class="t mono">'+(found.k===1?'Tomorrow':DAYS[(dow+found.k)%7])+'</p><p class="sub">at '+fmtT(found.c.start)+'</p>':'<p class="lbl">No classes yet</p><h2>Add your schedule</h2><p class="sub">Tap “+ Class” and it’ll count down to the end of each class.</p>'}
+  $('nowCard').innerHTML=h;
+  // the big event
+  const ev=D.events.map(e=>({...e,d:daysTo(e.at)})).filter(e=>e.d>=0).sort((a,b)=>a.d-b.d)[0];
+  $('eventCard').innerHTML=ev?'<p class="lbl">Countdown</p><div><p class="t mono">'+ev.d+'<small>'+(ev.d===1?'day':'days')+'</small></p><h3>until '+esc(ev.name)+'</h3><p class="lbl">'+new Date(ev.at).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</p></div>':'<p class="lbl">Countdown</p><h3>Nothing coming up</h3>';
+  // the day’s classes
+  $('weekPick').innerHTML=[1,2,3,4,5,6,0].map(d=>'<button type="button" data-d="'+d+'" aria-pressed="'+(d===showDay)+'">'+DAYS[d].slice(0,2)+'</button>').join('');
+  $('dayTitle').textContent=showDay===dow?'Today':DAYS[showDay];
+  const list=D.classes.filter(c=>c.days.includes(showDay)).sort((a,b)=>mins(a.start)-mins(b.start));
+  $('today').innerHTML=list.length?list.map(c=>{const isToday=showDay===dow,past=isToday&&nm>=mins(c.end),on=isToday&&nm>=mins(c.start)&&!past;
+    const pill=on?'<span class="pill now">'+left((mins(c.end)-nm)*60000)+' left</span>':past?'<span class="pill done">done</span>':isToday?'<span class="pill">in '+left((mins(c.start)-nm)*60000)+'</span>':'';
+    return '<li class="'+(past?'past':'')+'"><span class="time mono">'+fmtT(c.start).replace(' ','')+'–'+fmtT(c.end).replace(' ','')+'</span><span class="name">'+esc(c.name)+(c.room?'<small>'+esc(c.room)+'</small>':'')+'</span><span>'+pill+'<button class="x" type="button" data-edit="'+c.id+'" aria-label="Edit '+esc(c.name)+'">✎</button></span></li>'}).join(''):'<li><span></span><span class="empty">No classes on '+DAYS[showDay]+'.</span><span></span></li>';
+  // due dates
+  const dues=D.dues.slice().sort((a,b)=>new Date(a.at)-new Date(b.at));
+  $('dues').innerHTML=dues.length?dues.map(x=>{const ms=new Date(x.at)-now,d=daysTo(x.at);
+    const pill=ms<0?'<span class="pill done">passed</span>':d===0?'<span class="pill warn">today, '+left(ms)+'</span>':d<=2?'<span class="pill warn">'+left(ms)+'</span>':d<=6?'<span class="pill soon">'+d+' days</span>':'<span class="pill">'+d+' days</span>';
+    return '<li class="'+(ms<0?'past':'')+'"><span class="time mono">'+new Date(x.at).toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</span><span class="name">'+esc(x.name)+(x.cls?'<small>'+esc(x.cls)+'</small>':'')+'</span><span>'+pill+'<button class="x" type="button" data-rm="'+x.id+'" aria-label="Remove '+esc(x.name)+'">×</button></span></li>'}).join(''):'<li><span></span><span class="empty">Nothing due. Nice.</span><span></span></li>';
+}
+
+/* ---------- adding things ---------- */
+let editing=null,pickDays=[];
+function paintDays(){$('cDays').innerHTML=[1,2,3,4,5,6,0].map(d=>'<button type="button" data-d="'+d+'" aria-pressed="'+pickDays.includes(d)+'">'+DAYS[d].slice(0,2)+'</button>').join('')}
+$('cDays').onclick=e=>{const b=e.target.closest('[data-d]');if(!b)return;const d=+b.dataset.d;pickDays=pickDays.includes(d)?pickDays.filter(x=>x!==d):[...pickDays,d];paintDays()};
+function openClass(c){editing=c||null;$('classDlgTitle').textContent=c?'Edit class':'Add a class';$('cName').value=c?c.name:'';$('cRoom').value=c?c.room||'':'';$('cStart').value=c?c.start:'09:00';$('cEnd').value=c?c.end:'11:50';pickDays=c?c.days.slice():[showDay];paintDays();
+  const del=$('cDel');if(del)del.remove();
+  if(c)$('classForm').querySelector('.row').insertAdjacentHTML('afterbegin','<button class="btn" type="button" id="cDel" style="margin-right:auto;color:var(--warn)">Delete</button>');
+  if(c)$('cDel').onclick=()=>{D.classes=D.classes.filter(x=>x.id!==c.id);save();$('classDlg').close();render()};
+  $('classDlg').showModal()}
+$('addClass').onclick=()=>openClass();
+$('classDlg').addEventListener('close',()=>{if($('classDlg').returnValue!=='ok')return;
+  const v={id:editing?editing.id:uid(),name:$('cName').value.trim()||'Class',room:$('cRoom').value.trim(),start:$('cStart').value,end:$('cEnd').value,days:pickDays.length?pickDays:[showDay]};
+  if(mins(v.end)<=mins(v.start))v.end=v.start;
+  if(editing)D.classes=D.classes.map(x=>x.id===v.id?v:x);else D.classes.push(v);save();render()});
+$('addDue').onclick=()=>{$('dName').value='';$('dClass').value='';const t=new Date();t.setDate(t.getDate()+7);$('dDate').value=t.toISOString().slice(0,10);$('dTime').value='23:59';$('dueDlg').showModal()};
+$('dueDlg').addEventListener('close',()=>{if($('dueDlg').returnValue!=='ok')return;D.dues.push({id:uid(),name:$('dName').value.trim()||'Due',cls:$('dClass').value.trim(),at:$('dDate').value+'T'+($('dTime').value||'23:59')});save();render()});
+$('dues').onclick=e=>{const b=e.target.closest('[data-rm]');if(!b)return;D.dues=D.dues.filter(x=>x.id!==b.dataset.rm);save();render()};
+$('today').onclick=e=>{const b=e.target.closest('[data-edit]');if(!b)return;openClass(D.classes.find(c=>c.id===b.dataset.edit))};
+$('weekPick').onclick=e=>{const b=e.target.closest('[data-d]');if(!b)return;showDay=+b.dataset.d;render()};
+
+render();setInterval(render,15000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
+function connect(){
+  if(docRef||!(window.claude&&typeof window.claude.use==='function'))return false;
+  $('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';
+  (async()=>{try{const[db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);if(!db||!user)return;const id=await user.id();if(!id)return;
+    docRef=db.doc('data/users/'+id+'/countdown');const snap=await docRef.get();
+    if(snap.exists){const d=snap.data();if(d&&d.classes){D=d;try{localStorage.setItem(SAVE,JSON.stringify(D))}catch(e){}render()}}else docRef.set(D).catch(()=>{})}catch(e){docRef=null}})();
+  return true;
+}
+if(!connect())window.addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>

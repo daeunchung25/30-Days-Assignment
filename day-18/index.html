@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chores | Day 18 of 30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF3F2;--paper:#FFFFFF;--ink:#14211F;--muted:#62716E;--line:#D7E1DF;--ok:#2FA77A;--mid:#E8B32A;--late:#E5482F;--field:#F6F9F8;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1615;--paper:#18211F;--ink:#E9F1EF;--muted:#9AABA7;--line:#28332F;--ok:#4CC896;--mid:#F2C44E;--late:#FF6E55;--field:#131B19;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1615;--paper:#18211F;--ink:#E9F1EF;--muted:#9AABA7;--line:#28332F;--ok:#4CC896;--mid:#F2C44E;--late:#FF6E55;--field:#131B19;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.wrap{max-width:880px;margin:0 auto;padding:18px 18px 70px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.top a{color:var(--muted);font-size:14px;text-decoration:none}
+.top a:hover{text-decoration:underline}
+.top h1{font-size:20px;margin:0;font-weight:700}
+.head{padding:26px 0 18px}
+.head h2{font-size:clamp(32px,6vw,54px);line-height:1;margin:0 0 6px;font-weight:800;letter-spacing:-.02em}
+.head p{margin:0;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.chore{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:16px;display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;position:relative}
+.chore.late{border-color:var(--late);box-shadow:0 0 0 1px var(--late)}
+.ring{width:64px;height:64px;position:relative}
+.ring svg{width:64px;height:64px;transform:rotate(-90deg)}
+.ring span{position:absolute;inset:0;display:grid;place-items:center;font-size:22px}
+.chore h3{margin:0;font-size:18px;font-weight:700}
+.chore .when{margin:2px 0 8px;font-size:14px;color:var(--muted)}
+.chore .when b{color:var(--ink)}
+.chore.late .when b{color:var(--late)}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.done{border:0;background:var(--ink);color:var(--bg);border-radius:999px;padding:7px 14px;cursor:pointer;font-weight:700;font-size:14px}
+.done:active{transform:scale(.96)}
+.more{border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 10px;cursor:pointer;font-size:13px;color:var(--muted)}
+.add{border:2px dashed var(--line);background:transparent;border-radius:20px;padding:16px;cursor:pointer;color:var(--muted);font-weight:600;min-height:96px}
+.add:hover{border-color:var(--muted);color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:999px;padding:9px 10px 9px 16px;font-size:14px;font-weight:600;display:flex;gap:10px;align-items:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1;pointer-events:auto}
+.toast button{border:0;background:var(--bg);color:var(--ink);border-radius:999px;padding:4px 10px;cursor:pointer;font-weight:700;font-size:13px}
+dialog{border:1px solid var(--line);border-radius:20px;background:var(--paper);color:var(--ink);padding:0;width:min(420px,calc(100vw - 24px))}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dlg{padding:20px;display:grid;gap:12px}
+.dlg h2{margin:0;font-size:22px}
+.dlg label{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.dlg input,.dlg select{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:9px 11px;font-size:16px;color:var(--ink)}
+.dlg .two{display:grid;grid-template-columns:70px 1fr 1fr;gap:10px}
+.emojis{display:flex;flex-wrap:wrap;gap:4px}
+.emojis button{border:1px solid var(--line);background:var(--field);border-radius:10px;width:40px;height:40px;cursor:pointer;font-size:20px}
+.emojis button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.row{display:flex;gap:8px;justify-content:flex-end}
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:9px 16px;cursor:pointer;font-weight:600}
+.btn.hot{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+@media (prefers-reduced-motion:no-preference){.chore.pop{animation:pop .4s ease}@keyframes pop{40%{transform:scale(1.03)}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a id="back" href="../">Day 18 of 30</a><h1>Chores</h1></div>
+  <div class="head" aria-live="polite"><h2 id="headline"></h2><p id="sub"></p></div>
+  <div class="grid" id="grid"></div>
+</div>
+<div class="toast" id="toast" role="status"><span id="toastText"></span><button type="button" id="undo">Undo</button></div>
+
+<dialog id="dlg"><form class="dlg" method="dialog">
+  <h2 id="dlgTitle">Add a chore</h2>
+  <label>Chore<input id="fName" required placeholder="Wash towels"></label>
+  <div><span style="font-size:13px;color:var(--muted)">Icon</span><div class="emojis" id="fIcon"></div></div>
+  <div class="two">
+    <label>Every<input id="fEvery" type="number" min="1" max="365" value="7" required></label>
+    <label>&nbsp;<select id="fUnit"><option value="1">days</option><option value="7">weeks</option></select></label>
+    <label>Last done<input id="fLast" type="date"></label>
+  </div>
+  <div class="row"><button class="btn" type="button" id="fDel" style="margin-right:auto;color:var(--late)">Delete</button><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn hot" value="ok">Save</button></div>
+</form></dialog>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const DAY=864e5,ICONS=['🧺','🛏️','🪴','🧊','🧹','🗑️','🛁','🍽️','🪥','👕','🧽','🪟','🐾','💊'];
+
+/* ---------- saved ---------- */
+const SAVE='chores-day18';
+const ago=n=>Date.now()-n*DAY;
+let D={chores:[
+  {id:uid(),name:'Laundry',icon:'🧺',every:7,last:ago(5),count:0},
+  {id:uid(),name:'Change sheets',icon:'🛏️',every:14,last:ago(16),count:0},
+  {id:uid(),name:'Water the plants',icon:'🪴',every:4,last:ago(2),count:0},
+  {id:uid(),name:'Clean the fridge',icon:'🧊',every:30,last:ago(12),count:0},
+  {id:uid(),name:'Vacuum',icon:'🧹',every:7,last:ago(8),count:0},
+  {id:uid(),name:'Take out the trash',icon:'🗑️',every:3,last:ago(1),count:0},
+  {id:uid(),name:'Clean the bathroom',icon:'🛁',every:10,last:ago(6),count:0}
+]};
+try{const s=JSON.parse(localStorage.getItem(SAVE));if(s&&Array.isArray(s.chores))D=s}catch(e){}
+let docRef=null,saveT=null;
+function save(){try{localStorage.setItem(SAVE,JSON.stringify(D))}catch(e){}if(docRef){clearTimeout(saveT);saveT=setTimeout(()=>docRef.set(D).catch(()=>{}),500)}}
+
+/* ---------- how overdue things are ---------- */
+const daysSince=c=>{const a=new Date(c.last);a.setHours(0,0,0,0);const b=new Date();b.setHours(0,0,0,0);return Math.round((b-a)/DAY)};
+function status(c){const d=daysSince(c),left=c.every-d,frac=Math.min(1,d/c.every);return{d,left,frac,late:left<0,due:left===0,soon:left>0&&left<=Math.max(1,Math.round(c.every*.25))}}
+const agoTxt=d=>d<=0?'today':d===1?'yesterday':d+' days ago';
+function color(s){return s.late||s.due?'var(--late)':s.soon?'var(--mid)':'var(--ok)'}
+
+/* ---------- drawing ---------- */
+function render(popId){
+  const list=D.chores.map(c=>({c,s:status(c)})).sort((a,b)=>a.s.left-b.s.left);
+  const late=list.filter(x=>x.s.late||x.s.due).length;
+  $('headline').textContent=late?late+(late===1?' thing needs doing':' things need doing'):'All caught up';
+  const next=list.find(x=>!x.s.late&&!x.s.due);
+  $('sub').textContent=late?'Overdue first, then whatever’s coming up.':next?'Next up: '+next.c.name.toLowerCase()+' in '+next.s.left+(next.s.left===1?' day.':' days.'):'';
+  const C=2*Math.PI*27;
+  $('grid').innerHTML=list.map(({c,s})=>{
+    const when=s.late?'<b>'+(-s.left)+(s.left===-1?' day':' days')+' overdue</b>':s.due?'<b>Due today</b>':'Due in <b>'+s.left+(s.left===1?' day':' days')+'</b>';
+    return '<article class="chore'+(s.late||s.due?' late':'')+(popId===c.id?' pop':'')+'"><div class="ring" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" fill="none" stroke="var(--line)" stroke-width="6"/><circle cx="32" cy="32" r="27" fill="none" stroke="'+color(s)+'" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+(C*s.frac).toFixed(1)+' '+C.toFixed(1)+'"/></svg><span>'+c.icon+'</span></div>'
+      +'<div><h3>'+esc(c.name)+'</h3><p class="when">'+when+' · last '+agoTxt(s.d)+'</p><div class="acts"><button class="done" type="button" data-done="'+c.id+'">Did it</button><button class="more" type="button" data-edit="'+c.id+'" aria-label="Edit '+esc(c.name)+'">Edit</button></div></div></article>'}).join('')
+    +'<button class="add" type="button" id="addBtn">+ Add a chore</button>';
+}
+
+/* ---------- doing things ---------- */
+let undoState=null;
+function toast(t){$('toastText').textContent=t;$('toast').classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').classList.remove('show'),3500)}
+$('grid').addEventListener('click',e=>{
+  const d=e.target.closest('[data-done]');
+  if(d){const c=D.chores.find(x=>x.id===d.dataset.done);undoState={id:c.id,last:c.last,count:c.count};c.last=Date.now();c.count=(c.count||0)+1;save();render(c.id);if(navigator.vibrate)navigator.vibrate(12);toast(c.name+' done. Next in '+c.every+(c.every===1?' day':' days'));return}
+  const ed=e.target.closest('[data-edit]');if(ed){openDlg(D.chores.find(x=>x.id===ed.dataset.edit));return}
+  if(e.target.closest('#addBtn'))openDlg(null);
+});
+$('undo').onclick=()=>{if(!undoState)return;const c=D.chores.find(x=>x.id===undoState.id);if(c){c.last=undoState.last;c.count=undoState.count}undoState=null;save();render();$('toast').classList.remove('show')};
+
+/* ---------- add and edit ---------- */
+let editing=null,icon='🧺';
+function paintIcons(){$('fIcon').innerHTML=ICONS.map(i=>'<button type="button" data-i="'+i+'" aria-pressed="'+(i===icon)+'" aria-label="'+i+'">'+i+'</button>').join('')}
+$('fIcon').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;icon=b.dataset.i;paintIcons()};
+const toDate=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+function openDlg(c){editing=c;$('dlgTitle').textContent=c?'Edit chore':'Add a chore';$('fName').value=c?c.name:'';icon=c?c.icon:'🧽';paintIcons();
+  const weeks=c&&c.every%7===0&&c.every>=7;$('fEvery').value=c?(weeks?c.every/7:c.every):7;$('fUnit').value=weeks?'7':'1';
+  $('fLast').value=toDate(c?c.last:Date.now());$('fDel').hidden=!c;$('dlg').showModal()}
+$('fDel').onclick=()=>{if(!editing)return;D.chores=D.chores.filter(x=>x.id!==editing.id);save();$('dlg').close('cancel');render()};
+$('dlg').addEventListener('close',()=>{if($('dlg').returnValue!=='ok')return;
+  const every=Math.max(1,Math.round(+$('fEvery').value||1)*+$('fUnit').value),last=$('fLast').value?new Date($('fLast').value+'T12:00').getTime():Date.now();
+  if(editing)Object.assign(editing,{name:$('fName').value.trim()||'Chore',icon,every,last});
+  else D.chores.push({id:uid(),name:$('fName').value.trim()||'Chore',icon,every,last,count:0});
+  save();render()});
+
+render();setInterval(render,60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
+function connect(){
+  if(docRef||!(window.claude&&typeof window.claude.use==='function'))return false;
+  $('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';
+  (async()=>{try{const[db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);if(!db||!user)return;const id=await user.id();if(!id)return;
+    docRef=db.doc('data/users/'+id+'/chores');const snap=await docRef.get();
+    if(snap.exists){const d=snap.data();if(d&&Array.isArray(d.chores)){D=d;try{localStorage.setItem(SAVE,JSON.stringify(D))}catch(e){}render()}}else docRef.set(D).catch(()=>{})}catch(e){docRef=null}})();
+  return true;
+}
+if(!connect())window.addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scoops | Day 16 of 30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFE9EF;--ink:#4A2633;--muted:#9A6B78;--paper:#FFFFFF;--line:#F3C9D5;--accent:#FF7EA5;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#24151B;--ink:#FCE8EE;--muted:#C99AA8;--paper:#2E1C23;--line:#4A2D38;--accent:#FF8FB1;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#24151B;--ink:#FCE8EE;--muted:#C99AA8;--paper:#2E1C23;--line:#4A2D38;--accent:#FF8FB1;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Fredoka",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:520px;margin:0 auto;padding:14px 14px 30px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.top a{color:var(--muted);font-size:14px;text-decoration:none}
+.top a:hover{text-decoration:underline}
+.top h1{font-size:24px;margin:0;font-weight:700}
+.hud{display:flex;justify-content:space-between;align-items:center;margin:10px 2px}
+.hud b{font-size:30px;font-weight:700}
+.hud span{color:var(--muted);font-size:14px}
+.lives{font-size:20px;letter-spacing:2px}
+.stage{position:relative;border-radius:26px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 14px 30px -20px rgba(120,40,70,.5)}
+.stage canvas{display:block;width:100%;cursor:grab}
+.over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(255,240,245,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);text-align:center;padding:20px;color:#4A2633}
+.over h2{font-size:40px;margin:0;line-height:1}
+.over p{margin:0;font-size:17px;color:#7A4A58}
+.play{border:0;background:#FF7EA5;color:#3A0F1E;border-radius:999px;padding:12px 28px;font-size:20px;font-weight:700;cursor:pointer;box-shadow:0 4px 0 #D9547E}
+.play:active{transform:translateY(2px);box-shadow:0 2px 0 #D9547E}
+.small{display:flex;justify-content:space-between;color:var(--muted);font-size:14px;margin-top:10px}
+.small button{border:0;background:none;color:var(--muted);cursor:pointer;text-decoration:underline;padding:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a id="back" href="../">Day 16 of 30</a><h1>Scoops</h1></div>
+  <div class="hud" aria-live="polite"><div><b id="score">0</b> <span>scoops</span></div><div class="lives" id="lives" aria-label="Lives"></div></div>
+  <div class="stage">
+    <canvas id="cv" role="img" aria-label="Ice cream stacking game. Move the cone left and right to catch scoops."></canvas>
+    <div class="over" id="over">
+      <h2 id="ovTitle">Scoops</h2>
+      <p id="ovText">Drag the cone to catch falling scoops. Stack them high, but move too fast and the tower wobbles off.</p>
+      <button class="play" id="play" type="button">Play</button>
+    </div>
+  </div>
+  <div class="small"><span id="best"></span><button id="snd" type="button">Sound on</button></div>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const FLAVORS=[
+  {name:'strawberry',c:'#FF9DB8',d:'#E9708F',bits:'#E2486F'},
+  {name:'vanilla',c:'#FFF3D6',d:'#EBD6A8',bits:'#2B1A10',few:true},
+  {name:'mint chip',c:'#A8E8D0',d:'#79CDAF',bits:'#3B2416'},
+  {name:'chocolate',c:'#8A5A44',d:'#6C4130',bits:'#4A2A1C'},
+  {name:'matcha',c:'#B9D98C',d:'#93BC63',bits:'#7FA650',few:true},
+  {name:'ube',c:'#C9A7EB',d:'#A783D2',bits:'#8C66BD',few:true},
+  {name:'mango',c:'#FFC56B',d:'#F2A640',bits:'#E28E25',few:true}
+];
+let best=0,sound=true;try{const s=JSON.parse(localStorage.getItem('scoops-day16'))||{};best=s.best||0;sound=s.sound!==false}catch(e){}
+const store=()=>{try{localStorage.setItem('scoops-day16',JSON.stringify({best,sound}))}catch(e){}};
+
+const cv=$('cv'),ctx=cv.getContext('2d');let W=0,H=0,R=26;
+function size(){const dpr=Math.min(2,window.devicePixelRatio||1);W=cv.parentElement.clientWidth;H=Math.round(Math.min(window.innerHeight*.7,W*1.45));cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);R=Math.max(20,W*.065)}
+size();window.addEventListener('resize',()=>{size()});
+
+/* ---------- game state ---------- */
+let G=null;
+function reset(){
+  G={cone:{x:W/2,vx:0,target:W/2},stack:[],falling:[],loose:[],splats:[],score:0,lives:3,t:0,next:0,cam:0,over:false,bonusMsg:null};
+  paintHud();
+}
+const GAP=()=>R*1.25;
+const coneTopY=()=>H-R*3.3;
+function stackX(i){let x=G.cone.x;for(let k=0;k<=i;k++)x+=G.stack[k].o;return x}
+function stackY(i){return coneTopY()-R*.55-i*GAP()}
+
+/* ---------- drawing ---------- */
+function scoop(x,y,f,rot,scale){
+  ctx.save();ctx.translate(x,y);if(rot)ctx.rotate(rot);if(scale)ctx.scale(scale,scale);
+  // drippy bottom edge
+  ctx.fillStyle=f.d;ctx.beginPath();ctx.moveTo(-R,R*.15);
+  const n=6;for(let i=0;i<=n;i++){const x2=-R+i*2*R/n,dy=R*(.42+(i%2?.18:0));ctx.quadraticCurveTo(x2-R/n,R*.5+(i%2?0:R*.12),x2,dy)}
+  ctx.lineTo(R,R*.15);ctx.closePath();ctx.fill();
+  // the ball
+  const g=ctx.createRadialGradient(-R*.35,-R*.4,R*.1,0,0,R*1.1);g.addColorStop(0,'rgba(255,255,255,.55)');g.addColorStop(.35,f.c);g.addColorStop(1,f.d);
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,R,Math.PI*.02,Math.PI*.98,true);ctx.quadraticCurveTo(0,R*.5,R*.999,R*.06);ctx.fill();
+  // chips and specks
+  ctx.fillStyle=f.bits;const k=f.few?5:9;for(let i=0;i<k;i++){const a=i*2.4+f.name.length,r=R*(.25+((i*37)%10)/16);ctx.save();ctx.translate(Math.cos(a)*r*.9,Math.sin(a)*r*.7-R*.1);ctx.rotate(a);ctx.fillRect(-R*.06,-R*.035,R*.12,R*.07);ctx.restore()}
+  ctx.restore();
+}
+function cone(x,y){
+  ctx.save();ctx.translate(x,y);const w=R*1.05,h=R*2.7;
+  const p=new Path2D();p.moveTo(-w,0);p.lineTo(w,0);p.lineTo(R*.08,h);p.lineTo(-R*.08,h);p.closePath();
+  const g=ctx.createLinearGradient(-w,0,w,0);g.addColorStop(0,'#D99A55');g.addColorStop(.4,'#F2C07E');g.addColorStop(1,'#C9843F');ctx.fillStyle=g;ctx.fill(p);
+  ctx.save();ctx.clip(p);ctx.strokeStyle='rgba(150,90,35,.55)';ctx.lineWidth=2;
+  for(let i=-6;i<8;i++){ctx.beginPath();ctx.moveTo(i*R*.4-w,0);ctx.lineTo(i*R*.4-w+h*.6,h);ctx.stroke();ctx.beginPath();ctx.moveTo(i*R*.4+w,0);ctx.lineTo(i*R*.4+w-h*.6,h);ctx.stroke()}
+  ctx.restore();
+  ctx.fillStyle='#E3A762';ctx.beginPath();ctx.ellipse(0,0,w*1.02,R*.18,0,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+function bg(){
+  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FFF4F7');g.addColorStop(1,'#FFE0EA');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  // stripey parlor awning that scrolls away as the tower grows
+  const ay=-G.cam*.4;ctx.save();ctx.translate(0,ay);
+  for(let i=0;i<W/40+1;i++){ctx.fillStyle=i%2?'#FFFFFF':'#FFB3C8';ctx.fillRect(i*40,0,40,34)}
+  ctx.fillStyle='#FFB3C8';for(let i=0;i<W/40+1;i++){ctx.beginPath();ctx.arc(i*40+20,34,20,0,Math.PI);ctx.fill();if(i%2){ctx.fillStyle='#FFFFFF';ctx.beginPath();ctx.arc(i*40+20,34,20,0,Math.PI);ctx.fill();ctx.fillStyle='#FFB3C8'}}
+  ctx.restore();
+  // counter
+  const cy=H-R*.6+G.cam;ctx.fillStyle='#F7C9D6';ctx.fillRect(0,cy,W,H);ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillRect(0,cy,W,3);
+}
+function draw(){
+  bg();
+  ctx.save();ctx.translate(0,G.cam);
+  for(const s of G.splats){ctx.globalAlpha=s.a;ctx.fillStyle=s.f.c;ctx.beginPath();ctx.ellipse(s.x,s.y,R*1.2,R*.35,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=s.f.d;ctx.beginPath();ctx.ellipse(s.x,s.y+3,R*.8,R*.18,0,0,Math.PI*2);ctx.fill()}
+  ctx.globalAlpha=1;
+  cone(G.cone.x,coneTopY());
+  // the tower leans a little with its wobble
+  for(let i=0;i<G.stack.length;i++){const s=G.stack[i];scoop(stackX(i),stackY(i),s.f,s.o/R*.25)}
+  if(G.stack.length&&G.stack[G.stack.length-1].cherry){const i=G.stack.length-1;ctx.fillStyle='#E0213E';ctx.beginPath();ctx.arc(stackX(i),stackY(i)-R*1.05,R*.28,0,7);ctx.fill();ctx.strokeStyle='#5A7A2A';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(stackX(i),stackY(i)-R*1.3);ctx.quadraticCurveTo(stackX(i)+R*.2,stackY(i)-R*1.7,stackX(i)+R*.4,stackY(i)-R*1.75);ctx.stroke()}
+  for(const f of G.loose)scoop(f.x,f.y,f.f,f.rot);
+  ctx.restore();
+  for(const f of G.falling){scoop(f.x,f.y,f.f);if(f.cherry){ctx.fillStyle='#E0213E';ctx.beginPath();ctx.arc(f.x,f.y-R*1.05,R*.28,0,7);ctx.fill()}}
+  if(G.bonusMsg){ctx.globalAlpha=Math.min(1,G.bonusMsg.t/20);ctx.fillStyle='#E0466F';ctx.font='700 '+Math.round(R*.9)+'px Fredoka, sans-serif';ctx.textAlign='center';ctx.fillText(G.bonusMsg.text,W/2,H*.35);ctx.globalAlpha=1}
+}
+
+/* ---------- game loop ---------- */
+function step(){
+  if(!G||G.over)return;
+  G.t++;
+  const lvl=Math.min(1,G.score/40);
+  // new scoops drop faster as the tower grows
+  if(G.t>=G.next){const f=FLAVORS[Math.floor(Math.random()*FLAVORS.length)];
+    G.falling.push({x:R*1.4+Math.random()*(W-R*2.8),y:-R*1.2,vy:2+lvl*3.2+Math.random(),f,cherry:Math.random()<.07});
+    G.next=G.t+Math.round(80-lvl*42+Math.random()*25)}
+  // the cone eases toward your finger
+  const c=G.cone,prev=c.x;c.x+=(c.target-c.x)*.35;const acc=(c.x-prev)-c.vx;c.vx=c.x-prev;
+  // every scoop sways: fast moves push the top ones the most
+  for(let i=0;i<G.stack.length;i++){const s=G.stack[i],k=1+i*.18;
+    s.v+=-acc*.22*k-(s.o-s.rest)*.06;s.v*=.9;s.o+=s.v;
+    if(Math.abs(s.o)>R*.95){topple(i);break}}
+  // falling scoops
+  const topI=G.stack.length-1,topY=topI>=0?stackY(topI)+G.cam:coneTopY()+G.cam,topX=topI>=0?stackX(topI):c.x;
+  for(let i=G.falling.length-1;i>=0;i--){const f=G.falling[i];f.y+=f.vy;
+    const landY=topY-(topI>=0?GAP():R*.55);
+    if(f.y>=landY&&f.y-f.vy<landY+R*.5&&Math.abs(f.x-topX)<R*1.25){
+      const o=f.x-topX;G.stack.push({f:f.f,o,rest:o*.6,v:0,cherry:f.cherry});
+      G.falling.splice(i,1);G.score+=f.cherry?5:1;if(f.cherry)G.bonusMsg={text:'Cherry! +5',t:60};
+      // remove the cherry from whatever was the top before
+      if(G.stack.length>1)G.stack[G.stack.length-2].cherry=false;
+      plop(G.stack.length);paintHud();continue}
+    if(f.y>H-R*.6){G.falling.splice(i,1);G.splats.push({x:f.x,y:H-R*.6-G.cam,f:f.f,a:1});miss();}
+  }
+  // loose scoops tumble down
+  for(let i=G.loose.length-1;i>=0;i--){const f=G.loose[i];f.vy+=.5;f.x+=f.vx;f.y+=f.vy;f.rot+=f.vr;if(f.y+G.cam>H-R*.6){G.loose.splice(i,1);G.splats.push({x:f.x,y:H-R*.6-G.cam,f:f.f,a:1});splat()}}
+  for(const s of G.splats)s.a=Math.max(0,s.a-.004);G.splats=G.splats.filter(s=>s.a>0);
+  // the view rises with the tower
+  const want=Math.max(0,(G.stack.length-5)*GAP());G.cam+=(want-G.cam)*.05;
+  if(G.bonusMsg&&--G.bonusMsg.t<=0)G.bonusMsg=null;
+}
+function topple(i){
+  const fallen=G.stack.splice(i);
+  fallen.forEach((s,k)=>{const idx=i+k;G.loose.push({x:stackX(Math.max(0,i-1))+s.o*(k+1),y:stackY(idx),vx:Math.sign(s.o||1)*(2+k*.6),vy:-2,rot:0,vr:Math.sign(s.o||1)*.08,f:s.f})});
+  G.score=Math.max(0,G.score-fallen.length);G.bonusMsg={text:'Whoa, too fast!',t:60};miss();paintHud();
+}
+function miss(){G.lives--;paintHud();splat();if(G.lives<=0)end()}
+function end(){
+  G.over=true;const s=G.stack.length;if(G.score>best){best=G.score;store()}
+  $('ovTitle').textContent=G.score+(G.score===1?' scoop':' scoops');
+  $('ovText').textContent=G.score>=best&&G.score>0?'New best!':'Best: '+best;
+  $('play').textContent='Again';$('over').hidden=false;paintHud();
+}
+function paintHud(){$('score').textContent=G?G.score:0;$('lives').textContent=G?'🍦'.repeat(Math.max(0,G.lives))+'·'.repeat(3-Math.max(0,G.lives)):'';$('best').textContent=best?'Best: '+best:''}
+(function loop(){requestAnimationFrame(loop);if(G){step();draw()}})();
+
+/* ---------- controls ---------- */
+function pt(e){const r=cv.getBoundingClientRect();return e.clientX-r.left}
+cv.addEventListener('pointerdown',e=>{if(!G||G.over)return;cv.setPointerCapture(e.pointerId);G.cone.target=Math.max(R,Math.min(W-R,pt(e)));audioOn()});
+cv.addEventListener('pointermove',e=>{if(!G||G.over)return;if(e.pointerType==='mouse'||e.buttons)G.cone.target=Math.max(R,Math.min(W-R,pt(e)))});
+const keys={};
+window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){keys[e.key]=true;e.preventDefault()}});
+window.addEventListener('keyup',e=>{keys[e.key]=false});
+setInterval(()=>{if(!G||G.over)return;if(keys.ArrowLeft)G.cone.target=Math.max(R,G.cone.target-9);if(keys.ArrowRight)G.cone.target=Math.min(W-R,G.cone.target+9)},16);
+$('play').onclick=()=>{reset();$('over').hidden=true;audioOn()};
+
+/* ---------- sounds ---------- */
+let ac=null;
+function audioOn(){if(!sound)return;if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ac&&ac.state==='suspended')ac.resume()}
+function tone(f1,f2,dur,g,type){if(!ac||!sound)return;const t=ac.currentTime,o=ac.createOscillator(),gn=ac.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+dur);gn.gain.setValueAtTime(g,t);gn.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(gn);gn.connect(ac.destination);o.start(t);o.stop(t+dur+.02)}
+function plop(n){tone(380+Math.min(n,20)*18,180,.12,.25)}
+function splat(){tone(160,60,.22,.3,'triangle');if(navigator.vibrate)navigator.vibrate(20)}
+$('snd').onclick=()=>{sound=!sound;store();$('snd').textContent=sound?'Sound on':'Sound off';if(sound)audioOn()};
+$('snd').textContent=sound?'Sound on':'Sound off';
+
+reset();G.over=true;paintHud();
+function connect(){if(!(window.claude&&typeof window.claude.use==='function'))return false;$('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';return true}
+if(!connect())window.addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>
