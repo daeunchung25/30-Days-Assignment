@@ -163,23 +163,35 @@ window.DAYS = {
        },
        20: {
       title: "Soft serve",
-      rank: 2,
+      rating: 2,
       need: "Everyone was playing a Japanese soft serve stacking game, but it’s made for phones. I made an English version I can play on my Mac with a trackpad.",
       notes: "The nozzle stays still. I hold the cone and slowly pull it down, and the soft serve builds into a tall twisted column. Pull too fast and the stream breaks. Up to 5 stars depending on how tall it gets. Inspired by softserve.nog.cc.",
       link: "day-20/"
   },
       21: {
       title: "Schedule wallpaper",
-      rank: 5,
+      rating: 5,
       need: "I keep checking my schedule to see where my next class is. This turns my classes into a wallpaper for my phone or my Mac, with the time, course, professor and room.",
       notes: "The phone version leaves the top clear for the lock screen clock, and the Mac version stays clear of the menu bar and the Dock. Five color themes.",
       link: "day-21/"
   },
       22: {
       title: "Sleep",
-      rank: 3,
+      rating: 3,
       need: "I want to know how much I actually sleep. I tap “I’m going to bed” at night and “I’m awake” in the morning, or add a night by hand.",
-      notes: "It shows last night against my goal, my average, my usual bedtime and wake up, and how much sleep I owe this week. Bars turn blue when I hit my goal.",
+      notes: "It shows last night against my goal, my average, my usual bedtime and wake up, and how much sleep I owe this week. Naps get logged too, stack on top of the night in the chart, and pay back some of the sleep I owe.",
       link: "day-22/"
+  },
+      23: {
+      title: "Lotus s’mores cookies",
+      rating: 5,
+      need: "Another baking day. I made lotus s’mores cookies.",
+      notes: "Going in, spreading out in the oven, then out on the plate with a Lotus Biscoff cookie pressed into the top of each one.",
+      images: [
+      "day-23/cookies-1.jpg",
+      "day-23/cookies-2.jpg",
+      "day-23/cookies-3.jpg"
+    ],
+    link: ""
   },
 };
