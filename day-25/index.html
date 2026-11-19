@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Film burn | Day 25 of 30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+body{margin:0;min-height:100%;background:#0B0A09;color:#E9DCC8;font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;display:flex;flex-direction:column}
+.top{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;gap:10px;flex-wrap:wrap}
+.top a{color:#B9A890;font-size:13px;text-decoration:none}
+.top a:hover{color:#fff}
+.tools{display:flex;gap:6px;flex-wrap:wrap}
+.btn{border:1px solid #3A332C;background:#16130F;color:#E9DCC8;border-radius:999px;padding:7px 13px;font:600 12px "IBM Plex Mono",monospace;cursor:pointer;letter-spacing:.04em}
+.btn:hover{border-color:#E9DCC8}
+.btn[aria-pressed="true"]{background:#E9DCC8;color:#16130F}
+.stage{flex:1;display:flex;align-items:center;justify-content:center;padding:6px 14px 16px}
+canvas{display:block;max-width:100%;cursor:crosshair;touch-action:none}
+.hint{text-align:center;font-size:12px;color:#857865;margin:0 0 16px}
+</style>
+</head>
+<body>
+<div class="top">
+  <a id="back" href="../">Day 25 of 30 · Film burn</a>
+  <div class="tools">
+    <button class="btn" id="prev" type="button" aria-label="Previous photo">←</button>
+    <button class="btn" id="next" type="button" aria-label="Next photo">→</button>
+    <button class="btn" id="auto" type="button" aria-pressed="true">Auto burn</button>
+    <label class="btn" style="display:inline-flex;align-items:center">Your photo<input type="file" id="file" accept="image/*" hidden></label>
+  </div>
+</div>
+<div class="stage"><canvas id="cv" role="img" aria-label="A film photo in a film strip frame, with warm light leaks and burns blooming across it. Click to burn a spot."></canvas></div>
+<p class="hint">Click anywhere on the photo to burn it. Light leaks drift in on their own.</p>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+// the film photos from Day 19
+const PHOTOS=['../day-19/film-1.jpg','../day-19/film-2.jpg','../day-19/film-3.jpg'];
+let imgs=[],idx=0,auto=true;
+const cv=$('cv'),ctx=cv.getContext('2d');let W=0,H=0,dpr=1,frame={x:0,y:0,w:0,h:0};
+
+/* ---------- grain: a few frames of noise, cycled so it flickers like film ---------- */
+const GRAIN=[];
+for(let k=0;k<6;k++){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d'),im=x.createImageData(256,256);
+  for(let i=0;i<256*256;i++){const v=128+(Math.random()-.5)*190;im.data[i*4]=im.data[i*4+1]=im.data[i*4+2]=v;im.data[i*4+3]=255}
+  x.putImageData(im,0,0);GRAIN.push(c)}
+
+function size(){
+  dpr=Math.min(2,devicePixelRatio||1);const maxW=Math.min(innerWidth-28,1100),maxH=innerHeight-140;
+  W=Math.min(maxW,maxH/.84);H=W*.84;   // a 3:2 photo plus the strip with sprocket holes above and below
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);
+  const band=H*.12;frame={x:W*.035,y:band,w:W*.93,h:H-band*2};
+}
+addEventListener('resize',size);size();
+
+/* ---------- light leaks drift, burns bloom ---------- */
+let leaks=[],burns=[],t0=performance.now();
+function newLeak(){const side=Math.random()<.5?0:1;return{x:side?1.05:-.05,y:Math.random(),r:.35+Math.random()*.45,vx:(side?-1:1)*(.0004+Math.random()*.0006),vy:(Math.random()-.5)*.0004,life:0,max:900+Math.random()*900,hue:Math.random()}}
+for(let i=0;i<3;i++){const l=newLeak();l.life=Math.random()*400;leaks.push(l)}
+function burn(x,y,big){burns.push({x,y,t:0,max:big?260:180,size:big?1:.6+Math.random()*.5,seed:Math.random()*99})}
+
+function warm(h,a){ // from deep red through orange to soft yellow
+  const c=h<.33?[255,60,30]:h<.66?[255,130,40]:[255,200,90];return'rgba('+c.join(',')+','+a+')'}
+function drawPhoto(){
+  const f=frame,img=imgs[idx];
+  ctx.save();ctx.beginPath();ctx.rect(f.x,f.y,f.w,f.h);ctx.clip();
+  if(img&&img.complete&&img.naturalWidth){const s=Math.max(f.w/img.naturalWidth,f.h/img.naturalHeight),iw=img.naturalWidth*s,ih=img.naturalHeight*s;
+    ctx.filter='contrast(1.08) saturate(1.1) sepia(.12)';ctx.drawImage(img,f.x+(f.w-iw)/2,f.y+(f.h-ih)/2,iw,ih);ctx.filter='none'}
+  else{const g=ctx.createLinearGradient(f.x,f.y,f.x+f.w,f.y+f.h);g.addColorStop(0,'#3A2A20');g.addColorStop(1,'#120D0A');ctx.fillStyle=g;ctx.fillRect(f.x,f.y,f.w,f.h);
+    ctx.fillStyle='#857865';ctx.font='14px "IBM Plex Mono", monospace';ctx.textAlign='center';ctx.fillText('Add the Day 19 photos, or tap “Your photo”',f.x+f.w/2,f.y+f.h/2)}
+  // light leaks, added like light
+  ctx.globalCompositeOperation='screen';
+  for(const l of leaks){const a=Math.sin(Math.min(1,l.life/l.max)*Math.PI)*.85,cx=f.x+l.x*f.w,cy=f.y+l.y*f.h,r=l.r*f.w;
+    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,warm(l.hue,a));g.addColorStop(.45,warm(Math.max(0,l.hue-.35),a*.55));g.addColorStop(1,'rgba(255,40,20,0)');ctx.fillStyle=g;ctx.fillRect(f.x,f.y,f.w,f.h)}
+  // burns: white hot middle, orange and red rings, wobbling edges
+  for(const b of burns){const p=b.t/b.max,grow=Math.pow(Math.min(1,p*1.6),.7),fade=p>.6?1-(p-.6)/.4:1,cx=f.x+b.x*f.w,cy=f.y+b.y*f.h,r=f.w*.32*b.size*grow;
+    for(let k=0;k<3;k++){const ox=Math.sin(b.seed+k*2.1+b.t*.03)*r*.18,oy=Math.cos(b.seed+k*1.7+b.t*.025)*r*.15,rr=r*(1-k*.22);
+      const g=ctx.createRadialGradient(cx+ox,cy+oy,0,cx+ox,cy+oy,rr);
+      g.addColorStop(0,'rgba(255,250,225,'+(.95*fade)+')');g.addColorStop(.25,'rgba(255,214,120,'+(.85*fade)+')');g.addColorStop(.55,'rgba(255,110,30,'+(.6*fade)+')');g.addColorStop(.85,'rgba(200,30,15,'+(.35*fade)+')');g.addColorStop(1,'rgba(120,10,5,0)');
+      ctx.fillStyle=g;ctx.fillRect(f.x,f.y,f.w,f.h)}}
+  ctx.globalCompositeOperation='source-over';
+  // grain and a soft vignette
+  ctx.globalAlpha=.16;ctx.globalCompositeOperation='overlay';const gr=GRAIN[Math.floor(performance.now()/60)%GRAIN.length];
+  for(let x=f.x;x<f.x+f.w;x+=256)for(let y=f.y;y<f.y+f.h;y+=256)ctx.drawImage(gr,x,y);
+  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
+  const v=ctx.createRadialGradient(f.x+f.w/2,f.y+f.h/2,f.h*.35,f.x+f.w/2,f.y+f.h/2,f.w*.7);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.45)');ctx.fillStyle=v;ctx.fillRect(f.x,f.y,f.w,f.h);
+  ctx.restore();
+}
+function drawStrip(){
+  // the film strip: dark base, sprocket holes, and the little edge numbers
+  ctx.fillStyle='#1A1410';ctx.fillRect(0,0,W,H);
+  const band=frame.y,hw=W*.022,hh=band*.34,gap=W*.05;
+  for(let x=gap*.4;x<W;x+=gap){for(const y of[band*.33,H-band*.33-hh]){ctx.fillStyle='#0B0A09';ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,hw,hh,3):ctx.rect(x,y,hw,hh);ctx.fill()}}
+  ctx.fillStyle='#E0802A';ctx.font='600 '+Math.max(10,W*.013)+'px "IBM Plex Mono", monospace';ctx.textBaseline='middle';
+  ctx.fillText('FILM 400',W*.06,band*.78);ctx.fillText('◀ '+(idx*2+12)+'A',W*.45,band*.78);ctx.fillText(String(idx*2+13),W*.85,band*.78);
+  ctx.fillText('▲ '+(idx*2+12),W*.12,H-band*.78);ctx.fillText('FILM 400',W*.7,H-band*.78);
+  // a thin rounded edge around the frame
+  ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.strokeRect(frame.x,frame.y,frame.w,frame.h);
+}
+function step(){
+  for(let i=leaks.length-1;i>=0;i--){const l=leaks[i];l.life++;l.x+=l.vx;l.y+=l.vy;if(l.life>l.max){leaks.splice(i,1);leaks.push(newLeak())}}
+  for(let i=burns.length-1;i>=0;i--){burns[i].t++;if(burns[i].t>burns[i].max)burns.splice(i,1)}
+  if(auto&&Math.random()<.004&&burns.length<2){const edge=Math.random();burn(edge<.5?(Math.random()<.5?.05:.95):Math.random(),edge<.5?Math.random():(Math.random()<.5?.05:.95),false)}
+}
+(function loop(){requestAnimationFrame(loop);step();drawStrip();drawPhoto()})();
+
+/* ---------- photos and controls ---------- */
+function load(i){const im=new Image();im.onload=()=>{};im.src=PHOTOS[i];return im}
+imgs=PHOTOS.map((_,i)=>load(i));
+function show(i){idx=(i+imgs.length)%imgs.length;burn(Math.random()<.5?.08:.92,.5,true)}
+$('prev').onclick=()=>show(idx-1);$('next').onclick=()=>show(idx+1);
+$('auto').onclick=()=>{auto=!auto;$('auto').setAttribute('aria-pressed',auto)};
+addEventListener('keydown',e=>{if(e.key==='ArrowRight')show(idx+1);if(e.key==='ArrowLeft')show(idx-1)});
+cv.addEventListener('pointerdown',e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left-frame.x)/frame.w,y=(e.clientY-r.top-frame.y)/frame.h;if(x>=0&&x<=1&&y>=0&&y<=1)burn(x,y,true)});
+$('file').onchange=()=>{const f=$('file').files[0];if(!f)return;const im=new Image();im.src=URL.createObjectURL(f);imgs.push(im);idx=imgs.length-1;burn(.5,.5,true);$('file').value=''};
+
+function connect(){if(!(window.claude&&typeof window.claude.use==='function'))return false;$('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';return true}
+if(!connect())addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>

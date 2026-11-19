@@ -194,4 +194,29 @@ window.DAYS = {
     ],
     link: ""
   },
+      24: {
+      title: "Melt",
+      need: "No job to do, just design. Big bold letters that drip and pool like soft serve when I hover over them, then slowly firm back up.",
+      notes: "Each thin column of the letters stretches down on its own, so drips come out in strands with round drops on the ends and puddles on the floor. Type any word and pick a flavor.",
+      link: "day-24/"
+  },
+      25: {
+      title: "Film burn",
+      need: "My Day 19 film photos in a film strip, with warm light leaks drifting in and burns blooming across them.",
+      notes: "Grain flickers like real film. Click anywhere to burn a spot: white hot in the middle, then orange and red. Works with my own photos too.",
+      link: "day-25/"
+  },
+  26: {
+      title: "Ink",
+      need: "Drag to drop ink into a glass of water. It blooms and swirls into the other colors, then slowly fades.",
+      notes: "Thousands of soft little clouds drift on a swirling current. Colors mix darker where they overlap, like real ink. Dragging fast stirs what’s already there.",
+      link: "day-26/"
+  },
+  27: {
+      title: "Thread",
+      need: "Every move of my mouse leaves a thread on linen that loops and tangles, slowly building up into something like embroidery.",
+      notes: "The needle chases the mouse while circling, which makes the loops. Seven thread colors, a loopiness slider, and I can save the picture.",
+      link: "day-27/"
+  },
+  
 };

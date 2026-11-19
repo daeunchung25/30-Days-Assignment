@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thread | Day 27 of 30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+body{margin:0;height:100%;overflow:hidden;background:#EDE6D8;font-family:"Inter",system-ui,-apple-system,sans-serif;color:#2B2520}
+canvas{position:fixed;inset:0;width:100%;height:100%;cursor:none;touch-action:none}
+.ui{position:fixed;left:0;right:0;top:calc(14px + env(safe-area-inset-top,0px));display:flex;justify-content:space-between;align-items:center;padding:0 18px;gap:10px;flex-wrap:wrap;pointer-events:none}
+.ui>*{pointer-events:auto}
+.ui a{color:#2B2520;opacity:.55;font-size:13px;text-decoration:none}
+.ui a:hover{opacity:1}
+.title{font-family:"Instrument Serif",Georgia,serif;font-style:italic;font-size:28px}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:rgba(255,252,245,.75);padding:6px 8px;border-radius:999px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.sw{width:26px;height:26px;border-radius:50%;border:2px solid #FFFCF5;box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{outline:2px solid #2B2520;outline-offset:2px}
+.tools label{font-size:12px;display:flex;align-items:center;gap:6px;opacity:.75}
+.tools input[type=range]{width:80px;accent-color:#2B2520}
+.btn{border:0;background:#2B2520;color:#FFFCF5;border-radius:999px;padding:6px 12px;font:600 12px "Inter",sans-serif;cursor:pointer}
+.btn.ghost{background:transparent;color:#2B2520}
+.hint{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));text-align:center;font-size:13px;opacity:.5;pointer-events:none}
+.shot{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;z-index:9}
+.shot img{max-width:90vw;max-height:76vh;border-radius:8px}
+.shot p{color:#fff;margin:0;font-size:14px;text-align:center}
+</style>
+</head>
+<body>
+<canvas id="cv" role="img" aria-label="Linen. Move the mouse and a thread loops and tangles behind it, like embroidery."></canvas>
+<div class="ui">
+  <a id="back" href="../">Day 27 of 30</a>
+  <span class="title">Thread</span>
+  <div class="tools">
+    <span id="spools" style="display:flex;gap:6px" role="group" aria-label="Thread color"></span>
+    <label>Loops<input type="range" id="loops" min="0" max="100" value="55"></label>
+    <button class="btn ghost" id="clear" type="button">New linen</button>
+    <button class="btn" id="save" type="button">Save</button>
+  </div>
+</div>
+<p class="hint">Move your mouse. The thread follows, looping and tangling as it goes.</p>
+<div class="shot" id="shot" hidden><img id="shotImg" alt="Your thread drawing"><p>If it didn’t download, right-click the picture to save it.</p><button class="btn" id="shotClose" type="button" style="background:#FFFCF5;color:#2B2520">Close</button></div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const SPOOLS=[['#B3261E','Red'],['#1F3A8A','Navy'],['#E0A21B','Mustard'],['#2F6B4F','Forest'],['#D97A9B','Rose'],['#2B2520','Black'],['#F7F1E3','Cream']];
+let spool=0,shift=0;
+const cv=$('cv'),ctx=cv.getContext('2d');
+const cloth=document.createElement('canvas'),cx=cloth.getContext('2d');   // everything that’s been stitched stays here
+let W=0,H=0,dpr=1;
+
+/* ---------- linen: a soft woven texture ---------- */
+function linen(){
+  cx.fillStyle='#EDE6D8';cx.fillRect(0,0,W,H);
+  for(let i=0;i<W*H/90;i++){const x=Math.random()*W,y=Math.random()*H;cx.fillStyle=Math.random()<.5?'rgba(255,255,255,.18)':'rgba(120,100,70,.07)';cx.fillRect(x,y,Math.random()*5+1,1)}
+  for(let i=0;i<W*H/140;i++){const x=Math.random()*W,y=Math.random()*H;cx.fillStyle='rgba(120,100,70,.05)';cx.fillRect(x,y,1,Math.random()*5+1)}
+  cx.strokeStyle='rgba(120,100,70,.05)';cx.lineWidth=1;for(let y=0;y<H;y+=3){cx.beginPath();cx.moveTo(0,y+.5);cx.lineTo(W,y+.5);cx.stroke()}
+}
+function size(){
+  const keep=W?cloth.cloneNode():null;if(keep){keep.getContext('2d').drawImage(cloth,0,0)}
+  dpr=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;
+  for(const c of[cv,cloth]){c.width=W*dpr;c.height=H*dpr}ctx.setTransform(dpr,0,0,dpr,0,0);cx.setTransform(dpr,0,0,dpr,0,0);
+  linen();if(keep)cx.drawImage(keep,0,0,keep.width/dpr,keep.height/dpr);
+}
+addEventListener('resize',size);size();
+
+/* ---------- the needle: it chases your mouse while circling, so the thread makes loops ---------- */
+const mouse={x:W/2,y:H/2,lastMove:0,out:true},needle={x:W/2,y:H/2,vx:0,vy:0,a:0,px:W/2,py:H/2,ppx:W/2,ppy:H/2};
+function colorFor(){const c=SPOOLS[spool][0];
+  // the thread shifts its shade a little as it goes, like real floss
+  const n=parseInt(c.slice(1),16),r=n>>16,g=n>>8&255,b=n&255,k=Math.sin(shift)*14;
+  return[Math.max(0,Math.min(255,r+k)),Math.max(0,Math.min(255,g+k)),Math.max(0,Math.min(255,b+k))]}
+function stitch(x0,y0,x1,y1,x2,y2){
+  const[r,g,b]=colorFor(),loop=+$('loops').value/100,w=1.4+loop*.8;
+  // the shadow under the thread, the thread, then a thin shine on top
+  cx.lineCap='round';cx.lineJoin='round';
+  cx.strokeStyle='rgba(40,25,10,.22)';cx.lineWidth=w+1.2;cx.beginPath();cx.moveTo((x0+x1)/2+.8,(y0+y1)/2+1);cx.quadraticCurveTo(x1+.8,y1+1,(x1+x2)/2+.8,(y1+y2)/2+1);cx.stroke();
+  cx.strokeStyle='rgb('+r+','+g+','+b+')';cx.lineWidth=w;cx.beginPath();cx.moveTo((x0+x1)/2,(y0+y1)/2);cx.quadraticCurveTo(x1,y1,(x1+x2)/2,(y1+y2)/2);cx.stroke();
+  cx.strokeStyle='rgba(255,255,255,.35)';cx.lineWidth=Math.max(.5,w*.35);cx.beginPath();cx.moveTo((x0+x1)/2-.4,(y0+y1)/2-.5);cx.quadraticCurveTo(x1-.4,y1-.5,(x1+x2)/2-.4,(y1+y2)/2-.5);cx.stroke();
+}
+function step(){
+  const active=performance.now()-mouse.lastMove<1400; // the thread rests when you stop moving
+  const loop=+$('loops').value/100,n=needle;
+  n.a+=.16+loop*.12;shift+=.02;
+  const R=6+loop*34*(.6+.4*Math.sin(n.a*.21)),tx=mouse.x+Math.cos(n.a)*R,ty=mouse.y+Math.sin(n.a*1.07)*R;
+  n.vx+=(tx-n.x)*.09;n.vy+=(ty-n.y)*.09;n.vx*=.78;n.vy*=.78;n.x+=n.vx;n.y+=n.vy;
+  if(active)stitch(n.ppx,n.ppy,n.px,n.py,n.x,n.y);
+  n.ppx=n.px;n.ppy=n.py;n.px=n.x;n.py=n.y;
+}
+function draw(){
+  ctx.drawImage(cloth,0,0,W,H);
+  // the needle
+  const n=needle;ctx.save();ctx.translate(n.x,n.y);ctx.rotate(Math.atan2(n.vy,n.vx));
+  const g=ctx.createLinearGradient(0,-2,0,2);g.addColorStop(0,'#F4F4F4');g.addColorStop(.5,'#9A9A9A');g.addColorStop(1,'#E6E6E6');
+  ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(14,0);ctx.lineTo(-16,-1.6);ctx.lineTo(-16,1.6);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#777';ctx.lineWidth=.8;ctx.beginPath();ctx.ellipse(-12,0,2.4,.9,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+}
+(function loop(){requestAnimationFrame(loop);step();step();draw()})();
+
+/* ---------- input ---------- */
+// lifting the needle: when you leave the cloth or jump far, it doesn't drag a long line across
+function lift(x,y){const n=needle;n.x=n.px=n.ppx=x;n.y=n.py=n.ppy=y;n.vx=n.vy=0}
+cv.addEventListener('pointermove',e=>{const jump=Math.hypot(e.clientX-mouse.x,e.clientY-mouse.y);
+  if(mouse.out||jump>140){lift(e.clientX,e.clientY);mouse.out=false}
+  mouse.x=e.clientX;mouse.y=e.clientY;mouse.lastMove=performance.now()});
+cv.addEventListener('pointerleave',()=>{mouse.out=true;mouse.lastMove=0});
+cv.addEventListener('pointerdown',e=>{mouse.x=e.clientX;mouse.y=e.clientY;mouse.lastMove=performance.now();if(e.pointerType!=='mouse')lift(e.clientX,e.clientY)});
+$('spools').innerHTML=SPOOLS.map(([c,n],i)=>'<button class="sw" type="button" data-i="'+i+'" title="'+n+'" aria-label="'+n+' thread" aria-pressed="'+(i===0)+'" style="background:'+c+'"></button>').join('');
+$('spools').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;spool=+b.dataset.i;document.querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed',x===b))};
+addEventListener('keydown',e=>{const k=+e.key;if(k>=1&&k<=SPOOLS.length){spool=k-1;document.querySelectorAll('.sw').forEach((x,i)=>x.setAttribute('aria-pressed',i===spool))}});
+$('clear').onclick=()=>linen();
+$('save').onclick=()=>{const url=cloth.toDataURL('image/png'),a=document.createElement('a');a.href=url;a.download='thread.png';document.body.appendChild(a);a.click();a.remove();$('shotImg').src=url;$('shot').hidden=false};
+$('shotClose').onclick=()=>$('shot').hidden=true;
+function connect(){if(!(window.claude&&typeof window.claude.use==='function'))return false;$('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';return true}
+if(!connect())addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>

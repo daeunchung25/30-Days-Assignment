@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Melt | Day 24 of 30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;height:100%;overflow:hidden;font-family:"Inter",system-ui,-apple-system,sans-serif;background:var(--bg,#FFD6E0);transition:background .5s}
+canvas{position:fixed;inset:0;width:100%;height:100%;cursor:crosshair;touch-action:none}
+.ui{position:fixed;left:0;right:0;top:calc(14px + env(safe-area-inset-top,0px));display:flex;justify-content:space-between;align-items:center;padding:0 18px;gap:10px;pointer-events:none;flex-wrap:wrap}
+.ui>*{pointer-events:auto}
+.ui a{color:inherit;opacity:.6;font-size:13px;text-decoration:none;color:var(--ink,#5A1A2E)}
+.ui a:hover{opacity:1}
+.ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ctrl input{width:150px;border:0;border-radius:999px;padding:8px 14px;font:700 14px "Inter",sans-serif;background:rgba(255,255,255,.6);color:var(--ink,#5A1A2E);text-transform:uppercase;letter-spacing:.06em}
+.ctrl input:focus{outline:2px solid var(--ink,#5A1A2E)}
+.sw{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.8);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{outline:2px solid var(--ink,#5A1A2E);outline-offset:2px}
+.hint{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));text-align:center;font-size:13px;color:var(--ink,#5A1A2E);opacity:.55;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="cv" role="img" aria-label="Big letters that melt and drip when you hover over them, then firm back up."></canvas>
+<div class="ui">
+  <a id="back" href="../">Day 24 of 30 · Melt</a>
+  <div class="ctrl"><input id="word" maxlength="10" value="MELT" aria-label="Word"><span id="flavors" role="group" aria-label="Flavor"></span></div>
+</div>
+<p class="hint">Hover to melt it. Click for a big melt. Leave it alone and it firms back up.</p>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+// flavors: background, letters, the glossy highlight, and the text color for the controls
+const FLAVORS=[
+  {name:'Strawberry',bg:'#FFD6E0',a:'#FF5C8A',b:'#FF9DB8',ink:'#5A1A2E'},
+  {name:'Matcha',bg:'#E3EFD3',a:'#6FA34A',b:'#A9D17E',ink:'#22361A'},
+  {name:'Chocolate',bg:'#F3E3D3',a:'#5B3523',b:'#8C5A3E',ink:'#3A2016'},
+  {name:'Vanilla',bg:'#2B2522',a:'#FFF1CF',b:'#FFFBEF',ink:'#FFF1CF'},
+  {name:'Ube',bg:'#E6DDF7',a:'#7B4FC9',b:'#B293F0',ink:'#2E1A55'},
+  {name:'Mango',bg:'#FFF0C9',a:'#FF9F1C',b:'#FFC75F',ink:'#5A3300'}
+];
+let F=FLAVORS[0];
+const cv=$('cv'),ctx=cv.getContext('2d');
+let W=0,H=0,dpr=1,src=null,CW=2,cols=0,d,vel,top,bot,noise,pool,floorY=0;
+const mouse={x:-999,y:-999,in:false,burst:0};
+
+/* ---------- draw the word once, then melt it column by column ---------- */
+function build(){
+  dpr=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;
+  cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+  src=document.createElement('canvas');src.width=W*dpr;src.height=H*dpr;const s=src.getContext('2d');s.setTransform(dpr,0,0,dpr,0,0);
+  const word=($('word').value||'MELT').toUpperCase();
+  let size=Math.min(H*.42,W*1.5/Math.max(2.2,word.length));s.font=size+'px Anton, Impact, sans-serif';
+  const tw=s.measureText(word).width;if(tw>W*.88){size*=W*.88/tw;s.font=size+'px Anton, Impact, sans-serif'}
+  const y=H*.5;s.textAlign='center';s.textBaseline='alphabetic';
+  const g=s.createLinearGradient(0,y-size*.8,0,y);g.addColorStop(0,F.b);g.addColorStop(.55,F.a);g.addColorStop(1,F.a);
+  s.fillStyle=g;s.fillText(word,W/2,y);
+  // a glossy streak across the top of the letters
+  s.globalCompositeOperation='source-atop';const hg=s.createLinearGradient(0,y-size*.75,0,y-size*.45);hg.addColorStop(0,'rgba(255,255,255,0)');hg.addColorStop(.5,'rgba(255,255,255,.45)');hg.addColorStop(1,'rgba(255,255,255,0)');
+  s.fillStyle=hg;s.fillRect(0,y-size,W,size*.6);s.globalCompositeOperation='source-over';
+  floorY=Math.min(H*.88,y+size*.8);
+  cols=Math.ceil(W/CW);d=new Float32Array(cols);vel=new Float32Array(cols);top=new Float32Array(cols);bot=new Float32Array(cols);noise=new Float32Array(cols);pool=new Float32Array(cols);
+  // where each column of the letters starts and ends
+  const px=s.getImageData(0,0,src.width,src.height).data,sw=src.width;
+  for(let c=0;c<cols;c++){const x=Math.min(sw-1,Math.round((c*CW+CW/2)*dpr));let t=-1,b=-1;
+    for(let yy=0;yy<src.height;yy+=2){if(px[(yy*sw+x)*4+3]>40){if(t<0)t=yy;b=yy}}
+    top[c]=t<0?-1:t/dpr;bot[c]=b<0?-1:b/dpr;noise[c]=.2+Math.pow(Math.random(),3)*2.8}
+  // smooth the drippiness so drips come in strands, not single pixels
+  for(let k=0;k<2;k++)for(let c=1;c<cols-1;c++)noise[c]=(noise[c-1]+noise[c]*2+noise[c+1])/4;
+  document.body.style.setProperty('--bg',F.bg);document.body.style.setProperty('--ink',F.ink);
+}
+
+/* ---------- the melt ---------- */
+function step(){
+  const R=Math.max(90,W*.09),heat=mouse.in?1:0;
+  for(let c=0;c<cols;c++){
+    if(top[c]<0){d[c]*=.9;continue}
+    const x=c*CW,dx=x-mouse.x,dy=(top[c]+bot[c])/2-mouse.y,dist=Math.hypot(dx,dy*.6);
+    let push=0;if(heat&&dist<R)push=(1-dist/R)*.55*noise[c];
+    if(mouse.burst>0)push+=mouse.burst*.05*noise[c]*(1-Math.min(1,Math.abs(dx)/(W*.4)));
+    const room=floorY-bot[c];
+    if(push>0){vel[c]+=push*.38;}
+    else vel[c]-=(d[c]>0?.004+d[c]*.0005:0);       // firms back up, slowly
+    vel[c]*=.9;d[c]=Math.max(0,Math.min(room+40,d[c]+vel[c]));
+    // when a drip reaches the floor it starts a puddle
+    if(d[c]>=room-2)pool[c]=Math.min(1,pool[c]+.02);else pool[c]=Math.max(0,pool[c]-.004);
+  }
+  // neighbors pull on each other a little, like thick cream
+  for(let c=1;c<cols-1;c++)d[c]=d[c]*.92+(d[c-1]+d[c+1])*.04;
+  if(mouse.burst>0)mouse.burst=Math.max(0,mouse.burst-.6);
+}
+function draw(){
+  ctx.fillStyle=F.bg;ctx.fillRect(0,0,W,H);
+  // a soft shadow on the floor
+  ctx.fillStyle='rgba(0,0,0,.06)';ctx.beginPath();ctx.ellipse(W/2,floorY+6,W*.38,10,0,0,Math.PI*2);ctx.fill();
+  for(let c=0;c<cols;c++){
+    if(top[c]<0)continue;const x=c*CW,t=top[c],b=bot[c]+2,split=t+(b-t)*.32,m=d[c];
+    // the top of each letter stays put; everything below it stretches down
+    ctx.drawImage(src,x*dpr,0,CW*dpr,split*dpr,x,0,CW,split);
+    ctx.drawImage(src,x*dpr,split*dpr,CW*dpr,(b-split)*dpr,x,split,CW+.6,(b-split)+m);
+  }
+  // round drops on the ends of the longest drips, and puddles on the floor
+  ctx.fillStyle=F.a;
+  for(let c=2;c<cols-2;c++){if(top[c]<0)continue;const m=d[c];
+    if(m>10&&m>=d[c-1]&&m>=d[c+1]&&m>=d[c-2]&&m>=d[c+2]){const y=Math.min(floorY,bot[c]+m),r=Math.min(9,2.5+m*.04);ctx.beginPath();ctx.arc(c*CW+1,y-r*.4,r,0,Math.PI*2);ctx.fill()}}
+  for(let c=0;c<cols;c++)if(pool[c]>.02){ctx.globalAlpha=Math.min(1,pool[c]*1.4);ctx.beginPath();ctx.ellipse(c*CW+1,floorY,CW*2.2+pool[c]*6,3+pool[c]*4,0,0,Math.PI*2);ctx.fill()}
+  ctx.globalAlpha=1;
+}
+(function loop(){requestAnimationFrame(loop);if(!src)return;step();draw()})();
+
+/* ---------- input ---------- */
+cv.addEventListener('pointermove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;mouse.in=true});
+cv.addEventListener('pointerleave',()=>{mouse.in=false});
+cv.addEventListener('pointerdown',e=>{mouse.x=e.clientX;mouse.y=e.clientY;mouse.burst=30;if(e.pointerType!=='mouse')mouse.in=true});
+cv.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')mouse.in=false});
+$('word').addEventListener('input',()=>build());
+$('flavors').innerHTML=FLAVORS.map((f,i)=>'<button class="sw" type="button" data-i="'+i+'" aria-label="'+f.name+'" title="'+f.name+'" aria-pressed="'+(i===0)+'" style="background:'+f.a+'"></button>').join('');
+$('flavors').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;F=FLAVORS[+b.dataset.i];document.querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed',x===b));build()};
+let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(build,150)});
+(document.fonts&&document.fonts.load?document.fonts.load('100px Anton'):Promise.resolve()).then(build,build);
+function connect(){if(!(window.claude&&typeof window.claude.use==='function'))return false;$('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';return true}
+if(!connect())addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>
