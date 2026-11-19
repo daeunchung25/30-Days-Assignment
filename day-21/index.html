@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Schedule wallpaper | Day 21 of 30</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F0EC;--paper:#FFFFFF;--ink:#17171A;--muted:#6C6B70;--line:#DFDDD7;--field:#F8F7F4;--accent:#2E5BFF;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111113;--paper:#1B1B1E;--ink:#F0F0F2;--muted:#A3A2A8;--line:#2D2D31;--field:#151517;--accent:#7C99FF;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111113;--paper:#1B1B1E;--ink:#F0F0F2;--muted:#A3A2A8;--line:#2D2D31;--field:#151517;--accent:#7C99FF;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter Tight",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 18px 60px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.top a{color:var(--muted);font-size:14px;text-decoration:none}
+.top a:hover{text-decoration:underline}
+.top h1{font-size:20px;margin:0;font-weight:700}
+.main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:24px;padding-top:20px;align-items:start}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:14px}
+.card h2{font-size:15px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.card h2 button{border:0;background:none;color:var(--accent);cursor:pointer;font-size:15px;text-transform:none;letter-spacing:0;font-weight:600;padding:0}
+.classes{list-style:none;margin:0;padding:0}
+.classes li{display:grid;grid-template-columns:8px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.classes li:first-child{border-top:0}
+.classes i{width:8px;height:40px;border-radius:4px}
+.classes b{display:block;font-size:16px}
+.classes small{display:block;color:var(--muted);font-size:13px}
+.classes button{border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px;font-weight:600}
+.empty{color:var(--muted);margin:4px 0}
+.opts{display:grid;gap:12px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1px solid var(--line);background:var(--field);border-radius:999px;padding:7px 14px;cursor:pointer;font-weight:600;font-size:14px;display:flex;align-items:center;gap:6px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.seg i{width:14px;height:14px;border-radius:50%;display:inline-block;border:1px solid rgba(0,0,0,.15)}
+label.f{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+label.f input{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:9px 11px;font-size:16px;color:var(--ink)}
+.preview{position:sticky;top:14px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.frame{background:#000;border-radius:28px;padding:8px;box-shadow:0 20px 40px -24px rgba(0,0,0,.6)}
+.frame.mac{border-radius:12px;padding:10px 10px 18px}
+.frame canvas{display:block;border-radius:22px;max-width:100%}
+.frame.mac canvas{border-radius:4px}
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:10px 18px;cursor:pointer;font-weight:700}
+.btn.hot{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.hint{color:var(--muted);font-size:13px;text-align:center;margin:0;max-width:44ch}
+dialog{border:1px solid var(--line);border-radius:20px;background:var(--paper);color:var(--ink);padding:0;width:min(460px,calc(100vw - 24px))}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dlg{padding:20px;display:grid;gap:12px}
+.dlg h3{margin:0;font-size:22px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.days{display:flex;gap:4px;flex-wrap:wrap}
+.days button{border:1px solid var(--line);background:var(--field);border-radius:999px;width:42px;height:36px;cursor:pointer;font-weight:600;font-size:13px}
+.days button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.swatches{display:flex;gap:6px;flex-wrap:wrap}
+.swatches button{width:30px;height:30px;border-radius:50%;border:2px solid var(--paper);box-shadow:0 0 0 1px var(--line);cursor:pointer}
+.swatches button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--ink)}
+.row{display:flex;gap:8px;justify-content:flex-end}
+.shot{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;z-index:10}
+.shot img{max-width:min(92vw,900px);max-height:76vh;border-radius:12px;background:#fff}
+.shot p{color:#fff;margin:0;text-align:center;font-size:15px}
+.shot .row{justify-content:center}
+@media (max-width:900px){.main{grid-template-columns:1fr}.preview{position:static}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a id="back" href="../">Day 21 of 30</a><h1>Schedule wallpaper</h1></div>
+  <div class="main">
+    <div>
+      <div class="card">
+        <h2><span>Classes</span><button type="button" id="add">+ Add class</button></h2>
+        <ul class="classes" id="list"></ul>
+      </div>
+      <div class="card opts">
+        <h2><span>Wallpaper</span></h2>
+        <div><div class="seg" id="device" role="group" aria-label="Device"><button type="button" data-d="phone">📱 Phone</button><button type="button" data-d="mac">💻 Mac</button></div></div>
+        <div><div class="seg" id="themes" role="group" aria-label="Theme"></div></div>
+        <label class="f">Title (optional)<input id="title" maxlength="40" placeholder="Fall 2026"></label>
+      </div>
+    </div>
+    <div class="preview">
+      <div class="frame" id="frame"><canvas id="cv" aria-label="Wallpaper preview"></canvas></div>
+      <button class="btn hot" id="save" type="button">Save wallpaper</button>
+      <p class="hint" id="hint"></p>
+    </div>
+  </div>
+</div>
+
+<dialog id="dlg"><form class="dlg" method="dialog">
+  <h3 id="dlgTitle">Add a class</h3>
+  <label class="f">Course<input id="fName" required placeholder="Interactive Design Concepts"></label>
+  <div class="two"><label class="f">Professor<input id="fProf" placeholder="Prof. Kim"></label><label class="f">Location<input id="fRoom" placeholder="41 Cooper Sq, 501"></label></div>
+  <div><span style="font-size:13px;color:var(--muted)">Days</span><div class="days" id="fDays"></div></div>
+  <div class="two"><label class="f">Starts<input type="time" id="fStart" value="09:00" required></label><label class="f">Ends<input type="time" id="fEnd" value="11:50" required></label></div>
+  <div><span style="font-size:13px;color:var(--muted)">Color</span><div class="swatches" id="fColor"></div></div>
+  <div class="row"><button class="btn" type="button" id="fDel" style="margin-right:auto;color:#D2402B">Delete</button><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn hot" value="ok">Save</button></div>
+</form></dialog>
+
+<div class="shot" id="shot" hidden>
+  <img id="shotImg" alt="Your schedule wallpaper">
+  <p>If it didn’t download, right-click the picture (or press and hold on a phone) and save it.</p>
+  <div class="row"><a class="btn hot" id="shotDl" download="schedule-wallpaper.png" style="text-decoration:none">Download</a><button class="btn" id="shotClose" type="button">Close</button></div>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const COLORS=['#FF8A7A','#FFB65C','#F7D75A','#8FD694','#6CC4E8','#8E9BFF','#C59BFF','#FF9BCB'];
+const THEMES={
+  cream:{name:'Cream',bg:['#F6F1E7','#EFE6D6'],ink:'#2A2420',muted:'#8A7F72',line:'rgba(42,36,32,.10)',block:.9},
+  night:{name:'Night',bg:['#14161D','#1F2330'],ink:'#F2F3F7',muted:'#9AA0B2',line:'rgba(255,255,255,.08)',block:.85},
+  blush:{name:'Blush',bg:['#FCE8EC','#E9E4FB'],ink:'#2F2235',muted:'#8E7A93',line:'rgba(47,34,53,.09)',block:.9},
+  sage:{name:'Sage',bg:['#E4EBDF','#D2DECB'],ink:'#1F2A21',muted:'#6F7E6F',line:'rgba(31,42,33,.10)',block:.88},
+  mono:{name:'Black & white',bg:['#FFFFFF','#F2F2F2'],ink:'#111111',muted:'#7A7A7A',line:'rgba(0,0,0,.08)',block:1,mono:true}
+};
+const SIZES={phone:{w:1179,h:2556},mac:{w:2880,h:1800}};
+
+/* ---------- saved ---------- */
+const SAVE='wallpaper-day21';
+let D={classes:[
+  {id:uid(),name:'Interactive Design Concepts',prof:'Prof. name',room:'Room',days:[4],start:'12:00',end:'14:50',color:COLORS[5]},
+  {id:uid(),name:'History of Graphic Design',prof:'Prof. name',room:'Room',days:[2],start:'09:00',end:'11:50',color:COLORS[0]}
+],device:'phone',theme:'cream',title:'Fall 2026',example:true};
+try{const s=JSON.parse(localStorage.getItem(SAVE));if(s&&s.classes)D=s}catch(e){}
+const save=()=>{try{localStorage.setItem(SAVE,JSON.stringify(D))}catch(e){}};
+
+/* ---------- time helpers ---------- */
+const mins=t=>{const[h,m]=t.split(':').map(Number);return h*60+m};
+function fmt(t){let[h,m]=t.split(':').map(Number);const ap=h<12?'am':'pm';h=h%12||12;return h+(m?':'+String(m).padStart(2,'0'):'')+ap}
+
+/* ---------- the wallpaper ---------- */
+const cv=$('cv'),ctx=cv.getContext('2d');
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function wrap(c,text,maxW,maxLines){const words=String(text||'').split(/\s+/);const lines=[];let line='';
+  for(const w of words){const t=line?line+' '+w:w;if(c.measureText(t).width<=maxW)line=t;else{if(line)lines.push(line);line=w}}
+  if(line)lines.push(line);
+  if(lines.length>maxLines){lines.length=maxLines;let l=lines[maxLines-1];while(l.length>1&&c.measureText(l+'…').width>maxW)l=l.slice(0,-1);lines[maxLines-1]=l+'…'}
+  return lines}
+function paint(c,W,H,device){
+  const T=THEMES[D.theme],U=device==='phone'?W/400:W/1440; // a unit that scales with the picture
+  const g=c.createLinearGradient(0,0,W*.4,H);g.addColorStop(0,T.bg[0]);g.addColorStop(1,T.bg[1]);c.fillStyle=g;c.fillRect(0,0,W,H);
+  // where the grid goes: phones keep the top clear for the lock screen clock, Macs keep clear of the menu bar and dock
+  const box=device==='phone'?{x:W*.06,y:H*.36,w:W*.88,h:H*.52}:{x:W*.08,y:H*.12,w:W*.84,h:H*.74};
+  const used=new Set();D.classes.forEach(k=>k.days.forEach(d=>used.add(d)));
+  let cols=[1,2,3,4,5];if(used.has(6))cols.push(6);if(used.has(0))cols.push(0);
+  const font='"Inter Tight", system-ui, -apple-system, sans-serif';
+  if(D.title){c.fillStyle=T.ink;c.font='800 '+(device==='phone'?20:30)*U+'px '+font;c.textBaseline='bottom';c.fillText(D.title,box.x,box.y-(device==='phone'?30:34)*U)}
+  const s0=D.classes.length?Math.floor(Math.min(...D.classes.map(k=>mins(k.start)))/60)*60:540,s1=D.classes.length?Math.ceil(Math.max(...D.classes.map(k=>mins(k.end)))/60)*60:1080;
+  const span=Math.max(120,s1-s0),gutter=(device==='phone'?30:44)*U,head=(device==='phone'?22:30)*U;
+  const gx=box.x+gutter,gw=box.w-gutter,gy=box.y+head,gh=box.h-head,cw=gw/cols.length;
+  // day names and hour lines
+  c.textBaseline='middle';c.textAlign='center';c.font='700 '+(device==='phone'?11:16)*U+'px '+font;c.fillStyle=T.muted;
+  cols.forEach((d,i)=>c.fillText(DAYS[d].toUpperCase(),gx+cw*i+cw/2,box.y+head/2));
+  c.textAlign='right';c.font='500 '+(device==='phone'?9.5:13)*U+'px '+font;
+  for(let m=s0;m<=s1;m+=60){const y=gy+(m-s0)/span*gh;c.strokeStyle=T.line;c.lineWidth=Math.max(1,U*.6);c.beginPath();c.moveTo(gx,y);c.lineTo(gx+gw,y);c.stroke();
+    let h=Math.floor(m/60);const ap=h<12?'a':'p';h=h%12||12;c.fillStyle=T.muted;c.fillText(h+ap,gx-6*U,y)}
+  // the classes
+  c.textAlign='left';c.textBaseline='top';
+  for(const k of D.classes)for(const d of k.days){const i=cols.indexOf(d);if(i<0)continue;
+    const x=gx+cw*i+2.5*U,y=gy+(mins(k.start)-s0)/span*gh+1.5*U,w=cw-5*U,h=Math.max(14*U,(mins(k.end)-mins(k.start))/span*gh-3*U),pad=(device==='phone'?6:9)*U;
+    c.globalAlpha=T.block;c.fillStyle=T.mono?'#111':k.color;rr(c,x,y,w,h,(device==='phone'?8:10)*U);c.fill();c.globalAlpha=1;
+    const txt=T.mono?'#FFF':'#1B1B1F',sub=T.mono?'rgba(255,255,255,.75)':'rgba(27,27,31,.68)';
+    c.save();rr(c,x,y,w,h,8*U);c.clip();
+    const fs=(device==='phone'?9.6:14)*U,ss=(device==='phone'?8:11.5)*U;let ty=y+pad;
+    c.font='700 '+fs+'px '+font;c.fillStyle=txt;
+    const room=h-pad*2,nameLines=wrap(c,k.name,w-pad*2,Math.max(1,Math.min(3,Math.floor((room-ss*3.6)/(fs*1.15)))));
+    for(const l of nameLines){c.fillText(l,x+pad,ty);ty+=fs*1.15}
+    c.font='500 '+ss+'px '+font;c.fillStyle=sub;ty+=ss*.25;
+    for(const l of [fmt(k.start)+'–'+fmt(k.end),k.prof,k.room].filter(Boolean)){if(ty+ss>y+h-pad*.6)break;c.fillText(wrap(c,l,w-pad*2,1)[0],x+pad,ty);ty+=ss*1.25}
+    c.restore()}
+  if(!D.classes.length){c.textAlign='center';c.textBaseline='middle';c.fillStyle=T.muted;c.font='600 '+16*U+'px '+font;c.fillText('Add your classes',box.x+box.w/2,box.y+box.h/2)}
+}
+function preview(){
+  const S=SIZES[D.device],maxW=D.device==='phone'?300:Math.min(640,$('frame').parentElement.clientWidth-30),scale=maxW/S.w,dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=Math.round(S.w*scale*dpr);cv.height=Math.round(S.h*scale*dpr);cv.style.width=Math.round(S.w*scale)+'px';cv.style.height=Math.round(S.h*scale)+'px';
+  ctx.setTransform(scale*dpr,0,0,scale*dpr,0,0);paint(ctx,S.w,S.h,D.device);
+  $('frame').className='frame'+(D.device==='mac'?' mac':'');
+  $('hint').textContent=D.device==='phone'?'1179 × 2556, sized for iPhone. The top is left clear for your lock screen clock.':'2880 × 1800, sized for a MacBook. It stays clear of the menu bar and the Dock.';
+}
+
+/* ---------- the list ---------- */
+function render(){
+  $('list').innerHTML=D.classes.length?D.classes.slice().sort((a,b)=>(a.days[0]||7)-(b.days[0]||7)||mins(a.start)-mins(b.start)).map(k=>'<li><i style="background:'+k.color+'"></i><div><b>'+esc(k.name)+'</b><small>'+k.days.map(d=>DAYS[d]).join(', ')+' · '+fmt(k.start)+'–'+fmt(k.end)+'</small><small>'+esc([k.prof,k.room].filter(Boolean).join(' · '))+'</small></div><button type="button" data-e="'+k.id+'">Edit</button></li>').join('')
+    +(D.example?'<li><span></span><p class="empty" style="font-size:13px">These two are examples. Edit them or delete them and add your own.</p><span></span></li>':''):'<li><span></span><p class="empty">No classes yet. Tap “+ Add class”.</p><span></span></li>';
+  document.querySelectorAll('#device [data-d]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.d===D.device));
+  $('themes').innerHTML=Object.entries(THEMES).map(([k,t])=>'<button type="button" data-t="'+k+'" aria-pressed="'+(D.theme===k)+'"><i style="background:linear-gradient('+t.bg[0]+','+t.bg[1]+')"></i>'+t.name+'</button>').join('');
+  if(document.activeElement!==$('title'))$('title').value=D.title||'';
+  preview();
+}
+
+/* ---------- add and edit ---------- */
+let editing=null,pick=[],color=COLORS[0];
+function paintDlg(){$('fDays').innerHTML=[1,2,3,4,5,6,0].map(d=>'<button type="button" data-d="'+d+'" aria-pressed="'+pick.includes(d)+'">'+DAYS[d].slice(0,2)+'</button>').join('');
+  $('fColor').innerHTML=COLORS.map(c=>'<button type="button" data-c="'+c+'" aria-pressed="'+(c===color)+'" aria-label="Color '+c+'" style="background:'+c+'"></button>').join('')}
+function openDlg(k){editing=k||null;$('dlgTitle').textContent=k?'Edit class':'Add a class';$('fName').value=k?k.name:'';$('fProf').value=k?k.prof:'';$('fRoom').value=k?k.room:'';
+  $('fStart').value=k?k.start:'09:00';$('fEnd').value=k?k.end:'11:50';pick=k?k.days.slice():[1];color=k?k.color:COLORS[D.classes.length%COLORS.length];$('fDel').hidden=!k;paintDlg();$('dlg').showModal()}
+$('fDays').onclick=e=>{const b=e.target.closest('[data-d]');if(!b)return;const d=+b.dataset.d;pick=pick.includes(d)?pick.filter(x=>x!==d):[...pick,d];paintDlg()};
+$('fColor').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;color=b.dataset.c;paintDlg()};
+$('add').onclick=()=>openDlg();
+$('list').onclick=e=>{const b=e.target.closest('[data-e]');if(b)openDlg(D.classes.find(k=>k.id===b.dataset.e))};
+$('fDel').onclick=()=>{D.classes=D.classes.filter(k=>k!==editing);save();$('dlg').close('cancel');render()};
+$('dlg').addEventListener('close',()=>{if($('dlg').returnValue!=='ok')return;
+  let start=$('fStart').value,end=$('fEnd').value;if(mins(end)<=mins(start))end=start;
+  const v={name:$('fName').value.trim()||'Class',prof:$('fProf').value.trim(),room:$('fRoom').value.trim(),days:pick.length?pick:[1],start,end,color};
+  if(editing)Object.assign(editing,v);else{D.classes.push({id:uid(),...v});D.example=false}
+  save();render()});
+
+/* ---------- options and saving the picture ---------- */
+$('device').onclick=e=>{const b=e.target.closest('[data-d]');if(!b)return;D.device=b.dataset.d;save();render()};
+$('themes').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;D.theme=b.dataset.t;save();render()};
+$('title').addEventListener('input',()=>{D.title=$('title').value;save();preview()});
+$('save').onclick=()=>{
+  const S=SIZES[D.device],c=document.createElement('canvas');c.width=S.w;c.height=S.h;paint(c.getContext('2d'),S.w,S.h,D.device);
+  const url=c.toDataURL('image/png'),name='schedule-'+D.device+'.png';
+  const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  $('shotImg').src=url;$('shotDl').href=url;$('shotDl').download=name;$('shot').hidden=false;
+};
+$('shotClose').onclick=()=>$('shot').hidden=true;
+$('shot').onclick=e=>{if(e.target===$('shot'))$('shot').hidden=true};
+window.addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(preview,150)});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(preview);
+
+render();
+function connect(){if(!(window.claude&&typeof window.claude.use==='function'))return false;$('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';return true}
+if(!connect())window.addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>
