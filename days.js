@@ -103,7 +103,7 @@ window.DAYS = {
       "day-13/scones-3.jpg"
     ],
     link: ""
-  },
+     },
        14: {
        title: "Scans",
        rating: 4,
@@ -123,9 +123,39 @@ window.DAYS = {
      },
        15: {
        title: "Lists",
-       rating: 4,
+       rating: 5,
        need: "My Notes app is full of checklists: things to buy when I get back to Korea, groceries, what to pack. This keeps them all in one place, and packing lists remember everything for next trip.",
        notes: "I can paste a whole list straight from Notes. Lines ending in “:” become sections, “Don’t forget” keeps the things I always forget at the top, and “Use again” unchecks everything for the next trip.",
        link: "day-15/"
      },
+       16: {
+       title: "Scoops",
+       need: "A game I can play without thinking. Ice cream scoops fall and I catch them on a cone, stacking them as high as I can.",
+      notes: "Move too fast and the tower sways and scoops slide off. Each one wobbles a little more the higher it is. Cherries are worth 5, and three drops ends the game.",
+      link: "day-16/"
+     },
+       17: {
+      title: "Countdown",
+      need: "I always want to know how long until class ends, how many days until things are due, and how long until the showcase. This shows all of it on one screen.",
+      notes: "The big card counts down the class I’m in, or the next one. Due dates turn yellow within a week and red within two days.",
+      link: "day-17/"
+     },
+      18: {
+      title: "Chores",
+      need: "I never remember when I last did laundry or changed my sheets. Each chore shows how long it’s been, and turns red when it’s overdue.",
+      notes: "Each chore has its own schedule, like every 7 days or every 2 weeks. A ring fills up as it gets closer to due, and “Did it” resets it, with undo.",
+      link: "day-18/"
+      },
+       19: {
+      title: "Film",
+      rating: 4,
+      need: "Another day away from the screen. I took photos on a film camera, mostly looking down at the city.",
+      notes: "Metal stairs with light coming through, a Citi Bike in the leaves, and the grates in the sidewalk. Film makes me slow down and pick one shot instead of taking twenty.",
+      images: [
+      "day-19/film-1.jpg",
+      "day-19/film-2.jpg",
+      "day-19/film-3.jpg"
+    ],
+    link: ""
+  },
 };
