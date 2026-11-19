@@ -37,6 +37,7 @@ button{font:inherit;color:inherit}
 .result p{margin:4px 0 0;font-size:15px;color:#6F766C}
 .result b{font-size:17px}
 .again{margin-top:18px;border:0;background:#3E4A44;color:#FCF7EE;border-radius:999px;padding:11px 26px;font-size:17px;font-weight:700;cursor:pointer}
+.donebtn{position:absolute;left:16px;bottom:22px;border:0;background:#3E4A44;color:#FCF7EE;border-radius:999px;padding:9px 18px;font-size:15px;font-weight:700;cursor:pointer}
 .how{color:var(--muted);font-size:14px;margin:10px 2px 0;line-height:1.5}
 kbd{font-family:inherit;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:0 6px;font-size:13px}
 </style>
@@ -48,6 +49,7 @@ kbd{font-family:inherit;border:1px solid var(--line);border-bottom-width:2px;bor
     <canvas id="cv" role="img" aria-label="Soft serve machine and cone. Hold to pour, move the cone to stay under the stream."></canvas>
     <div class="tip" id="tip">Press and hold, then slowly pull the cone down.</div>
     <div class="cm" id="cm" aria-live="off">0.0 cm</div>
+    <button class="donebtn" id="doneBtn" type="button" hidden>I’m done</button>
     <div class="result" id="result" hidden>
       <div class="stars" id="stars" aria-label=""></div>
       <p><b id="resH"></b></p>
@@ -55,7 +57,7 @@ kbd{font-family:inherit;border:1px solid var(--line);border-bottom-width:2px;bor
       <button class="again" id="again" type="button">Make another</button>
     </div>
   </div>
-  <p class="how">Press and hold on the cone to start pouring, then slowly drag it down to make room for the swirl. Pull too fast and the stream breaks. Let go when you’re happy with it. On the keyboard: hold <kbd>Space</kbd> to pour and use the arrow keys.</p>
+  <p class="how">Press and hold on the cone to start pouring, then slowly drag it down to make room for the swirl. Pull too fast and the stream breaks. Letting go pauses it. Tap “I’m done” when you’re happy with it. On the keyboard: hold <kbd>Space</kbd> to pour and use the arrow keys.</p>
 </div>
 
 <script>
@@ -83,8 +85,8 @@ const FRONT=sprite(true),BACK=sprite(false);
 
 let G;
 function reset(){
-  G={pts:[],len:0,acc:0,cone:{x:0,y:24},down:false,done:false,broke:false,scale:1,started:false,last:null};
-  $('result').hidden=true;$('tip').style.opacity=1;$('cm').textContent='0.0 cm';
+  G={pts:[],len:0,acc:0,cone:{x:0,y:34},down:false,done:false,broke:false,scale:1,started:false,last:null};
+  $('result').hidden=true;$('tip').textContent='Press and hold, then slowly pull the cone down.';$('tip').style.opacity=1;$('cm').textContent='0.0 cm';if($('doneBtn'))$('doneBtn').hidden=true;
 }
 // the nozzle tip is the center of the world; the cone moves around below it
 function tipScreen(){return{x:W/2,y:H*.22}}
@@ -118,11 +120,13 @@ function swirl(){
   for(let i=0;i<P.length;i++){
     const p=P[i],q=P[Math.max(0,i-1)],r=P[Math.min(P.length-1,i+1)];
     let tx=r.x-q.x,ty=r.y-q.y;const tl=Math.hypot(tx,ty)||1;tx/=tl;ty/=tl;const nx=-ty,ny=tx;
-    const R=radiusAt(p.L)*(i>P.length-4?.85:1);
-    for(let j=0;j<4;j++){
-      const th=p.L*.17+j*Math.PI/2,c=Math.cos(th),sn=Math.sin(th);
-      const wx=G.cone.x+p.x+nx*R*.5*c,wy=G.cone.y+p.y+ny*R*.5*c+R*.1*sn;
-      lobes.push({wx,wy,r:R*.62,d:sn,i})
+    const R=radiusAt(p.L)*(i>P.length-4?.85:1),lr=Math.min(R*.62,RCOL*.72),spread=Math.max(R*.5,R-lr*.85);
+    if(R>RCOL*1.15)lobes.push({wx:G.cone.x+p.x,wy:G.cone.y+p.y,r:R*.72,d:-1.5,i}); // fill the middle of the wide part
+    const n=R>RCOL*1.3?6:4;
+    for(let j=0;j<n;j++){
+      const th=p.L*.17+j*Math.PI*2/n,c=Math.cos(th),sn=Math.sin(th);
+      const wx=G.cone.x+p.x+nx*spread*c,wy=G.cone.y+p.y+ny*spread*c+R*.12*sn;
+      lobes.push({wx,wy,r:lr,d:sn,i})
     }
   }
   for(const l of lobes)if(l.d<0)blob(l,BACK);
@@ -156,14 +160,14 @@ function step(){
       const move=Math.min(FLOW,gap-RCOL*.55);G.acc+=move;
       while(G.acc>=STEP){G.acc-=STEP;const t2=G.pts.length?G.pts[G.pts.length-1]:{x:0,y:-2},dx=-G.cone.x-t2.x,dy=-G.cone.y-t2.y,dl=Math.hypot(dx,dy)||1;
         G.len+=STEP;G.pts.push({x:t2.x+dx/dl*STEP*(G.len<40?.35:1),y:t2.y+dy/dl*STEP,L:G.len})}
-      $('cm').textContent=cmOf(G.len).toFixed(1)+' cm';hum(true,gap);
-    }else hum(true,0);
+      $('cm').textContent=cmOf(G.len).toFixed(1)+' cm';hum(true,gap);if(gap>RCOL*.9)$('tip').style.opacity=0;
+    }else{hum(true,0);if(G.len>3){$('tip').textContent='Pull the cone down slowly ↓';$('tip').style.opacity=1}}
   }else hum(false);
   if(G.drip)for(const d of G.drip){d.vy+=.25;d.y+=d.vy}
 }
 function snap(){G.broke=true;const t={x:0,y:0};G.drip=[];for(let i=0;i<4;i++)G.drip.push({x:t.x+(Math.random()-.5)*6,y:t.y+i*8,vy:0,r:RCOL*.5});plop();finish('The stream broke at')}
 function finish(why){
-  G.done=true;G.down=false;hum(false);
+  G.done=true;G.down=false;hum(false);$('doneBtn').hidden=true;$('tip').style.opacity=0;
   const cm=cmOf(G.len),stars=cm>=40?5:cm>=30?4:cm>=20?3:cm>=10?2:cm>=4?1:0;
   if(cm>best){best=cm;try{localStorage.setItem('softserve-day20',String(best))}catch(e){}}
   $('stars').innerHTML='★'.repeat(stars)+'<i>'+'★'.repeat(5-stars)+'</i>';$('stars').setAttribute('aria-label',stars+' out of 5 stars');
@@ -180,7 +184,7 @@ cv.addEventListener('pointermove',e=>{if(!G.down||G.done)return;const p=pt(e);
   // the cone moves with your hand; when zoomed out, the same move covers more ground
   G.cone.x=clamp(G.cone.x+(p.x-G.last.x)/S(),-W/2/S()+RIM,W/2/S()-RIM);
   G.cone.y=Math.max(8,G.cone.y+(p.y-G.last.y)/S());G.last=p});
-const up=()=>{if(!G.down||G.done)return;G.down=false;if(G.len>2)finish('Done!');};
+const up=()=>{if(!G.down||G.done)return;G.down=false;if(G.len>0){$('doneBtn').hidden=false;$('tip').textContent='Paused. Press and hold to keep going.';$('tip').style.opacity=1}};
 cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
 // keyboard: hold Space to pour, arrow keys move the cone
 const keys={};
@@ -189,6 +193,7 @@ window.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();if
 window.addEventListener('keyup',e=>{keys[e.key]=false;if(e.code==='Space')up()});
 setInterval(()=>{if(!G||!G.down||G.done)return;const v=2.2/S();if(keys.ArrowDown)G.cone.y+=v*.5;if(keys.ArrowUp)G.cone.y=Math.max(8,G.cone.y-v*.5);if(keys.ArrowLeft)G.cone.x-=v;if(keys.ArrowRight)G.cone.x+=v},16);
 $('again').onclick=reset;
+$('doneBtn').onclick=()=>{if(G.len>0&&!G.done)finish('Done!')};
 
 /* ---------- sound: the machine hums while it pours, and strains when you pull hard ---------- */
 let ac=null,humG=null,humF=null;
