@@ -222,5 +222,12 @@ window.DAYS = {
       notes: "The needle chases the mouse while circling, which makes the loops. Seven thread colors, a loopiness slider, and I can save the picture.",
       link: "day-27/"
   },
+    28: {
+    title: "Shopping",
+    rating: 4,
+    need: "My shopping lists live in Notes with no prices or pictures. This keeps every list in one place, with a photo, the price in dollars or won, where to buy it, and how much I want it.",
+    notes: "Quick add understands things like “sunscreen 18000원 @oliveyoung !”. Groups by store, shows what’s left to buy against my budget, and copies the list back out as text for Notes.",
+    link: "day-28/"
+  },
   
 };

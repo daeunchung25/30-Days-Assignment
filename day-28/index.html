@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shopping | Day 28</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F2EE;--paper:#FFFFFF;--ink:#18181B;--muted:#71717A;--line:#E4E1DA;--field:#F8F7F4;--accent:#2F5BFF;--must:#E5484D;--want:#E9A23B;--maybe:#A1A1AA;--ok:#2F9E5F;
+  color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111113;--paper:#1A1A1D;--ink:#F2F2F3;--muted:#A1A1AA;--line:#2C2C31;--field:#151517;--accent:#7C96FF;--ok:#4CC383;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111113;--paper:#1A1A1D;--ink:#F2F2F3;--muted:#A1A1AA;--line:#2C2C31;--field:#151517;--accent:#7C96FF;--ok:#4CC383;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter Tight","Noto Sans KR",system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:18px 18px 80px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.top a{color:var(--muted);font-size:14px;text-decoration:none}
+.top a:hover{text-decoration:underline}
+.top h1{font-size:20px;margin:0;font-weight:700}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:16px 0 4px;scrollbar-width:none}
+.tab{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:600;white-space:nowrap;display:flex;gap:6px;align-items:center}
+.tab small{color:var(--muted);font-weight:500}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab[aria-selected="true"] small{color:inherit;opacity:.7}
+.tab.add{border-style:dashed;color:var(--muted)}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.stat b{display:block;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+.stat small{display:block;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.budgetbar{height:6px;border-radius:3px;background:var(--line);margin-top:8px;overflow:hidden}
+.budgetbar i{display:block;height:100%;background:var(--ok)}
+.budgetbar i.over{background:var(--must)}
+.quick{display:flex;gap:8px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:6px 6px 6px 14px;align-items:center}
+.quick input{flex:1;border:0;background:transparent;padding:8px 0;font-size:16px;min-width:0}
+.quick input:focus{outline:none}
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:600;white-space:nowrap}
+.btn.hot{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qhint{font-size:12px;color:var(--muted);margin:6px 4px 0}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:16px 0 12px}
+.bar input[type=search]{flex:1;min-width:160px;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 14px}
+.seg{display:flex;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:5px 11px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+select.sel{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600}
+.group{margin:18px 0 8px;display:flex;justify-content:space-between;align-items:baseline}
+.group h3{margin:0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.group span{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.item{background:var(--paper);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;position:relative;cursor:pointer;transition:transform .15s}
+.item:hover{transform:translateY(-2px)}
+.item.bought{opacity:.55}
+.thumb{aspect-ratio:1;background:var(--field);display:grid;place-items:center;overflow:hidden;position:relative}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .ph{font-size:34px;font-weight:800;color:var(--muted);opacity:.5}
+.pri{position:absolute;top:8px;left:8px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.92);color:#18181B}
+.pri i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.check{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.95);background:rgba(0,0,0,.18);display:grid;place-items:center;color:#fff;font-weight:800;cursor:pointer;backdrop-filter:blur(4px)}
+.check[aria-pressed="true"]{background:var(--ok);border-color:var(--ok)}
+.info{padding:10px 12px 12px;display:grid;gap:2px}
+.info b{font-size:15px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.info .price{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+.info .price small{font-weight:500;color:var(--muted);font-size:12px;margin-left:4px}
+.info .meta{font-size:12px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tag{background:var(--field);border:1px solid var(--line);border-radius:999px;padding:0 7px}
+.rows{display:grid;gap:8px}
+.rows .item{flex-direction:row;align-items:center;border-radius:14px}
+.rows .thumb{width:64px;min-width:64px;aspect-ratio:1;border-radius:10px;margin:8px}
+.rows .thumb .ph{font-size:20px}
+.rows .pri{display:none}
+.rows .info{flex:1;padding:8px 6px}
+.rows .info b{-webkit-line-clamp:1}
+.rows .check{position:static;margin-right:12px;border-color:var(--line);background:transparent;color:var(--ok)}
+.rows .check[aria-pressed="true"]{color:#fff}
+.empty{text-align:center;color:var(--muted);padding:50px 20px;border:2px dashed var(--line);border-radius:18px}
+dialog{border:1px solid var(--line);border-radius:22px;background:var(--paper);color:var(--ink);padding:0;width:min(560px,calc(100vw - 20px));max-height:calc(100vh - 20px)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dlg{padding:20px;display:grid;gap:12px}
+.dlg h2{margin:0;font-size:22px}
+.dlg label{display:grid;gap:4px;font-size:12px;color:var(--muted);font-weight:600}
+.dlg input,.dlg select,.dlg textarea{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:9px 11px;font-size:16px;color:var(--ink);font-weight:400}
+.dlg textarea{resize:vertical;min-height:60px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.r3{display:grid;grid-template-columns:1.4fr .8fr .8fr;gap:10px}
+.drop{border:2px dashed var(--line);border-radius:14px;display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center;padding:10px;cursor:pointer}
+.drop.over{border-color:var(--accent);background:var(--field)}
+.drop .pv{width:110px;height:110px;border-radius:10px;background:var(--field);display:grid;place-items:center;overflow:hidden;color:var(--muted);font-size:28px}
+.drop .pv img{width:100%;height:100%;object-fit:cover}
+.drop p{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
+.drop p b{color:var(--ink)}
+.pris{display:flex;gap:6px}
+.pris button{flex:1;border:1px solid var(--line);background:var(--field);border-radius:10px;padding:8px 0;cursor:pointer;font-weight:600;font-size:13px}
+.pris button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.settings{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:24px;border-top:1px solid var(--line);padding-top:14px}
+.settings input{width:90px;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:5px 8px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:999px;padding:9px 10px 9px 16px;font-size:14px;font-weight:600;display:flex;gap:10px;align-items:center;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.toast.show{opacity:1;pointer-events:auto}
+.toast button{border:0;background:var(--bg);color:var(--ink);border-radius:999px;padding:4px 10px;cursor:pointer;font-weight:700;font-size:13px}
+@media (max-width:720px){.summary{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,1fr)}.r3{grid-template-columns:1fr 1fr}.r3 label:first-child{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a id="back" href="../">Day 28</a><h1>Shopping</h1></div>
+
+  <div class="tabs" id="tabs" role="tablist" aria-label="Lists"></div>
+
+  <div class="summary" aria-live="polite">
+    <div class="stat"><b id="sLeft">–</b><small id="sLeft2"></small><span>Left to buy</span></div>
+    <div class="stat"><b id="sSpent">–</b><small id="sSpent2"></small><span>Already bought</span></div>
+    <div class="stat"><b id="sBudget">–</b><small id="sBudget2"></small><span id="sBudgetL">Budget left</span><div class="budgetbar"><i id="sBar"></i></div></div>
+    <div class="stat"><b id="sCount">–</b><small id="sCount2"></small><span>Items</span></div>
+  </div>
+
+  <form class="quick" id="quick" autocomplete="off">
+    <input id="qText" placeholder="Quick add: sunscreen 18000원 @oliveyoung !" aria-label="Quick add an item">
+    <button class="btn" type="button" id="fullAdd">＋ With photo</button>
+    <button class="btn hot" type="submit">Add</button>
+  </form>
+  <p class="qhint">Type a price like <b>$12</b> or <b>18000원</b>, a store with <b>@</b>, and <b>!</b> for must-have. Or use “With photo” for everything.</p>
+
+  <div class="bar">
+    <input type="search" id="q" placeholder="Search" aria-label="Search">
+    <div class="seg" id="show" role="group" aria-label="Show"><button type="button" data-v="todo">To buy</button><button type="button" data-v="bought">Bought</button><button type="button" data-v="all">All</button></div>
+    <select class="sel" id="sort" aria-label="Sort and group">
+      <option value="store">Group by store</option><option value="priority">Group by priority</option><option value="new">Newest first</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option>
+    </select>
+    <div class="seg" id="view" role="group" aria-label="View"><button type="button" data-v="grid" aria-label="Grid">▦</button><button type="button" data-v="rows" aria-label="List">☰</button></div>
+  </div>
+
+  <div id="items"></div>
+
+  <div class="settings">
+    <span>1 USD =</span><input id="rate" type="number" min="1" step="1" aria-label="Won per dollar"><span>won</span>
+    <span style="margin-left:auto"></span>
+    <button class="btn" type="button" id="copyBtn">Copy list as text</button>
+    <button class="btn" type="button" id="listBtn">List settings</button>
+  </div>
+</div>
+
+<dialog id="dlg"><form class="dlg" method="dialog" id="form">
+  <h2 id="dlgTitle">Add item</h2>
+  <div class="drop" id="drop" tabindex="0" role="button" aria-label="Add a photo">
+    <div class="pv" id="pv">📷</div>
+    <p><b>Add a photo</b><br>Click to choose, drag one in, or paste a screenshot (⌘V).</p>
+    <input type="file" id="file" accept="image/*" hidden>
+  </div>
+  <label>Item<input id="fName" required placeholder="Round Lab sunscreen"></label>
+  <div class="r3">
+    <label>Price<input id="fPrice" type="number" min="0" step="any" placeholder="18000"></label>
+    <label>Currency<select id="fCur"><option value="USD">$ USD</option><option value="KRW">₩ KRW</option></select></label>
+    <label>How many<input id="fQty" type="number" min="1" step="1" value="1"></label>
+  </div>
+  <div class="r2">
+    <label>Where<input id="fStore" list="stores" placeholder="Olive Young"><datalist id="stores"></datalist></label>
+    <label>Link (optional)<input id="fLink" type="url" placeholder="https://"></label>
+  </div>
+  <div><span style="font-size:12px;color:var(--muted);font-weight:600">How much do you want it?</span>
+    <div class="pris" id="fPri"><button type="button" data-p="must">🔴 Must</button><button type="button" data-p="want">🟠 Want</button><button type="button" data-p="maybe">⚪ Maybe</button></div></div>
+  <label>Notes<textarea id="fNote" placeholder="Color, size, which one…"></textarea></label>
+  <div class="row"><button class="btn" type="button" id="fDel" style="margin-right:auto;color:var(--must)">Delete</button><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn hot" value="ok">Save</button></div>
+</form></dialog>
+
+<dialog id="listDlg"><form class="dlg" method="dialog">
+  <h2 id="listTitle">List</h2>
+  <label>Name<input id="lName" required placeholder="To buy in Korea"></label>
+  <div class="r2">
+    <label>Budget (optional)<input id="lBudget" type="number" min="0" step="any" placeholder="300"></label>
+    <label>Show money in<select id="lCur"><option value="USD">$ USD</option><option value="KRW">₩ KRW</option></select></label>
+  </div>
+  <div class="row"><button class="btn" type="button" id="lDel" style="margin-right:auto;color:var(--must)">Delete list</button><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn hot" value="ok">Save</button></div>
+</form></dialog>
+
+<div class="toast" id="toast" role="status"><span id="toastText"></span><button type="button" id="undo">Undo</button></div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const DAY=864e5;
+const PRI={must:{l:'Must',c:'var(--must)',o:0},want:{l:'Want',c:'var(--want)',o:1},maybe:{l:'Maybe',c:'var(--maybe)',o:2}};
+
+/* ---------- saved (photos are shrunk before saving so lots of them fit) ---------- */
+const SAVE='shopping-day28';
+let D={rate:1400,cur:null,view:'grid',show:'todo',sort:'store',lists:[
+  {id:'korea',name:'To buy in Korea',budget:300,cur:'USD',items:[]},
+  {id:'everyday',name:'Everyday',budget:0,cur:'USD',items:[]},
+  {id:'wish',name:'Wishlist',budget:0,cur:'USD',items:[]}
+]};
+try{const s=JSON.parse(localStorage.getItem(SAVE));if(s&&Array.isArray(s.lists))D=Object.assign(D,s)}catch(e){}
+if(!D.cur)D.cur=D.lists[0].id;
+function save(){try{localStorage.setItem(SAVE,JSON.stringify(D));return true}catch(e){toast('Storage is full. Try smaller photos or remove some.',false);return false}}
+const list=()=>D.lists.find(l=>l.id===D.cur)||D.lists[0];
+
+/* ---------- money ---------- */
+const toUSD=(v,c)=>c==='KRW'?v/D.rate:v, fromUSD=(v,c)=>c==='KRW'?v*D.rate:v;
+function money(v,c){if(!isFinite(v))return'–';return c==='KRW'?'₩'+Math.round(v).toLocaleString('en-US'):'$'+(v>=1000?Math.round(v).toLocaleString('en-US'):v.toFixed(v%1?2:0))}
+const other=c=>c==='KRW'?'USD':'KRW';
+const lineTotal=it=>(+it.price||0)*(+it.qty||1);
+
+/* ---------- drawing ---------- */
+function render(){
+  const L=list(),cur=L.cur||'USD';
+  $('tabs').innerHTML=D.lists.map(l=>'<button class="tab" role="tab" type="button" data-l="'+l.id+'" aria-selected="'+(l.id===L.id)+'">'+esc(l.name)+' <small>'+l.items.filter(i=>!i.bought).length+'</small></button>').join('')+'<button class="tab add" type="button" id="addList">＋ New list</button>';
+  // totals, all in the list’s own currency
+  const todo=L.items.filter(i=>!i.bought),done=L.items.filter(i=>i.bought);
+  const sum=a=>a.reduce((t,i)=>t+toUSD(lineTotal(i),i.cur),0);
+  const left=sum(todo),spent=sum(done),bud=+L.budget||0;
+  $('sLeft').textContent=money(fromUSD(left,cur),cur);$('sLeft2').textContent=money(fromUSD(left,other(cur)),other(cur));
+  $('sSpent').textContent=money(fromUSD(spent,cur),cur);$('sSpent2').textContent=money(fromUSD(spent,other(cur)),other(cur));
+  if(bud){const b=toUSD(bud,cur),rem=b-spent-left;
+    $('sBudget').textContent=(rem<0?'−':'')+money(fromUSD(Math.abs(rem),cur),cur);$('sBudget').style.color=rem<0?'var(--must)':'';
+    $('sBudget2').textContent='of '+money(fromUSD(b,cur),cur)+' if you buy everything';$('sBudgetL').textContent=rem<0?'Over budget':'Budget left';
+    $('sBar').style.width=Math.min(100,(spent+left)/b*100)+'%';$('sBar').className=rem<0?'over':''}
+  else{$('sBudget').textContent='No budget';$('sBudget').style.color='';$('sBudget2').textContent='Set one in List settings';$('sBudgetL').textContent='Budget';$('sBar').style.width='0'}
+  $('sCount').textContent=todo.length+' to buy';$('sCount2').textContent=done.length+' bought · '+todo.filter(i=>i.pri==='must').length+' must-have';
+  document.querySelectorAll('#show [data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===D.show));
+  document.querySelectorAll('#view [data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===D.view));
+  $('sort').value=D.sort;if(document.activeElement!==$('rate'))$('rate').value=D.rate;
+  $('stores').innerHTML=[...new Set(D.lists.flatMap(l=>l.items.map(i=>i.store)).filter(Boolean))].map(s=>'<option value="'+esc(s)+'">').join('');
+  // the items
+  const q=$('q').value.trim().toLowerCase();
+  let items=L.items.filter(i=>(D.show==='all'||(D.show==='bought')===!!i.bought)&&(!q||[i.name,i.store,i.note].join(' ').toLowerCase().includes(q)));
+  const priceUSD=i=>toUSD(lineTotal(i),i.cur);
+  const cmp={new:(a,b)=>b.added-a.added,low:(a,b)=>priceUSD(a)-priceUSD(b),high:(a,b)=>priceUSD(b)-priceUSD(a),store:(a,b)=>PRI[a.pri].o-PRI[b.pri].o||b.added-a.added,priority:(a,b)=>b.added-a.added};
+  items.sort(cmp[D.sort]);
+  let groups=[['',items]];
+  if(D.sort==='store'){const m=new Map();for(const i of items){const k=i.store||'Anywhere';if(!m.has(k))m.set(k,[]);m.get(k).push(i)}groups=[...m.entries()]}
+  if(D.sort==='priority')groups=['must','want','maybe'].map(p=>[PRI[p].l,items.filter(i=>i.pri===p)]).filter(g=>g[1].length);
+  if(!L.items.length){$('items').innerHTML='<div class="empty">Nothing here yet. Add your first thing above. You can paste a screenshot straight into “With photo”.</div>';return}
+  if(!items.length){$('items').innerHTML='<div class="empty">'+(D.show==='bought'?'Nothing bought yet.':q?'Nothing matches “'+esc(q)+'”.':'You got everything 🎉')+'</div>';return}
+  $('items').innerHTML=groups.map(([g,arr])=>(g?'<div class="group"><h3>'+esc(g)+'</h3><span>'+arr.length+' · '+money(fromUSD(arr.reduce((t,i)=>t+priceUSD(i),0),cur),cur)+'</span></div>':'')+'<div class="'+(D.view==='rows'?'rows':'grid')+'">'+arr.map(card).join('')+'</div>').join('');
+}
+function card(i){
+  const p=PRI[i.pri]||PRI.want,days=Math.floor((Date.now()-i.added)/DAY),tot=lineTotal(i);
+  const price=i.price?'<div class="price">'+money(tot,i.cur)+(i.qty>1?'<small>'+i.qty+' × '+money(+i.price,i.cur)+'</small>':'<small>'+money(fromUSD(toUSD(tot,i.cur),other(i.cur)),other(i.cur))+'</small>')+'</div>':'<div class="price" style="color:var(--muted);font-weight:500">No price</div>';
+  const initials=(i.name||'?').trim().slice(0,1).toUpperCase();
+  return '<article class="item'+(i.bought?' bought':'')+'" data-i="'+i.id+'" tabindex="0" aria-label="'+esc(i.name)+'">'
+    +'<div class="thumb">'+(i.img?'<img src="'+i.img+'" alt="">':'<span class="ph">'+esc(initials)+'</span>')+'<span class="pri"><i style="background:'+p.c+'"></i>'+p.l+'</span></div>'
+    +'<button class="check" type="button" data-b="'+i.id+'" aria-pressed="'+!!i.bought+'" aria-label="'+(i.bought?'Mark as not bought':'Mark as bought')+'">'+(i.bought?'✓':'')+'</button>'
+    +'<div class="info"><b>'+esc(i.name)+'</b>'+price+'<div class="meta">'+(i.store?'<span class="tag">'+esc(i.store)+'</span>':'')
+    +(i.bought?'<span>bought</span>':days>=1?'<span>added '+days+(days===1?' day':' days')+' ago</span>':'<span>added today</span>')
+    +(i.link?'<a href="'+esc(i.link)+'" target="_blank" rel="noopener" data-link="1" style="color:var(--accent)">link ↗</a>':'')+'</div></div></article>';
+}
+
+/* ---------- quick add: “sunscreen 18000원 @oliveyoung !” ---------- */
+function parseQuick(t){
+  let s=' '+t+' ',price=null,cur=null,store='',pri='want',qty=1;
+  if(/\s!\s/.test(s)||/!\s*$/.test(t)){pri='must';s=s.replace(/!/g,' ')}
+  if(/\s\?\s/.test(s)){pri='maybe';s=s.replace(/\?/g,' ')}
+  s=s.replace(/@([^\s]+)/,(m,a)=>{store=a.replace(/_/g,' ');return' '});
+  s=s.replace(/\s[x×](\d+)\s|\s(\d+)\s?(?:개|pcs)\s/i,(m,a,b)=>{qty=+(a||b);return' '});
+  s=s.replace(/(₩|\$)\s?([\d,.]+)|([\d,.]+)\s?(원|won|krw|\$|usd|dollars?)/i,(m,a,b,c,d)=>{const n=+(b||c).replace(/,/g,'');const u=(a||d||'').toLowerCase();cur=(u==='₩'||u==='원'||u==='won'||u==='krw')?'KRW':'USD';price=n;return' '});
+  // a bare big number is probably won, a small one probably dollars
+  if(price==null)s=s.replace(/\s(\d{3,}(?:,\d{3})*|\d+(?:\.\d+)?)\s/,(m,a)=>{const n=+a.replace(/,/g,'');price=n;cur=n>=1000?'KRW':'USD';return' '});
+  return{name:s.replace(/\s+/g,' ').trim(),price,cur:cur||(list().cur||'USD'),store,pri,qty};
+}
+$('quick').addEventListener('submit',e=>{e.preventDefault();const t=$('qText').value.trim();if(!t)return;const p=parseQuick(t);if(!p.name)return;
+  list().items.unshift({id:uid(),name:p.name,price:p.price,cur:p.cur,qty:p.qty,store:p.store,pri:p.pri,link:'',note:'',img:'',bought:false,added:Date.now()});
+  $('qText').value='';if(D.show==='bought')D.show='todo';save();render()});
+
+/* ---------- the item editor ---------- */
+let editing=null,pri='want',img='';
+function paintPri(){document.querySelectorAll('#fPri [data-p]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===pri))}
+function paintPv(){$('pv').innerHTML=img?'<img src="'+img+'" alt="">':'📷'}
+function openItem(it){editing=it||null;$('dlgTitle').textContent=it?'Edit item':'Add item';
+  $('fName').value=it?it.name:'';$('fPrice').value=it&&it.price!=null?it.price:'';$('fCur').value=it?it.cur:(list().cur||'USD');$('fQty').value=it?it.qty||1:1;
+  $('fStore').value=it?it.store:'';$('fLink').value=it?it.link:'';$('fNote').value=it?it.note:'';pri=it?it.pri:'want';img=it?it.img:'';
+  $('fDel').hidden=!it;paintPri();paintPv();$('dlg').showModal();if(!it)setTimeout(()=>$('fName').focus(),50)}
+$('fPri').onclick=e=>{const b=e.target.closest('[data-p]');if(b){pri=b.dataset.p;paintPri()}};
+$('fullAdd').onclick=()=>{const t=$('qText').value.trim();openItem();if(t){const p=parseQuick(t);$('fName').value=p.name;if(p.price!=null)$('fPrice').value=p.price;$('fCur').value=p.cur;$('fStore').value=p.store;pri=p.pri;paintPri()}};
+$('dlg').addEventListener('close',()=>{if($('dlg').returnValue!=='ok')return;
+  const v={name:$('fName').value.trim()||'Item',price:$('fPrice').value===''?null:+$('fPrice').value,cur:$('fCur').value,qty:Math.max(1,+$('fQty').value||1),store:$('fStore').value.trim(),link:$('fLink').value.trim(),note:$('fNote').value.trim(),pri,img};
+  if(editing)Object.assign(editing,v);else{list().items.unshift({id:uid(),...v,bought:false,added:Date.now()});$('qText').value=''}
+  save();render()});
+$('fDel').onclick=()=>{if(!editing)return;const L=list(),idx=L.items.indexOf(editing),gone=editing;L.items.splice(idx,1);save();$('dlg').close('cancel');render();
+  toast('Deleted “'+gone.name+'”',()=>{L.items.splice(idx,0,gone);save();render()})};
+
+/* ---------- photos: pick, drag, or paste; shrunk to a small square ---------- */
+function takeImage(file){if(!file||!file.type.startsWith('image/'))return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
+  const S=360,c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d'),s=Math.min(im.width,im.height);
+  x.fillStyle='#fff';x.fillRect(0,0,S,S);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,S,S);img=c.toDataURL('image/jpeg',.78);paintPv()};im.src=r.result};r.readAsDataURL(file)}
+$('drop').onclick=()=>$('file').click();
+$('drop').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('file').click()}};
+$('file').onchange=()=>{takeImage($('file').files[0]);$('file').value=''};
+['dragenter','dragover'].forEach(t=>$('drop').addEventListener(t,e=>{e.preventDefault();$('drop').classList.add('over')}));
+['dragleave','drop'].forEach(t=>$('drop').addEventListener(t,e=>{e.preventDefault();$('drop').classList.remove('over')}));
+$('drop').addEventListener('drop',e=>takeImage(e.dataTransfer.files[0]));
+document.addEventListener('paste',e=>{if(!$('dlg').open)return;const f=[...(e.clipboardData||{}).items||[]].find(i=>i.type.startsWith('image/'));if(f){e.preventDefault();takeImage(f.getAsFile())}});
+
+/* ---------- clicks on the list ---------- */
+$('items').addEventListener('click',e=>{
+  if(e.target.closest('[data-link]'))return;
+  const b=e.target.closest('[data-b]');
+  if(b){const it=list().items.find(i=>i.id===b.dataset.b);it.bought=!it.bought;it.boughtAt=it.bought?Date.now():null;save();render();
+    if(it.bought)toast('Bought “'+it.name+'”',()=>{it.bought=false;save();render()});return}
+  const c=e.target.closest('[data-i]');if(c)openItem(list().items.find(i=>i.id===c.dataset.i));
+});
+$('items').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('[data-i]'))openItem(list().items.find(i=>i.id===e.target.dataset.i))});
+$('tabs').onclick=e=>{const t=e.target.closest('[data-l]');if(t){D.cur=t.dataset.l;save();render();return}if(e.target.closest('#addList'))openList(null)};
+$('show').onclick=e=>{const b=e.target.closest('[data-v]');if(b){D.show=b.dataset.v;save();render()}};
+$('view').onclick=e=>{const b=e.target.closest('[data-v]');if(b){D.view=b.dataset.v;save();render()}};
+$('sort').onchange=()=>{D.sort=$('sort').value;save();render()};
+$('q').addEventListener('input',render);
+$('rate').addEventListener('change',()=>{D.rate=Math.max(1,+$('rate').value||1400);save();render()});
+
+/* ---------- lists ---------- */
+let listEditing=null;
+function openList(l){listEditing=l;$('listTitle').textContent=l?'List settings':'New list';$('lName').value=l?l.name:'';$('lBudget').value=l&&l.budget?l.budget:'';$('lCur').value=l?l.cur||'USD':'USD';$('lDel').hidden=!l||D.lists.length<2;$('listDlg').showModal()}
+$('listBtn').onclick=()=>openList(list());
+$('listDlg').addEventListener('close',()=>{if($('listDlg').returnValue!=='ok')return;const v={name:$('lName').value.trim()||'List',budget:+$('lBudget').value||0,cur:$('lCur').value};
+  if(listEditing)Object.assign(listEditing,v);else{const n={id:uid(),...v,items:[]};D.lists.push(n);D.cur=n.id}save();render()});
+$('lDel').onclick=()=>{if(!listEditing||D.lists.length<2)return;const idx=D.lists.indexOf(listEditing),gone=listEditing;D.lists.splice(idx,1);D.cur=D.lists[0].id;save();$('listDlg').close('cancel');render();
+  toast('Deleted “'+gone.name+'”',()=>{D.lists.splice(idx,0,gone);D.cur=gone.id;save();render()})};
+
+/* ---------- copy as text, to paste back into Notes ---------- */
+$('copyBtn').onclick=()=>{const L=list(),cur=L.cur||'USD',m=new Map();
+  for(const i of L.items.filter(i=>!i.bought)){const k=i.store||'Anywhere';if(!m.has(k))m.set(k,[]);m.get(k).push(i)}
+  let t=L.name+'\n';for(const[k,arr]of m){t+='\n'+k+':\n'+arr.map(i=>'○ '+(i.pri==='must'?'★ ':'')+i.name+(i.qty>1?' ×'+i.qty:'')+(i.price?' · '+money(lineTotal(i),i.cur):'')).join('\n')+'\n'}
+  const left=L.items.filter(i=>!i.bought).reduce((s,i)=>s+toUSD(lineTotal(i),i.cur),0);t+='\nTotal: '+money(fromUSD(left,cur),cur);
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Copied. Paste it into Notes.',false),()=>{prompt('Copy this:',t)})};
+
+/* ---------- toast with undo ---------- */
+let undoFn=null;
+function toast(t,fn){$('toastText').textContent=t;undoFn=fn||null;$('undo').hidden=!fn;$('toast').classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').classList.remove('show'),3500)}
+$('undo').onclick=()=>{if(undoFn)undoFn();undoFn=null;$('toast').classList.remove('show')};
+
+render();
+function connect(){if(!(window.claude&&typeof window.claude.use==='function'))return false;$('back').href='https://claude.ai/artifact/8XtxNzRVg4mMWQh9EwK3sc';return true}
+if(!connect())addEventListener('load',()=>{if(!connect())setTimeout(connect,1500)});
+})();
+</script>
+</body>
+</html>
